@@ -49,7 +49,7 @@ The app is built for web first and may be ported to iOS and Android later, possi
 - Build in layers, bottom up: engine first, then audio, then UI. Do not build UI on top of untested timing.
 - No unrelated cleanup or extra features inside a task.
 - A task is done only when it builds and its check passes. For UI tasks, it must also have a Reuse check (see above) and no duplicated components or styles.
-- Engine tasks: the check is an automated test, written in the same task as the code. Engine tests cover the key rules: the original three beats never move, the fourth beat lands at the configured position, positions stay independent per category, and presets keep the same relative position.
+- Engine tasks: the check is an automated test, written in the same task as the code. Engine tests cover the key rules: the original three beats never move, the weight shift beat lands at the configured position, positions stay independent per category, and presets keep the same relative position.
 - Audio and UI tasks: the check is a manual one. Describe exactly what to look at or listen for, and report what happened.
 
 ## Wave rules

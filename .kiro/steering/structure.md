@@ -30,6 +30,6 @@ docs/            Working documents: dev_questions.md, client_questions.md, porti
 ## Phases
 
 1. Foundation: project, theme, Long/Short selection, presets, engine, three-beat playback, synced visuals.
-2. Config mode: toggle, fourth-beat slider, per-category settings, test playback, JSON export.
+2. Config mode: toggle, weight shift slider, per-category settings, test playback, JSON export.
 3. Calibration: the brother tests and exports preferred positions.
-4. Final: hard-code values, add permanent four-beat playback, remove config mode, deploy to Netlify.
+4. Final: hard-code values, add permanent weight shift playback, remove config mode, deploy to Netlify.

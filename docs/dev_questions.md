@@ -1,22 +1,48 @@
 # Dev Questions
 
-Open items for the developer to decide. Leanings are noted where a recommendation exists.
+Open items for the developer to decide, plus a record of what has been decided. Leanings are noted where a recommendation exists.
+
+Terminology: the added beat is called the **weight shift** beat. In time order the swing has four moments: takeaway (beat 1), weight shift (the added beat), top of swing (beat 2), impact (beat 3). The three original Tour Tempo beats keep their names and numbers.
 
 ## Decided
 
-- UI foundation: Expo with React Native Web, so the web app and a later native port share most code. Optional styling layer: Tamagui or Gluestack UI. (Replaces MUI from the original spec, which is web-only.)
+### Stack and tooling
+- UI foundation: Expo with React Native Web, so the web app and a later native port share most code. Styling: plain React Native StyleSheet with a theme module (recommended; no UI library).
 - Language: TypeScript throughout, including the timing engine.
-- Audio: define an audio adapter interface. Web Audio API on web; `react-native-audio-api` or `expo-audio` on native.
+- Audio: define an audio adapter interface. Web Audio API on web. Native candidates: `react-native-audio-api` or `expo-audio`.
+
+### Beats and presets
 - Presets verified against Tour Tempo screenshots (`_references`):
   - Long Game: 18/6, 21/7, 24/8, 27/9, 30/10
   - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12
-- Beat timing: the three beats are correct as they are in Tour Tempo and are copied as-is. Do not "correct" them to the printed numbers.
-- Sound styles (Voice, String, Bossa Nova): dropped for now. One tone set only.
-- Background loop: a single 808-style loop, generated in code (Web Audio oscillators and noise) so it stays locked to the tempo. No recorded audio files.
-- Playback control: a play/pause toggle in the Current session header. The first press doubles as the tap that unlocks browser audio. Playing always starts from beat 1; pausing ends the loop (no mid-cycle resume).
-- Changing anything while playing (preset, Long/Short, fourth-beat slider): stop fully, short pause (about 0.5 s), then start a new run from beat 1. Rapid changes are debounced so only the last one restarts. Nothing starts if playback was stopped. The slider restarts on release, not during the drag; the on-screen marker moves during the drag.
-- Show an iOS-only hint about the silent switch. Pause automatically when the tab is hidden.
-- Fourth-beat sound (answered by client: YES): the fourth beat uses a different sound from beats 1-3 so it can be told apart. Lean: different pitch or timbre.
+- The three original beats are correct as they are in Tour Tempo and are copied as-is. Do not "correct" them to the printed numbers. The weight shift beat is one additional data point; everything stays framed around the current tempos.
+- Weight shift placement (confirmed by client): between beat 1 (takeaway) and beat 2 (top of swing). It represents the initial lateral weight transfer, which starts in the hips.
+- Position is stored as a normalized value (0 to 1) between beat 1 and beat 2 and keeps the same relative position at every tempo (confirmed by client).
+- Starting value for Long Game: about 0.67. The client's diagram divides the swing into four equal parts and puts the weight shift at the midpoint of the whole swing, which is 2 of the 3 backswing parts. To be tuned by ear in CONFIG mode.
+- Long Game and Short Game have independent settings (confirmed). Short Game's weight shift is more subtle.
+- The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed).
+
+### Slower tempos
+- Added as more preset buttons, not a slider and not an automatic speed-up.
+- Long Game, five new presets: 42/14 (1.4 s / 0.47 s), 60/20 (2.0 s / 0.67 s), 84/28 (2.8 s / 0.93 s), 120/40 (4.0 s / 1.33 s), 168/56 (5.6 s / 1.87 s). Ten Long Game buttons in total. Slowest total swing is about 7.5 s, within the client's 6 to 8 s target.
+- Slow tempos are for slow practice swings to feel each part of the move, not for real swings.
+- Ten or more buttons will not fit in one row on a phone. Use two rows or a row that scrolls sideways (UI spec).
+- Short Game slow presets: pending (see client_questions.md).
+
+### Background loop
+- A single 808-style loop, generated in code (Web Audio oscillators and noise) so it stays locked to the tempo. No recorded audio files.
+- On/off toggle. Off by default; it plays when the user presses play with the toggle on.
+- Plays in both Long Game and Short Game. (Tour Tempo's recording showed no loop in Short Game; the client confirmed that was a recording error.)
+- Beat 1 lands on the start of a bar, as in Tour Tempo.
+- Slow tempos: add a hi-hat that ticks a whole number of times inside each quarter of the swing, so it always lines up with the beeps and keeps a steady pulse (roughly every 0.25 to 0.5 s). At slow tempos the kick and snare thin out and the hi-hat carries the pulse. To be tuned by ear.
+- Sound styles (Voice, String, Bossa Nova): dropped. One tone set only.
+
+### Playback and phone behavior
+- Play/pause toggle in the Current session header. The first press doubles as the tap that unlocks browser audio. Playing always starts from beat 1; pausing ends the loop (no mid-cycle resume).
+- Changing anything while playing (preset, Long/Short, weight shift slider): stop fully, short pause (about 0.5 s), then start a new run from beat 1. Rapid changes are debounced so only the last one restarts. Nothing starts if playback was stopped. The slider restarts on release, not during the drag; the marker moves during the drag.
+- Keep the screen awake while playing using the Screen Wake Lock API, so the phone does not auto-lock mid-session.
+- If the tab is hidden or the phone locks anyway, pause automatically. Resuming needs a tap, because iOS keeps suspended audio locked.
+- Show an iOS-only hint about the silent switch.
 
 ## Findings from the reference recording (VID_20261107_135008.mp4)
 
@@ -25,24 +51,21 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - Gap from beat 1 to beat 2 matches frame math at 30 fps exactly: 18/9 = 0.60 s, 24/12 = 0.75-0.80 s, 30/10 = 1.0 s.
 - Gap from beat 2 to beat 3 is about 0.17-0.2 s longer than the label implies: 18/9 = 0.50 s (label implies 0.30), 24/12 = 0.60 s (0.40), 30/10 = 0.50 s (0.33).
 - The extra delay is roughly constant across presets, not proportional.
-- Tour Tempo plays a background loop in Long Game; in Short Game the recording had only the three beats. The loop got faster with tempo (3.0 s repeat at 30/10, about 2.5 s at 24/8).
+- Tour Tempo plays a background loop that gets faster with tempo (3.0 s repeat at 30/10, about 2.5 s at 24/8). It was absent in the Short Game section because of a recording error.
 - Next step: record each preset from Tour Tempo (loop off if possible) and store measured gap values per preset instead of computing from labels.
 
 ## Open
 
 ### 1. Slower tempo presets
-- BPM is not a concept in Tour Tempo, so the client is asked in presets instead (client_questions.md, Q8): candidate Long Game 33/11 to 42/14 (+3/+1 steps), Short Game 26/13 to 32/16 (+2/+1 steps). Waiting on the answer.
-- Presets are frame counts, not BPM. Slower presets mean larger counts at the same ratio (3:1 Long, 2:1 Short).
-- Because beat 3 has a measured delay, decide how slow presets get their beat 3 timing (constant offset vs. scaled).
+- Short Game slow presets and slowest target: waiting on the client.
+- Because beat 3 has a measured delay, decide how the new slow presets get their beat 3 timing (constant offset vs. scaled).
 
 ### 2. Measure Tour Tempo per preset
-- Record every preset and extract exact beat 1/2/3 times. This is the source of truth for the timing engine.
+- Record every preset and extract exact beat 1/2/3 times. This is the source of truth for the timing engine. Alternative: start with calculated times plus a fixed beat 3 delay of about 0.18 s and replace with measurements later.
 
 ### 3. 808 loop design
-- On or off by default, with a toggle? (Asked in client_questions.md, Q6.)
-- Play in Short Game too? Tour Tempo did not. (Asked in client_questions.md, Q7.)
-- Alignment (decided): beat 1 lands on the start of a bar, as in Tour Tempo. Loop length per preset is still to be defined.
-- Sound design for kick/hat/snare, written as code.
+- Loop length per preset, and exactly how the pattern thins out at slow tempos.
+- Sound design for kick, snare and hi-hat, written as code.
 
 ### 4. Loop behavior (repeat pause)
 - Define the pause between repetitions. A fixed pause feels too short at slow tempos. Lean: scale the pause with tempo.
@@ -55,16 +78,20 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - How tight must scheduling be on native? Decide before the port.
 
 ### 7. Config export
-- Confirm the JSON shape (`configVersion`, `longGame.fourthBeatPosition`, `shortGame.fourthBeatPosition`). Consider tempo metadata and an export timestamp.
-- Depends on client Q5: if the position differs per tempo, the export needs per-preset values rather than one value per category.
+- JSON shape: `configVersion`, `longGame.weightShiftPosition`, `shortGame.weightShiftPosition`. Consider tempo metadata and an export timestamp.
+- The client confirmed the same relative position holds across tempos, so one value per category is enough.
 
 ### 8. Visual design
 - Layout mockups: `_references/layout-DARKMODE.png` and `layout-LIGHTMODE.png`. Sections: Current session (large "30 / 10" plus category), Game length (segmented control), Available sessions (preset buttons). Dark mode: near-black with green tint, sage green selected. Light mode: warm off-white, deep forest green selected.
-- The mockups still show the sound-style row (Voice, String, Bossa Nova). Omit it, since sound styles are dropped.
-- Not yet designed: play/stop controls, beat timeline, loop toggle, CONFIG area.
-- Recommended styling layer (pending approval): plain React Native StyleSheet with a small theme module (colors, spacing, radius, type; light and dark chosen from the device setting) and a few shared components (SegmentedControl, PresetButton, SectionLabel). No Tamagui or Gluestack: the design is simple and a library would add setup and defaults to override.
+- The mockups still show the sound-style row (Voice, String, Bossa Nova). Omit it.
+- Not yet designed: play/pause control, beat timeline, loop toggle, CONFIG area, the second row of preset buttons.
 - Beat/timeline visualization and animation approach (Reanimated works on web and native).
 - Check: contrast of the small grey-green section labels in light mode. Confirm exact color values from the mockup source.
 
-### 9. Hosting
+### 9. Phone behavior to verify on real devices
+- Whether the Screen Wake Lock API keeps an iPhone awake in Safari while playing.
+- Whether Safari's audio session setting lets audio play with the silent switch on.
+- What happens to audio and timing when the phone locks or the app is backgrounded.
+
+### 10. Hosting
 - Netlify static deploy of the Expo web export. Confirm build command and publish directory when the project is initialized.

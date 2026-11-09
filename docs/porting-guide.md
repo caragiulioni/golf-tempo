@@ -19,7 +19,7 @@ One entry per spec, added when the spec is finished.
 
 ## Audio testing requirement
 
-Audio must be tested on both Android and iOS. A pass on one platform does not count for the other. Record each result with the device model and OS or browser version, and what was checked: beats sound at the right times, the fourth beat is audibly distinct, the loop stays locked to the beats, and there is no drift over a long session.
+Audio must be tested on both Android and iOS. A pass on one platform does not count for the other. Record each result with the device model and OS or browser version, and what was checked: beats sound at the right times, the weight shift beat is audibly distinct, the loop stays locked to the beats, and there is no drift over a long session.
 
 ### Web (current build)
 

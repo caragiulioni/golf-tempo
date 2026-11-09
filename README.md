@@ -1,6 +1,6 @@
 # Golf Tempo Trainer
 
-A golf tempo trainer based on Tour Tempo, with one addition: a fourth beat for a small movement in your swing. It runs in the browser first, and may become a phone app later.
+A golf tempo trainer based on Tour Tempo, with one addition: a weight shift beat for the lateral weight transfer in your swing. It runs in the browser first, and may become a phone app later.
 
 This project is planned before it is built. If you think like a planner, you will feel at home here. Each folder below plays a role you will recognize from a planning project.
 

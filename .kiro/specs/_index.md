@@ -16,42 +16,42 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 ## Specs
 
 ### 1. timing-engine
-- **Scope:** Preset data for Long and Short Game, three-beat sequence, fourth-beat insertion from a normalized position, independent per-category settings, three-beat baseline mode, automated tests. Pure TypeScript, no UI or audio.
+- **Scope:** Preset data for Long Game (10 presets, including the slow practice ones up to 168/56) and Short Game, three-beat sequence, weight shift beat insertion from a normalized position (same relative position at every tempo), independent per-category settings, three-beat baseline mode, automated tests. Pure TypeScript, no UI or audio.
 - **Depends on:** nothing.
-- **Blockers:** Measured Tour Tempo beat times per preset (`docs/dev_questions.md`, item 2). Slower presets wait on the brother's answer (`docs/client_questions.md`, Q8).
+- **Blockers:** Measured Tour Tempo beat times per preset (`docs/dev_questions.md`, open item 2), or agree to use calculated times plus a fixed beat 3 delay. Short Game slow presets and starting weight shift position wait on the brother's answer (`docs/client_questions.md`, Q1).
 - **Spec:** not started
 - **Built:** not started
 
 ### 2. audio-playback
-- **Scope:** Audio adapter interface, web implementation, web audio testing in desktop browsers plus iOS Safari and Android Chrome on real phones (handles the tap-to-unlock, silent switch and background-tab quirks), synthesized tones, a distinct fourth-beat sound, scheduling from the audio clock, start/stop/repeat, repeat pause that scales with tempo, restart-on-change behavior (stop, short pause, new run from beat 1, debounced), auto-pause when the tab is hidden.
+- **Scope:** Audio adapter interface, web implementation, web audio testing in desktop browsers plus iOS Safari and Android Chrome on real phones (handles the tap-to-unlock, silent switch and background-tab quirks), synthesized tones, a distinct weight shift sound, scheduling from the audio clock, start/stop/repeat, repeat pause that scales with tempo, restart-on-change behavior (stop, short pause, new run from beat 1, debounced), screen wake lock while playing, auto-pause when the page is hidden or the phone locks (resume needs a tap).
 - **Depends on:** timing-engine.
 - **Blockers:** none known.
 - **Spec:** not started
 - **Built:** not started
 
 ### 3. app-shell-ui
-- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), light/dark theme toggle with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons, playback controls, beat/timeline visualization synced to the audio schedule, responsive layout.
+- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), light/dark theme toggle with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons (ten or more, so two rows or a sideways-scrolling row), playback controls, beat/timeline visualization synced to the audio schedule, responsive layout.
 - **Depends on:** timing-engine, audio-playback.
 - **Blockers:** none known.
 - **Spec:** not started
 - **Built:** not started
 
 ### 4. background-loop
-- **Scope:** One generated 808-style loop, locked to the tempo, with beat 1 on the start of a bar. On/off toggle.
+- **Scope:** One generated 808-style loop (kick, snare, hi-hat), locked to the tempo, with beat 1 on the start of a bar. On/off toggle, off by default. Plays in Long and Short Game. At slow tempos the hi-hat carries a steady pulse that lines up with the beeps.
 - **Depends on:** audio-playback.
-- **Blockers:** Brother's answers on default state (Q6) and Short Game (Q7).
+- **Blockers:** none known. Sound and pattern are tuned by ear.
 - **Spec:** not started
 - **Built:** not started
 
 ### 5. config-mode
-- **Scope:** Temporary CONFIG toggle, fourth-beat slider with a safe range, independent Long/Short settings, immediate test playback, visual position feedback, JSON export. Isolated in its own module for easy removal.
+- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, JSON export with `weightShiftPosition` per category. Isolated in its own module for easy removal.
 - **Depends on:** timing-engine, audio-playback, app-shell-ui.
-- **Blockers:** Brother's answers on beat placement (Q1), relative position across tempos (Q5), which decides the export shape.
+- **Blockers:** Short Game starting position (`docs/client_questions.md`, Q1).
 - **Spec:** not started
 - **Built:** not started
 
-### 6. final-four-beat-release
-- **Scope:** Hard-code calibrated fourth-beat values into the engine, make four-beat playback permanent, remove CONFIG mode, final checks, Netlify deploy.
+### 6. final-weight-shift-release
+- **Scope:** Hard-code calibrated weight shift values into the engine, make weight shift playback permanent, remove CONFIG mode, final checks, Netlify deploy.
 - **Depends on:** config-mode and the calibration phase.
 - **Blockers:** Calibration results from the brother.
 - **Spec:** not started (written after calibration)

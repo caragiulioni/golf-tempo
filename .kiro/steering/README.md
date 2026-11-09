@@ -10,7 +10,7 @@ Steering files are the standing rules of the project. They apply to everything t
 
 ## What's in it
 
-- `product.md`: what the app is and does. The goals, the presets, the fourth beat, CONFIG mode.
+- `product.md`: what the app is and does. The goals, the presets, the weight shift beat, CONFIG mode.
 - `tech.md`: the tools we build with, and the conventions we follow.
 - `structure.md`: how the project's folders are organized, and which parts may depend on which.
 - `timing-engine.md`: the rules for the timing code, the most critical part. Kiro only reads it when working in that code.
