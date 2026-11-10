@@ -19,7 +19,9 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - Weight shift placement (confirmed by client): between beat 1 (takeaway) and beat 2 (top of swing). It represents the initial lateral weight transfer, which starts in the hips.
 - Position is stored as a normalized value (0 to 1) between beat 1 and beat 2 and keeps the same relative position at every tempo (confirmed by client).
 - Starting value for Long Game: about 0.67. The client's diagram divides the swing into four equal parts and puts the weight shift at the midpoint of the whole swing, which is 2 of the 3 backswing parts. To be tuned by ear in CONFIG mode.
-- Long Game and Short Game have independent settings (confirmed). Short Game's weight shift is more subtle.
+- Starting value for Short Game: about 0.75, the midpoint of the whole 2:1 swing. The client's answer was "about 3/4 of the way through" the backswing, but he is not certain and is still evaluating it. Tentative; tuned by ear.
+- One rule covers both categories: the weight shift starts at the midpoint of the whole swing (about 0.67 Long Game, 0.75 Short Game).
+- Long Game and Short Game have independent settings (confirmed). The same movement applies in Short Game, but it is more subtle: the golfer focuses on the hands moving around the torso instead of the hips and lower body. This changes what the golfer feels, not the beat.
 - The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed).
 
 ### Slower tempos
@@ -27,7 +29,7 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - Long Game, five new presets: 42/14 (1.4 s / 0.47 s), 60/20 (2.0 s / 0.67 s), 84/28 (2.8 s / 0.93 s), 120/40 (4.0 s / 1.33 s), 168/56 (5.6 s / 1.87 s). Ten Long Game buttons in total. Slowest total swing is about 7.5 s, within the client's 6 to 8 s target.
 - Slow tempos are for slow practice swings to feel each part of the move, not for real swings.
 - Ten or more buttons will not fit in one row on a phone. Use two rows or a row that scrolls sideways (UI spec).
-- Short Game slow presets: pending (see client_questions.md).
+- Short Game slow presets: pending (see client_questions.md, Q1).
 
 ### Background loop
 - A single 808-style loop, generated in code (Web Audio oscillators and noise) so it stays locked to the tempo. No recorded audio files.

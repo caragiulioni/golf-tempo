@@ -18,7 +18,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 ### 1. timing-engine
 - **Scope:** Preset data for Long Game (10 presets, including the slow practice ones up to 168/56) and Short Game, three-beat sequence, weight shift beat insertion from a normalized position (same relative position at every tempo), independent per-category settings, three-beat baseline mode, automated tests. Pure TypeScript, no UI or audio.
 - **Depends on:** nothing.
-- **Blockers:** Measured Tour Tempo beat times per preset (`docs/dev_questions.md`, open item 2), or agree to use calculated times plus a fixed beat 3 delay. Short Game slow presets and starting weight shift position wait on the brother's answer (`docs/client_questions.md`, Q1).
+- **Blockers:** Measured Tour Tempo beat times per preset (`docs/dev_questions.md`, open item 2), or agree to use calculated times plus a fixed beat 3 delay. Short Game slow presets wait on the brother's answer (`docs/client_questions.md`, Q1). This does not block the rest of the engine.
 - **Spec:** not started
 - **Built:** not started
 
@@ -44,9 +44,9 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Built:** not started
 
 ### 5. config-mode
-- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
+- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67, Short Game near 0.75), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
 - **Depends on:** timing-engine, audio-playback, app-shell-ui.
-- **Blockers:** Short Game starting position (`docs/client_questions.md`, Q1).
+- **Blockers:** none known.
 - **Spec:** not started
 - **Built:** not started
 

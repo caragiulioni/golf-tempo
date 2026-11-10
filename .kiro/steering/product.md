@@ -30,7 +30,7 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 - It uses a different sound from the other three.
 - It is stored as a normalized position (0 to 1) between beat 1 and beat 2, so it keeps the same relative position at every tempo (confirmed).
 - Long Game and Short Game have independent weight shift settings. In Short Game the movement is more subtle.
-- Starting value for Long Game: about 0.67, the midpoint of the whole swing (tuned by ear). Short Game starting value is pending.
+- Starting value for Long Game: about 0.67, the midpoint of the whole swing (tuned by ear). Short Game starts at about 0.75, the midpoint of the whole 2:1 swing (the brother is not certain; tuned by ear).
 - The original three beats are never moved or recalculated because of it.
 
 ## Temporary CONFIG mode
