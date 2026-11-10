@@ -1,6 +1,6 @@
 # Tech Stack and Conventions
 
-The project is not yet initialized. Update the commands section below once it is.
+The project is initialized (Expo, blank TypeScript template). Versions are pinned exactly in `package.json`.
 
 ## Stack
 
@@ -30,4 +30,20 @@ The project is not yet initialized. Update the commands section below once it is
 
 ## Commands
 
-To be filled in after project setup (install, start, web build, Netlify publish directory).
+Run from the project root.
+
+| Task | Command |
+|---|---|
+| Install dependencies | `npm install` |
+| Run in the browser (dev server, run it manually, it does not exit) | `npm run web` |
+| Run the dev server for phone or simulator | `npm start` |
+| Type check | `npm run typecheck` |
+| Engine tests (single run, exits 0 when there are no tests yet) | `npm test` |
+| Web production build | `npx expo export --platform web` (output in `dist/`) |
+
+Netlify: build command `npx expo export --platform web`, publish directory `dist`. Not yet configured on Netlify.
+
+Notes:
+- Add new Expo-related packages with `npx expo install <package>`, then make sure the version in `package.json` is exact (no `~` or `^`).
+- `npm audit` reports moderate issues in Expo's development tooling (glob and minimatch). They are not shipped in the app, and npm's suggested fix downgrades Expo to an old major version, so do not apply `npm audit fix --force`.
+- Expo prints "Using src/app as the root directory for Expo Router" during builds. Expo Router is not installed. The message is harmless, and our `src/app` folder only happens to share the Router naming convention.

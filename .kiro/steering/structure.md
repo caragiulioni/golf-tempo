@@ -1,8 +1,13 @@
 # Project Structure
 
-Planned layout. Adjust to match the actual project once it is created.
+Current layout. The Expo project is set up at the repo root, and every folder under `src/` has a README. Folders under `src/` are created now; most are empty until their spec is built.
 
 ```
+index.ts         Expo entry point. Registers src/app/App.tsx.
+app.json         Expo app config.
+package.json     Dependencies (exact versions) and scripts.
+vitest.config.mts  Test runner config. Covers src/engine only.
+assets/          Icons and splash images from the Expo template.
 src/
   engine/        Pure TypeScript timing engine. No React, no DOM, no audio APIs.
   audio/         Audio adapter interface plus web implementation (native later).
