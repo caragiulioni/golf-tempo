@@ -35,9 +35,14 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 
 ## Temporary CONFIG mode
 
-- A CONFIG toggle reveals a slider for the weight shift position and an EXPORT button that produces JSON.
+CONFIG mode lives inside the real app. It is not a separate app or branch, so the brother tests his settings in the actual app at every tempo.
+
+- A CONFIG toggle reveals a slider for the weight shift position, an APPLY button, a reset-to-default button and an EXPORT button that produces JSON.
+- APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then plays with the applied value at every tempo.
+- If there are unapplied slider changes and the user leaves CONFIG, show a yes/no confirmation dialog before discarding them. Yes discards the changes and leaves. No stays in CONFIG.
+- EXPORT exports the applied values.
 - The brother uses it to find the right position, then sends the export to the developer.
-- Final values get hard-coded into the engine and CONFIG is removed. Build it so removal is easy: keep all CONFIG UI and export code in its own module.
+- Final values get hard-coded into the engine and CONFIG is removed, including reading the saved values. Build it so removal is easy: keep all CONFIG UI, saving and export code in its own module.
 
 ## Principles
 

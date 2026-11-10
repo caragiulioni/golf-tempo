@@ -44,14 +44,14 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Built:** not started
 
 ### 5. config-mode
-- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, JSON export with `weightShiftPosition` per category. Isolated in its own module for easy removal.
+- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
 - **Depends on:** timing-engine, audio-playback, app-shell-ui.
 - **Blockers:** Short Game starting position (`docs/client_questions.md`, Q1).
 - **Spec:** not started
 - **Built:** not started
 
 ### 6. final-weight-shift-release
-- **Scope:** Hard-code calibrated weight shift values into the engine, make weight shift playback permanent, remove CONFIG mode, final checks, Netlify deploy.
+- **Scope:** Hard-code calibrated weight shift values into the engine, make weight shift playback permanent, remove CONFIG mode and stop reading (and delete) the saved applied values, final checks, Netlify deploy.
 - **Depends on:** config-mode and the calibration phase.
 - **Blockers:** Calibration results from the brother.
 - **Spec:** not started (written after calibration)

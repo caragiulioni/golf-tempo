@@ -37,6 +37,14 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - Slow tempos: add a hi-hat that ticks a whole number of times inside each quarter of the swing, so it always lines up with the beeps and keeps a steady pulse (roughly every 0.25 to 0.5 s). At slow tempos the kick and snare thin out and the hi-hat carries the pulse. To be tuned by ear.
 - Sound styles (Voice, String, Bossa Nova): dropped. One tone set only.
 
+### CONFIG mode
+- CONFIG lives inside the real app. No separate app or branch. A separate calibration app was considered and dropped, mainly because it would have to share the timing engine and audio layer anyway.
+- APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then uses it at every tempo, so the brother tests in the real app.
+- Leaving CONFIG with unapplied changes shows a yes/no confirmation dialog. Yes discards and leaves; No stays.
+- Reset-to-default button. EXPORT exports the applied values.
+- Saved values are per device. The final release removes CONFIG and stops reading (and deletes) the saved key so stale values cannot override the hard-coded ones.
+- The engine is unchanged by this: it already takes weight shift positions as input. APPLY is a UI and storage feature.
+
 ### Playback and phone behavior
 - Play/pause toggle in the Current session header. The first press doubles as the tap that unlocks browser audio. Playing always starts from beat 1; pausing ends the loop (no mid-cycle resume).
 - Changing anything while playing (preset, Long/Short, weight shift slider): stop fully, short pause (about 0.5 s), then start a new run from beat 1. Rapid changes are debounced so only the last one restarts. Nothing starts if playback was stopped. The slider restarts on release, not during the drag; the marker moves during the drag.
@@ -80,6 +88,7 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 ### 7. Config export
 - JSON shape: `configVersion`, `longGame.weightShiftPosition`, `shortGame.weightShiftPosition`. Consider tempo metadata and an export timestamp.
 - The client confirmed the same relative position holds across tempos, so one value per category is enough.
+- Export the applied (saved) values, not unapplied slider positions.
 
 ### 8. Visual design
 - Layout mockups: `_references/layout-DARKMODE.png` and `layout-LIGHTMODE.png`. Sections: Current session (large "30 / 10" plus category), Game length (segmented control), Available sessions (preset buttons). Dark mode: near-black with green tint, sage green selected. Light mode: warm off-white, deep forest green selected.
@@ -93,5 +102,14 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - Whether Safari's audio session setting lets audio play with the silent switch on.
 - What happens to audio and timing when the phone locks or the app is backgrounded.
 
-### 10. Hosting
+### 10. Calibration guide for the client
+- Write a short testing doc for Mike as part of the config-mode spec (plain language, step by step). Outline:
+  - Pick one device, preferably his phone, and calibrate on that device only. Use the same browser each time.
+  - Don't use private/incognito mode, and don't clear browser data while calibrating. Either wipes the saved values.
+  - Safari on iPhone may delete a website's saved data after about a week of not visiting it (my understanding; verify). So when he is happy with a value, press EXPORT and send it right away, and don't rely on the saved value alone.
+  - Test each category (Long Game, Short Game) at every tempo before exporting.
+  - How to use CONFIG: slider, APPLY, reset, the unapplied-changes warning, EXPORT.
+  - What to send back, and how.
+
+### 11. Hosting
 - Netlify static deploy of the Expo web export. Confirm build command and publish directory when the project is initialized.

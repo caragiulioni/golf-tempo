@@ -27,3 +27,7 @@ Each folder has its own README with more detail.
 6. **Hand over.** Document how to take it further (`docs/`).
 
 Planning first matters because Kiro does what the plan says. A clear plan gives good results, and a vague one gives guesses.
+
+## The planning snapshot
+
+The tag `planning-baseline` is a frozen copy of the project as it looked when the planning was finished: only the planning folders, no app code. On GitHub, open the branch/tag dropdown at the top left of the file list and pick `planning-baseline` to browse it. The `main` branch keeps changing as the app is built.
