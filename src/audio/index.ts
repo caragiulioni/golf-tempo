@@ -6,5 +6,14 @@ export {
   type ToneSpec,
   type WeightShiftToneStyle,
 } from './tones';
-export { scheduleSwing, type ScheduledBeep, type SwingOptions } from './player';
+export {
+  createPlayer,
+  scheduleSwing,
+  type Player,
+  type PlayerListeners,
+  type PlayerState,
+  type ScheduledBeep,
+  type ScheduledSwing,
+  type SwingOptions,
+} from './player';
 export { createWebAudioAdapter } from './webAudio';

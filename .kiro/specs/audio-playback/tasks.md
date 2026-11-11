@@ -11,10 +11,10 @@ Follows `.kiro/steering/workflow.md`. Stop for review at the end of every wave, 
 
 ## Wave 2.2: Repeat, start/stop, restart on change
 
-- [ ] 1. Repeat pause in the engine. Check: automated tests; cycle lengths close to the clips (24/8 about 2.5 s, 30/10 about 3.0 s).
-- [ ] 2. Repeating playback. Check by ear and log: 30/10 repeats with no drift over 2 minutes.
-- [ ] 3. Start and stop with unlock on the first tap. Check: starts from beat 1 every time; silence after stop, including already scheduled beeps.
-- [ ] 4. Restart on change. Check: tap three presets quickly and only the last one plays; nothing starts if stopped.
+- [x] 1. Repeat pause in the engine. Check: automated tests; cycle lengths close to the clips (24/8 about 2.5 s, 30/10 about 3.0 s).
+- [x] 2. Repeating playback. Check by ear and log: 30/10 repeats with no drift over 2 minutes.
+- [x] 3. Start and stop with unlock on the first tap. Check: starts from beat 1 every time; silence after stop, including already scheduled beeps.
+- [x] 4. Restart on change. Check: tap three presets quickly and only the last one plays; nothing starts if stopped.
 
 ## Wave 2.3: Phone behavior
 

@@ -9,6 +9,7 @@ export {
   type Category,
   type Preset,
 } from './presets';
+export { REPEAT_PAUSE_FACTOR, cycleSeconds, repeatPauseSeconds } from './repeat';
 export {
   buildSequence,
   type EventType,

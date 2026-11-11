@@ -1,13 +1,17 @@
 // TEMPORARY listening-test screen for the audio-playback spec.
 // Delete this folder and its one use in App.tsx when the app-shell-ui spec lands.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
+  createPlayer,
   createWebAudioAdapter,
   scheduleSwing,
   voiceFor,
   type AudioAdapter,
+  type Player,
+  type PlayerState,
   type ScheduledBeep,
+  type ScheduledSwing,
   type WeightShiftToneStyle,
 } from '../../audio';
 import {
@@ -33,8 +37,14 @@ function Button({ label, onPress, selected }: { label: string; onPress: () => vo
   );
 }
 
+type RunStats = { swings: number; minLeadMs: number; lastCycle: number };
+const EMPTY_STATS: RunStats = { swings: 0, minLeadMs: Number.POSITIVE_INFINITY, lastCycle: 0 };
+
 export default function AudioLab() {
   const adapterRef = useRef<AudioAdapter | null>(null);
+  const playerRef = useRef<Player | null>(null);
+  const [playerState, setPlayerState] = useState<PlayerState>('stopped');
+  const [stats, setStats] = useState<RunStats>(EMPTY_STATS);
   const [category, setCategory] = useState<Category>('long');
   const [preset, setPreset] = useState<Preset>(PRESETS.long[4]);
   const [settings, setSettings] = useState(defaultWeightShiftSettings());
@@ -42,11 +52,45 @@ export default function AudioLab() {
   const [includeWeightShift, setIncludeWeightShift] = useState(true);
   const [report, setReport] = useState<string[]>([]);
 
-  async function getAdapter(): Promise<AudioAdapter> {
+  function getAdapterNow(): AudioAdapter {
     if (!adapterRef.current) adapterRef.current = createWebAudioAdapter();
-    await adapterRef.current.unlock();
     return adapterRef.current;
   }
+
+  async function getAdapter(): Promise<AudioAdapter> {
+    const adapter = getAdapterNow();
+    await adapter.unlock();
+    return adapter;
+  }
+
+  function getPlayer(): Player {
+    if (!playerRef.current) {
+      playerRef.current = createPlayer(getAdapterNow(), {
+        onState: (state) => {
+          setPlayerState(state);
+          if (state === 'playing') setStats(EMPTY_STATS);
+        },
+        onSwing: (swing: ScheduledSwing) =>
+          setStats((s) => ({
+            swings: s.swings + 1,
+            minLeadMs: Math.min(s.minLeadMs, swing.leadSeconds * 1000),
+            lastCycle: swing.cycleSeconds,
+          })),
+      });
+    }
+    return playerRef.current;
+  }
+
+  const swingOptions = { preset, settings, includeWeightShift, toneStyle };
+
+  // Any change while playing restarts the run (stop, short pause, start from beat 1).
+  useEffect(() => {
+    playerRef.current?.change(swingOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preset, settings, includeWeightShift, toneStyle]);
+
+  // Stop the sound if this screen goes away.
+  useEffect(() => () => playerRef.current?.stop(), []);
 
   async function playBeep(type: 'beat1' | 'weightShift' | 'beat2' | 'beat3') {
     const adapter = await getAdapter();
@@ -121,6 +165,16 @@ export default function AudioLab() {
         <Button label="Beat 2" onPress={() => playBeep('beat2')} />
         <Button label="Beat 3" onPress={() => playBeep('beat3')} />
       </View>
+
+      <Text style={styles.label}>Repeating playback: {playerState}</Text>
+      <View style={styles.row}>
+        <Button label="Play" onPress={() => getPlayer().start(swingOptions)} />
+        <Button label="Stop" onPress={() => getPlayer().stop()} />
+      </View>
+      <Text>
+        Swings scheduled: {stats.swings}. Cycle: {stats.lastCycle.toFixed(3)} s. Closest a swing came to
+        being late: {Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}
+      </Text>
 
       <Text style={styles.label}>One swing</Text>
       <View style={styles.row}>

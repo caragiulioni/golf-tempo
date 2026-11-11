@@ -31,10 +31,10 @@ interface AudioAdapter {
 
 - Look-ahead scheduling: a timer wakes up often (about every 25 ms) and schedules any swing that starts within the next 100 ms or so. The timer never decides when a beep sounds, it only fills the schedule. Beep times come from the audio clock plus the engine's event times.
 - Each swing starts at the previous start plus `cycleSeconds(preset)`, so repeats do not drift.
-- Constants (named): look-ahead window, timer interval, restart pause 0.5 s, debounce 300 ms.
+- Constants (named): look-ahead window 0.25 s, timer interval 25 ms, restart pause 0.5 s.
 - It records the start time of every swing and the events scheduled, and exposes them for the UI to read.
 - `stop()` cancels the timer and calls `stopAll()`.
-- `change(settings)` while playing: stop, wait the restart pause, start from beat 1. Calls within the debounce window collapse into the last one. If stopped, does nothing.
+- `change(options)` while playing: silence at once, wait the restart pause, start from beat 1. Every new change restarts the wait, so rapid changes collapse into the last one (this is the debounce; no separate timer). If stopped, does nothing.
 
 ## Phone behavior
 
