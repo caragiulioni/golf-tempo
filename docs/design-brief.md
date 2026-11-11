@@ -185,5 +185,32 @@ Android adaptive-icon foreground (transparent background) and a monochrome versi
 ### CONFIG mode
 Not in the handoff. It will be designed in this project, together with Kiro, as a simple, temporary screen. It needs a live-moving weight shift marker on the timeline.
 
+### Gold (weight shift color): to change
+The developer does not like that gold changes between modes (`#E0B84E` dark, `#8C6A0E` light), and dislikes the light-mode gold in particular. Goal: one gold that works in both modes.
+
+Contrast check (2026-11-11), against the hero cards the marker sits on (dark `#14201A`, light `#DCE6DA`):
+- Current dark gold `#E0B84E`: 8.9:1 on dark, 1.5:1 on light. Fails in light mode, which is why the handoff darkened it.
+- A gold-looking color that clears the 3:1 minimum for graphics on both cards was not found. Mid ambers such as `#B8860B` reach about 5.2:1 on dark but only about 2.5:1 on light. The light card is a mid-light green, which leaves little room.
+- No single color of any hue reaches 4.5:1 for small text on both cards (the best found was about 3.6:1).
+
+Ways to get one gold anyway, to decide when the design is revisited:
+1. One gold for the diamond, with a dark outline in light mode so the shape carries the contrast, not the fill.
+2. Lighten the light-mode hero card so a mid gold passes 3:1 on it.
+3. Show the "Weight shift" label in the normal text color, and keep gold only on the diamond. The label then passes in both modes, and color is not the only signal.
+
+4. Take gold off the timeline entirely, and use it somewhere it can be the same in both modes. The timeline marks the weight shift by its diamond shape and its label, in the normal theme colors. Gold works the same in both modes when it is a **fill with dark text or a dark icon on top**, because the contrast that matters is then between the gold and its content, not the page: `#E0B84E` with `#0A0C0A` on it is 10.4:1, and with `#1B2A21` it is 8.0:1, in either mode. Candidate places: a gold chip showing the weight shift value in CONFIG mode, or a gold flash on the weight shift moment while playing. The fill's edge against the light page is low contrast, so it needs its text or icon, and should not rely on the fill alone.
+
+5. **Put the timeline in its own container that is dark in both modes** (reference: `_references/SCALE.png`). In light mode the container background is the light-mode accent `#3D5C45` (the color of the selected Long game button and the play button). In dark mode it can be the page background `#0A0C0A`, a subtle inset on the hero card. Inside the container, use the dark-mode colors in both modes, so the timeline looks the same everywhere. Contrast check (2026-11-11):
+   - One gold for both modes: `#EEC967`, slightly brighter than the current dark gold. 4.7:1 on `#3D5C45` and 12.3:1 on `#0A0C0A`, so it passes 4.5:1 for the small "Weight shift" label in both modes. The current `#E0B84E` gets only 4.0:1 on `#3D5C45`, which is fine for the diamond but not for the label.
+   - Labels ("Takeaway", "Top", "Impact", "BACKSWING · 30"): `#F0F1EA` (6.6:1) or a pale green like `#C9DEC3` (5.2:1). The dark-mode secondary text `#A8B3AB` is only 3.5:1 on `#3D5C45`, so it fails for small text there.
+   - Markers: `#A8B3AB` outlines pass the 3:1 graphic minimum (3.5:1).
+   - Bars: the downswing bar `#8FB78F` passes (3.3:1). The backswing bar color `#4E6B58` nearly disappears on `#3D5C45` (1.3:1). It needs a lighter color, around 3:1, chosen when the design is revisited.
+   - Watch: in light mode the play button and the container are the same green and sit close together in the hero card. Keep space between them, or give the play button a ring, so they don't merge.
+
+   - **Tried in the working copy (2026-11-11):** option 5 is built in `docs/design/` and checked in renders at phone and laptop widths, both modes. It is the developer's preferred option so far.
+   - **Grid texture on the container:** a very fine grid of 1px light lines every 5px, behind the timeline, to suggest a precise, high-performance instrument. White at 10% opacity in dark mode (raised from 5% by the developer) and 7% in light mode (tokens `--scale-grid` and `--scale-grid-size`). At 5% it was checked at 2x pixel density: present but subtle in both modes, and text and markers stayed clear. The 10% value has not been re-rendered. Tune the opacity and spacing by eye on real screens. In the app, CSS gradients are not available in React Native, so the grid is drawn with an SVG pattern (`react-native-svg`, supported by Expo) or a small repeating image.
+
+These can be combined. Option 3 is likely needed with options 1 and 2, because of the small-text limit. Options 4 and 5 avoid the problem. Option 5 keeps gold on the timeline, where it means the most.
+
 ### Product name
 The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided. Before adopting a new name, check it is not already in use by another app.

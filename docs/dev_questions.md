@@ -102,6 +102,7 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - Fonts: bundle through Expo and hold the first render until loaded. Use the wordmark SVG and drop Michroma.
 - Missing icon files: Android adaptive foreground and monochrome, and a splash image.
 - Not yet designed: CONFIG screen (to be made in this project), phone landscape, playing state.
+- Gold (weight shift color): replace the two different golds with one that works in both modes. Contrast findings and options are in `docs/design-brief.md`, section 12, "Gold".
 - Product name: the handoff says "Swing Sync", the project says "Golf Tempo". Undecided. Check availability before adopting.
 
 ### 9. Phone behavior to verify on real devices

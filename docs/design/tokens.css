@@ -2,12 +2,17 @@
 :root,[data-theme="dark"]{
   --bg:#0A0C0A; --surface:#1A1F1C; --hero:#14201A; --border:#2E3731;
   --text:#F0F1EA; --text2:#A8B3AB; --accent:#8FB78F; --accent-muted:#4E6B58;
-  --on-accent:#0A0C0A; --gold:#E0B84E; --switch-knob:#A8B3AB;
+  --on-accent:#0A0C0A; --gold:#EEC967; --switch-knob:#A8B3AB;
+  /* Timeline container: dark in both modes so one gold works everywhere (design-brief.md, Gold, option 5) */
+  --scale-grid:rgba(255,255,255,.1); --scale-grid-size:5px;
+  --scale-bg:#0A0C0A; --scale-text:#C9DEC3; --scale-marker:#A8B3AB; --scale-back:#4E6B58; --scale-down:#8FB78F;
 }
 [data-theme="light"]{
   --bg:#F4F3EE; --surface:#E6E8E1; --hero:#DCE6DA; --border:#C3C9BD;
   --text:#1B2A21; --text2:#455548; --accent:#3D5C45; --accent-muted:#8FA895;
-  --on-accent:#FFFFFF; --gold:#8C6A0E; --switch-knob:#455548;
+  --on-accent:#FFFFFF; --gold:#EEC967; --switch-knob:#455548;
+  --scale-grid:rgba(255,255,255,.07);
+  --scale-bg:#3D5C45; --scale-text:#C9DEC3; --scale-marker:#A8B3AB; --scale-back:#8FB78F; --scale-down:#C9DEC3;
 }
 :root{
   --font-ui:Inter,system-ui,sans-serif; --font-num:"Space Grotesk",Inter,sans-serif; --font-brand:Michroma,Inter,sans-serif;

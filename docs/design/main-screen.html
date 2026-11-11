@@ -24,14 +24,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 .num span{color:var(--accent);font-weight:500;padding:0 .12em}
 .numrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}
 .play{flex:none;width:55px;height:55px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center}
-.phases{margin-top:auto;display:flex;gap:4px;font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--text2);padding:0 10px}
-.phases div{border-bottom:1px solid var(--accent-muted);padding-bottom:4px;white-space:nowrap}
-.phases .a{flex:75}.phases .b{flex:25;text-align:right;border-color:var(--accent)}
+.scale{margin-top:auto;padding:14px 6px 10px;border-radius:18px;background-color:var(--scale-bg);
+ /* Fine grid texture: 1px lines every --scale-grid-size, very low opacity */
+ background-image:linear-gradient(var(--scale-grid) 1px,transparent 1px),linear-gradient(90deg,var(--scale-grid) 1px,transparent 1px);
+ background-size:var(--scale-grid-size) var(--scale-grid-size)}
+.phases{display:flex;gap:4px;font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--scale-text);padding:0 10px}
+.phases div{border-bottom:1px solid var(--scale-back);padding-bottom:4px;white-space:nowrap}
+.phases .a{flex:75}.phases .b{flex:25;text-align:right;border-color:var(--scale-down)}
 .track{position:relative;height:30px;margin:0 10px}
 .bar{position:absolute;top:13px;height:4px;border-radius:2px}
-.dot{position:absolute;top:6px;width:18px;height:18px;margin-left:-9px;border-radius:50%;border:2px solid var(--text2);background:var(--hero)}
-.diamond{position:absolute;left:50%;top:5px;width:20px;height:20px;margin-left:-10px;border:2px solid var(--gold);border-radius:4px;background:var(--hero);transform:rotate(45deg)}
-.names{position:relative;height:20px;margin:6px 10px 0;font-size:12px;color:var(--text2)}
+.dot{position:absolute;top:6px;width:18px;height:18px;margin-left:-9px;border-radius:50%;border:2px solid var(--scale-marker);background:var(--scale-bg)}
+.diamond{position:absolute;left:50%;top:5px;width:20px;height:20px;margin-left:-10px;border:2px solid var(--gold);border-radius:4px;background:var(--scale-bg);transform:rotate(45deg)}
+.names{position:relative;height:20px;margin:6px 10px 0;font-size:12px;color:var(--scale-text)}
 .names span{position:absolute}
 .seg{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--border);border-radius:18px}
 .seg button{flex:1;height:48px;border:0;border-radius:14px;background:transparent;font-size:16px;font-weight:500}
@@ -52,6 +56,7 @@ button{font:inherit;color:inherit;cursor:pointer}
  .app{padding:32px 48px 40px;gap:32px}
  .brand img{width:64px;height:64px}.brand b{font-size:15px}.btn{height:52px;min-width:52px;font-size:14px;padding:0 20px}
  .hero{min-height:400px;padding:36px;border-radius:40px;padding:36px}.numrow{margin:28px 0}.num{font-size:124px}
+ .scale{padding:22px 14px 16px;border-radius:24px}
  .pill{height:36px;font-size:13px;padding:0 16px}.label{font-size:13px}.phases{font-size:13px}.names{font-size:13px}
  .play{width:90px;height:90px}
  .seg button{height:64px;font-size:20px}.grid{gap:14px}.chip{height:84px;font-size:20px}
@@ -79,13 +84,15 @@ button{font:inherit;color:inherit;cursor:pointer}
  <section class="hero" aria-label="Current session">
   <div class="row"><span class="label" style="margin:0">CURRENT SESSION</span><span class="pill" id="pill">Long game · 3 : 1</span></div>
   <div class="numrow"><div class="num" id="num">30<span>/</span>10</div><button class="play" aria-label="Play"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button></div>
+  <div class="scale">
   <div class="phases"><div class="a" id="ph-back">BACKSWING · 30</div><div class="b" id="ph-down">DOWN · 10</div></div>
   <div class="track">
-   <div class="bar" id="bar-back" style="left:0;right:25%;background:var(--accent-muted)"></div>
-   <div class="bar" id="bar-down" style="left:75%;right:0;background:var(--accent)"></div>
+   <div class="bar" id="bar-back" style="left:0;right:25%;background:var(--scale-back)"></div>
+   <div class="bar" id="bar-down" style="left:75%;right:0;background:var(--scale-down)"></div>
    <i class="dot" style="left:0"></i><i class="diamond" id="diamond"></i><i class="dot" id="dot-top" style="left:75%"></i><i class="dot" style="left:100%"></i>
   </div>
   <div class="names"><span style="left:0">Takeaway</span><span id="name-ws" style="left:50%;transform:translateX(-50%);color:var(--gold);font-weight:600">Weight shift</span><span id="name-top" style="left:75%;transform:translateX(-50%)">Top</span><span style="right:0">Impact</span></div>
+  </div>
  </section>
  <section class="g-length"><p class="label">GAME LENGTH</p>
   <div class="seg"><button aria-pressed="true">&#10003; Long game</button><button aria-pressed="false">Short game</button></div></section>
