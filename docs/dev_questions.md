@@ -23,7 +23,7 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - Starting value for Short Game: about 0.75, the midpoint of the whole 2:1 swing. The client's answer was "about 3/4 of the way through" the backswing, but he is not certain and is still evaluating it. Tentative; tuned by ear.
 - One rule covers both categories: the weight shift starts at the midpoint of the whole swing (about 0.67 Long Game, 0.75 Short Game).
 - Long Game and Short Game have independent settings (confirmed). The same movement applies in Short Game, but it is more subtle: the golfer focuses on the hands moving around the torso instead of the hips and lower body. This changes what the golfer feels, not the beat.
-- The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed).
+- The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed). Heard in the browser in the audio lab and liked: short, crisp, higher pitch (800 Hz, 0.07 s), `distinct` is the default. A `same` option exists in `src/audio/tones.ts` for comparison only.
 
 ### Slower tempos
 - Added as more preset buttons, not a slider and not an automatic speed-up.

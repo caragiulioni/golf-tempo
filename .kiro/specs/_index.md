@@ -25,8 +25,8 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 ### 2. audio-playback
 - **Scope:** Audio adapter interface, web implementation, web audio testing in desktop browsers plus iOS Safari and Android Chrome on real phones (handles the tap-to-unlock, silent switch and background-tab quirks), synthesized tones, a distinct weight shift sound, scheduling from the audio clock, start/stop/repeat, repeat pause that scales with tempo, restart-on-change behavior (stop, short pause, new run from beat 1, debounced), screen wake lock while playing, auto-pause when the page is hidden or the phone locks (resume needs a tap).
 - **Depends on:** timing-engine.
-- **Blockers:** none known.
-- **Spec:** not started
+- **Blockers:** none known. Needs real devices for Wave 2.3: an iPad (iOS Safari) and Android phones.
+- **Spec:** DONE (`.kiro/specs/audio-playback/`)
 - **Built:** not started
 
 ### 3. app-shell-ui
