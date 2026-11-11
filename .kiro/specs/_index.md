@@ -18,9 +18,9 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 ### 1. timing-engine
 - **Scope:** Preset data for Long Game (10 presets, including the slow practice ones up to 168/56) and Short Game, three-beat sequence, weight shift beat insertion from a normalized position (same relative position at every tempo), independent per-category settings, three-beat baseline mode, automated tests. Pure TypeScript, no UI or audio.
 - **Depends on:** nothing.
-- **Blockers:** Measured Tour Tempo beat times per preset (`docs/dev_questions.md`, open item 2), or agree to use calculated times plus a fixed beat 3 delay. Short Game slow presets wait on the brother's answer (`docs/client_questions.md`, Q1). This does not block the rest of the engine.
-- **Spec:** not started
-- **Built:** not started
+- **Blockers:** none. Beat times were measured (`_references/tempo-measurements.md`): beat 3 is a fixed 0.20 s later than the label, used for all presets including the slow ones. Short Game slow presets wait on the brother's answer (`docs/client_questions.md`, Q1) and are not part of this spec.
+- **Spec:** DONE (`.kiro/specs/timing-engine/`)
+- **Built:** DONE
 
 ### 2. audio-playback
 - **Scope:** Audio adapter interface, web implementation, web audio testing in desktop browsers plus iOS Safari and Android Chrome on real phones (handles the tap-to-unlock, silent switch and background-tab quirks), synthesized tones, a distinct weight shift sound, scheduling from the audio clock, start/stop/repeat, repeat pause that scales with tempo, restart-on-change behavior (stop, short pause, new run from beat 1, debounced), screen wake lock while playing, auto-pause when the page is hidden or the phone locks (resume needs a tap).

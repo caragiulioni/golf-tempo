@@ -1,6 +1,9 @@
 # Large reference recording (8 MB). Kept locally, not pushed.
 _references/VID_20261107_135008.mp4
 
+# Tempo clips and extracted audio used for measuring beat times. Local only.
+_references/tempo-clips/
+
 # dependencies
 node_modules/
 

@@ -16,7 +16,7 @@ These apply whenever working in `src/engine/`.
 
 - Presets are frame counts at 30 fps. 30/10 means 30 frames from beat 1 to beat 2 (1.0 s) and 10 frames from beat 2 to beat 3.
 - Measured from Tour Tempo, beat 1 to beat 2 matches the frame math exactly. Beat 2 to beat 3 runs about 0.17 to 0.2 s longer than the label implies (for example 18/9 gives 0.50 s, not 0.30 s). The three beats are correct as they are, so copy Tour Tempo's real timing. Do not "fix" it to the printed numbers.
-- Store beat 1/2/3 times per preset as data, ideally from measurements of Tour Tempo. For presets Tour Tempo does not have, the beat 3 delay is an open question (see `docs/dev_questions.md`).
+- Measured across all 11 Tour Tempo presets (`_references/tempo-measurements.md`): the beat 2 to beat 3 extra is a fixed 0.20 s, the same at every tempo. Use that fixed delay for every preset, including the slow Long Game ones Tour Tempo does not have. Keep it in one named constant so measured per-preset values can replace it later.
 
 ## Weight shift beat
 

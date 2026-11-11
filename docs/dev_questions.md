@@ -15,6 +15,7 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - Presets verified against Tour Tempo screenshots (`_references`):
   - Long Game: 18/6, 21/7, 24/8, 27/9, 30/10
   - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12
+- Ratio rule (confirmed by client): every Long Game preset is 3:1 (backswing is three times the downswing, so a/b always has a = 3 x b). Short Game presets are 2:1 (a = 2 x b). The engine checks each preset against its category's ratio, and new slow Long Game presets follow the same rule.
 - The three original beats are correct as they are in Tour Tempo and are copied as-is. Do not "correct" them to the printed numbers. The weight shift beat is one additional data point; everything stays framed around the current tempos.
 - Weight shift placement (confirmed by client): between beat 1 (takeaway) and beat 2 (top of swing). It represents the initial lateral weight transfer, which starts in the hips.
 - Position is stored as a normalized value (0 to 1) between beat 1 and beat 2 and keeps the same relative position at every tempo (confirmed by client).

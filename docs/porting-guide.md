@@ -39,8 +39,6 @@ At least one Android device and at least one iOS device (phone or tablet).
 
 ## Entries
 
-(none yet)
-
 ## Final guide checklist (written after the last spec)
 
 - [ ] Plain-language overview: what the app is and what porting involves.
@@ -48,3 +46,13 @@ At least one Android device and at least one iOS device (phone or tablet).
 - [ ] Step-by-step: run on a simulator, run on a real device, build for the stores.
 - [ ] List of web-only parts and their native replacements.
 - [ ] Known risks and untested areas.
+
+### timing-engine
+- What was built: the timing brain of the app, in `src/engine/`. It holds the 16 tempo presets (10 Long Game, 6 Short Game) and works out when each beep happens in one swing: beat 1, the weight shift beat, beat 2 and beat 3. It returns a plain list of "this beep at this many seconds". It makes no sound and shows nothing on screen.
+- Carries over unchanged: everything in `src/engine/` (files `presets.ts`, `beats.ts`, `weightShift.ts`, `sequence.ts`, `index.ts`). It is plain TypeScript with no web, React or audio code, so it is expected to work the same on iOS and Android. Not run on a phone yet. The tests (`*.test.ts`) run on a computer only and are not part of the app.
+- Web-only, must be replaced on native: nothing. A search of `src/engine/` found no browser, React or audio references.
+- Needs testing on a real device: nothing on its own. When the audio spec is built, check on both an Android device and an iOS device that the beeps really land at the times this list gives (beat 1 at 0 s, beat 2 at the first number divided by 30, and so on).
+- Decisions and reasons:
+  - Beat 3 comes 0.20 s later than the printed preset numbers imply. This was measured on all 11 Tour Tempo presets (`_references/tempo-measurements.md`), so it is copied on purpose. Do not "fix" it. The value is `BEAT3_DELAY_SECONDS` in `src/engine/beats.ts`.
+  - The weight shift position is a fraction between beat 1 and beat 2 (0.05 to 0.95), so it sits in the same relative place at every tempo.
+  - Run the engine tests with `npm test` from the project root.
