@@ -30,9 +30,9 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Built:** not started
 
 ### 3. app-shell-ui
-- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), header with a menu (CONFIG entry and light/dark toggle, see `docs/design-brief.md`, section 12), light/dark theme with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons (two rows of five for Long Game, three by two for Short Game), playback controls with a playing state, beat/timeline visualization computed from the engine's beat times and animated from the audio schedule, responsive layout built from the design handoff in `_references/DESIGN/` (see `docs/design-brief.md`, section 12), bundled fonts, app icon and splash files.
+- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), header with a menu (CONFIG entry and light/dark toggle, see `docs/design-brief.md`, section 12), light/dark theme with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons (two rows of five for Long Game, three by two for Short Game), playback controls with a playing state, beat/timeline visualization computed from the engine's beat times and animated from the audio schedule, responsive layout built from the design handoff in `_references/DESIGN/` (see `docs/design-brief.md`, section 12), bundled fonts, app icon and splash files, intro screen with logo, name and tagline ("Train Your Tempo. Transform Your Game.") that covers startup loading and can be skipped, app name and tagline kept in one place for easy renaming.
 - **Depends on:** timing-engine, audio-playback.
-- **Blockers:** Product name undecided ("Golf Tempo" or "Swing Sync", see `docs/design-brief.md`, section 12). Adaptive icon and splash files missing.
+- **Blockers:** Product name undecided ("Swing Sync" is taken; "Swing Tempo" is the current candidate, see `docs/design-brief.md`, section 12). Adaptive icon and splash files missing.
 - **Spec:** not started
 - **Built:** not started
 

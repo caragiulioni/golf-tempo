@@ -212,5 +212,21 @@ Ways to get one gold anyway, to decide when the design is revisited:
 
 These can be combined. Option 3 is likely needed with options 1 and 2, because of the small-text limit. Options 4 and 5 avoid the problem. Option 5 keeps gold on the timeline, where it means the most.
 
+### Tagline and intro screen
+- Tagline (decided): **"Train Your Tempo. Transform Your Game."** Two lines, two beats.
+- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
+- Rules:
+  - Shown only as long as loading takes, with a short minimum (about 1 second) so it does not flash.
+  - A tap skips it.
+  - Minimal motion; respect the device's reduce-motion setting.
+  - Optional: a "Tap to begin" prompt that also unlocks browser audio. The play button already does this, so it is not required.
+- Separate from the native splash image (the static image shown by the phone before the app starts), which is still needed for the native port.
+- Not designed yet. Design it with the final name and wordmark.
+
 ### Product name
-The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided. Before adopting a new name, check it is not already in use by another app.
+The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided.
+- "Swing Sync" is already used by another app, so it is out.
+- "Swing Tempo" is the developer's current candidate (no existing app found by the developer). Not final; it may not go to the app stores, and the client may rename it later.
+- Goal for now: something unique. Store-level checks only matter if it is published.
+- Whatever the name, keep it in one place in the build (one constant for the name and tagline, plus `app.json`, plus one wordmark SVG), so a later rename is a small edit.
+- The handoff's wordmark SVGs spell "SWING SYNC" and need redoing for the final name.

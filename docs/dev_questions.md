@@ -103,7 +103,8 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - Missing icon files: Android adaptive foreground and monochrome, and a splash image.
 - Not yet designed: CONFIG screen (to be made in this project), phone landscape, playing state.
 - Gold (weight shift color): replace the two different golds with one that works in both modes. Contrast findings and options are in `docs/design-brief.md`, section 12, "Gold".
-- Product name: the handoff says "Swing Sync", the project says "Golf Tempo". Undecided. Check availability before adopting.
+- Product name: undecided. "Swing Sync" is taken by another app. "Swing Tempo" is the current candidate, not final. Keep the name in one place in the build. See `docs/design-brief.md`, section 12.
+- Tagline (decided): "Train Your Tempo. Transform Your Game." Shown on a short, skippable intro screen at startup. See `docs/design-brief.md`, section 12.
 
 ### 9. Phone behavior to verify on real devices
 - Whether the Screen Wake Lock API keeps an iPhone awake in Safari while playing.
