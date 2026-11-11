@@ -30,9 +30,9 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Built:** not started
 
 ### 3. app-shell-ui
-- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), light/dark theme toggle with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons (ten or more, so two rows or a sideways-scrolling row), playback controls, beat/timeline visualization synced to the audio schedule, responsive layout.
+- **Scope:** Play/pause toggle in the Current session header (with an iOS silent-switch hint), header with a menu (CONFIG entry and light/dark toggle, see `docs/design-brief.md`, section 12), light/dark theme with the saved choice, one-time check that the app runs on a phone or simulator, project theme and visual identity, tempo badge, Long/Short toggle, preset buttons (two rows of five for Long Game, three by two for Short Game), playback controls with a playing state, beat/timeline visualization computed from the engine's beat times and animated from the audio schedule, responsive layout built from the design handoff in `_references/DESIGN/` (see `docs/design-brief.md`, section 12), bundled fonts, app icon and splash files.
 - **Depends on:** timing-engine, audio-playback.
-- **Blockers:** none known.
+- **Blockers:** Product name undecided ("Golf Tempo" or "Swing Sync", see `docs/design-brief.md`, section 12). Adaptive icon and splash files missing.
 - **Spec:** not started
 - **Built:** not started
 
@@ -44,7 +44,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Built:** not started
 
 ### 5. config-mode
-- **Scope:** Temporary CONFIG toggle, weight shift slider with a safe range (Long Game starts near 0.67, Short Game near 0.75), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
+- **Scope:** Temporary CONFIG entry in the header menu, weight shift slider with a safe range (Long Game starts near 0.67, Short Game near 0.75), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
 - **Depends on:** timing-engine, audio-playback, app-shell-ui.
 - **Blockers:** none known.
 - **Spec:** not started

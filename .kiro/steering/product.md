@@ -37,7 +37,7 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 
 CONFIG mode lives inside the real app. It is not a separate app or branch, so the brother tests his settings in the actual app at every tempo.
 
-- A CONFIG toggle reveals a slider for the weight shift position, an APPLY button, a reset-to-default button and an EXPORT button that produces JSON.
+- A CONFIG item in the header menu reveals a slider for the weight shift position, an APPLY button, a reset-to-default button and an EXPORT button that produces JSON.
 - APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then plays with the applied value at every tempo.
 - If there are unapplied slider changes and the user leaves CONFIG, show a yes/no confirmation dialog before discarding them. Yes discards the changes and leaves. No stays in CONFIG.
 - EXPORT exports the applied values.
@@ -48,5 +48,6 @@ CONFIG mode lives inside the real app. It is not a separate app or branch, so th
 
 - Accurate timing and reliable playback come first.
 - Keep it lightweight. No backend, accounts, database or analytics.
-- Light and dark mode, both designed (see `_references/layout-LIGHTMODE.png` and `layout-DARKMODE.png`). A visible toggle switches between them, and the choice is remembered between visits.
+- Light and dark mode, both designed (see `_references/DESIGN/` and `docs/design/`). A toggle in the header menu switches between them, and the choice is remembered between visits.
+- Header: logo and wordmark on the left, a menu button on the right. The menu holds CONFIG (temporary; later replaced by a "How to" item or removed) and the light/dark toggle. See `docs/design-brief.md`, section 12.
 - Polished, responsive UI with its own identity. Tour Tempo is a functional reference, not a visual template.

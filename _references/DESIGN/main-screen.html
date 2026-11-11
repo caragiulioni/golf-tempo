@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Swing Sync</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Michroma&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui)}
+button{font:inherit;color:inherit;cursor:pointer}
+.app{max-width:1440px;margin:0 auto;padding:12px 20px 24px;display:grid;gap:20px;grid-template-areas:"head" "hero" "length" "presets" "loop" "hint"}
+.head{grid-area:head;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:8px}
+.brand img{width:46px;height:46px}
+.brand b{font:400 11px var(--font-brand);letter-spacing:.26em}.brand b i{font-style:normal;color:var(--accent)}
+.btns{display:flex;gap:8px}
+.btn{min-width:var(--tap-min);height:var(--tap-min);padding:0 12px;border-radius:var(--radius-chip);border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em}
+.hero{grid-area:hero;position:relative;padding:20px;min-height:250px;border-radius:var(--radius-card);background:var(--hero);border:1px solid var(--border);display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;align-items:center}
+.label{font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--text2);margin:0 0 8px}
+.pill{height:28px;padding:0 12px;border-radius:20px;border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center}
+.num{font:700 62px/1 var(--font-num);letter-spacing:-.035em;white-space:nowrap}
+.num span{color:var(--accent);font-weight:500;padding:0 .12em}
+.numrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0}
+.play{flex:none;width:72px;height:72px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;justify-content:center}
+.phases{margin-top:auto;display:flex;gap:4px;font-size:10px;letter-spacing:.1em;font-weight:600;color:var(--text2);padding:0 10px}
+.phases div{border-bottom:1px solid var(--accent-muted);padding-bottom:4px;white-space:nowrap}
+.phases .a{flex:75}.phases .b{flex:25;text-align:right;border-color:var(--accent)}
+.track{position:relative;height:30px;margin:0 10px}
+.bar{position:absolute;top:13px;height:4px;border-radius:2px}
+.dot{position:absolute;top:6px;width:18px;height:18px;margin-left:-9px;border-radius:50%;border:2px solid var(--text2);background:var(--hero)}
+.diamond{position:absolute;left:50%;top:5px;width:20px;height:20px;margin-left:-10px;border:2px solid var(--gold);border-radius:4px;background:var(--hero);transform:rotate(45deg)}
+.names{position:relative;height:20px;margin:6px 10px 0;font-size:12px;color:var(--text2)}
+.names span{position:absolute}
+.seg{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--border);border-radius:18px}
+.seg button{flex:1;height:48px;border:0;border-radius:14px;background:transparent;font-size:16px;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.chip{position:relative;height:56px;border-radius:var(--radius-chip);border:1px solid var(--border);background:var(--surface);font-size:15px;font-weight:500}
+.chip[aria-pressed="true"]::after{content:"\2713";position:absolute;right:5px;top:3px;font-size:12px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border:2px solid var(--text);font-weight:700}
+.loop{display:flex;justify-content:space-between;align-items:center;height:56px;padding:0 16px;border-radius:16px;border:1px solid var(--border);background:var(--surface)}
+.sw{width:52px;height:32px;border-radius:16px;border:1px solid var(--border);background:var(--border);position:relative;padding:0}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:var(--switch-knob);transition:transform .15s}
+.sw[aria-checked="true"]{background:var(--accent)}.sw[aria-checked="true"]::after{transform:translateX(20px);background:var(--on-accent)}
+.hint{font-size:12.5px;color:var(--text2)}
+.g-length{grid-area:length}.g-presets{grid-area:presets}.g-loop{grid-area:loop}.g-hint{grid-area:hint}
+/* tablet */
+@media (min-width:700px){
+ .app{padding:32px 48px 40px;gap:32px}
+ .brand img{width:64px;height:64px}.brand b{font-size:15px}.btn{height:52px;min-width:52px;font-size:14px;padding:0 20px}
+ .hero{min-height:400px;padding:36px;border-radius:40px;padding:36px}.numrow{margin:28px 0}.num{font-size:124px}
+ .pill{height:36px;font-size:13px;padding:0 16px}.label{font-size:13px}.phases{font-size:13px}.names{font-size:13px}
+ .play{width:112px;height:112px}
+ .seg button{height:64px;font-size:20px}.grid{gap:14px}.chip{height:84px;font-size:20px}
+ .loop{height:68px;padding:0 24px;font-size:18px}.hint{font-size:15px}
+}
+/* laptop */
+@media (min-width:1100px){
+ .app{height:100vh;min-height:720px;padding:28px 40px 40px;gap:28px 40px;grid-template-columns:1.45fr 1fr;grid-template-rows:auto auto 1fr auto auto;
+  grid-template-areas:"head head" "hero length" "hero presets" "hero loop" "hero hint"}
+ .hero{padding:40px;grid-row:2 / 6}.num{font-size:190px}.play{width:150px;height:150px}.play svg{width:56px;height:56px}
+ .play{width:112px;height:112px}
+ .chip{height:64px;font-size:17px}.seg button{height:52px;font-size:17px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+ <header class="head">
+  <div class="brand"><img src="logo/logo-mark-dark.svg" alt="" id="mark"><b>SWING <i>SYNC</i></b></div>
+  <div class="btns">
+   <button class="btn" id="theme" aria-label="Toggle light and dark mode">&#9728;</button>
+   <button class="btn">CONFIG</button>
+  </div>
+ </header>
+ <section class="hero" aria-label="Current session">
+  <div class="row"><span class="label" style="margin:0">CURRENT SESSION</span><span class="pill">Long game · 3 : 1</span></div>
+  <div class="numrow"><div class="num">30<span>/</span>10</div><button class="play" aria-label="Play"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button></div>
+  <div class="phases"><div class="a">BACKSWING · 30</div><div class="b">DOWN · 10</div></div>
+  <div class="track">
+   <div class="bar" style="left:0;right:25%;background:var(--accent-muted)"></div>
+   <div class="bar" style="left:75%;right:0;background:var(--accent)"></div>
+   <i class="dot" style="left:0"></i><i class="diamond"></i><i class="dot" style="left:75%"></i><i class="dot" style="left:100%"></i>
+  </div>
+  <div class="names"><span style="left:0">Takeaway</span><span style="left:50%;transform:translateX(-50%);color:var(--gold);font-weight:600">Weight shift</span><span style="left:75%;transform:translateX(-50%)">Top</span><span style="right:0">Impact</span></div>
+ </section>
+ <section class="g-length"><p class="label">GAME LENGTH</p>
+  <div class="seg"><button aria-pressed="true">&#10003; Long game</button><button aria-pressed="false">Short game</button></div></section>
+ <section class="g-presets"><p class="label">AVAILABLE SESSIONS</p><div class="grid" id="presets"></div></section>
+ <div class="loop g-loop"><span>Background loop</span><button class="sw" role="switch" aria-checked="false" aria-label="Background loop"></button></div>
+ <p class="hint g-hint">No sound? Check your silent switch.</p>
+</main>
+<script>
+/* Presets are data. Edit here; render is generated. Always show a check mark on the selected chip (never color alone). */
+var LONG=["18/6","21/7","24/8","27/9","30/10","42/14","60/20","84/28","120/40","168/56"];
+var SHORT=[]; /* TODO: 6+ short-game presets from design-brief.md */
+var state={game:"long",preset:"30/10",theme:"dark"};
+function render(){
+ var g=document.getElementById("presets");g.innerHTML="";
+ (state.game==="long"?LONG:SHORT).forEach(function(p){
+  var b=document.createElement("button");b.className="chip";b.textContent=p;
+  b.setAttribute("aria-pressed",p===state.preset);b.onclick=function(){state.preset=p;render()};g.appendChild(b)})}
+document.querySelectorAll(".seg button").forEach(function(b,i){b.onclick=function(){
+ state.game=i?"short":"long";document.querySelectorAll(".seg button").forEach(function(x,j){x.setAttribute("aria-pressed",j===i)});render()}});
+var sw=document.querySelector(".sw");sw.onclick=function(){sw.setAttribute("aria-checked",sw.getAttribute("aria-checked")!=="true")};
+document.getElementById("theme").onclick=function(){
+ state.theme=state.theme==="dark"?"light":"dark";this.innerHTML=state.theme==="dark"?"&#9728;":"&#9790;";document.documentElement.setAttribute("data-theme",state.theme);
+ document.getElementById("mark").src="logo/logo-mark-"+state.theme+".svg"};
+render();
+</script>
+</body>
+</html>

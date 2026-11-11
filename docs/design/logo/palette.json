@@ -1,0 +1,50 @@
+{
+  "palette": {
+    "dark": {
+      "bg": "#0A0C0A",
+      "surface": "#1A1F1C",
+      "surface2": "#232A26",
+      "border": "#2E3731",
+      "text": "#F0F1EA",
+      "text2": "#A8B3AB",
+      "accent": "#8FB78F",
+      "on_accent": "#0A0C0A",
+      "gold": "#E0B84E",
+      "error": "#F08A80"
+    },
+    "light": {
+      "bg": "#F4F3EE",
+      "surface": "#E6E8E1",
+      "surface2": "#DADDD3",
+      "border": "#C3C9BD",
+      "text": "#1B2A21",
+      "text2": "#455548",
+      "accent": "#3D5C45",
+      "on_accent": "#FFFFFF",
+      "gold": "#8C6A0E",
+      "error": "#B3261E"
+    }
+  },
+  "contrast": {
+    "dark": {
+      "text/bg": 17.27,
+      "text2/bg": 9.07,
+      "text2/surface": 7.72,
+      "accent/bg": 8.73,
+      "on_accent/accent": 8.73,
+      "gold/bg": 10.41,
+      "error/bg": 8.09,
+      "border/bg": 1.6
+    },
+    "light": {
+      "text/bg": 13.5,
+      "text2/bg": 7.14,
+      "text2/surface": 6.42,
+      "accent/bg": 6.71,
+      "on_accent/accent": 7.46,
+      "gold/bg": 4.52,
+      "error/bg": 5.88,
+      "border/bg": 1.52
+    }
+  }
+}

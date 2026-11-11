@@ -95,9 +95,14 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 ### 8. Visual design
 - Layout mockups: `_references/layout-DARKMODE.png` and `layout-LIGHTMODE.png`. Sections: Current session (large "30 / 10" plus category), Game length (segmented control), Available sessions (preset buttons). Dark mode: near-black with green tint, sage green selected. Light mode: warm off-white, deep forest green selected.
 - The mockups still show the sound-style row (Voice, String, Bossa Nova). Omit it.
-- Not yet designed: play/pause control, beat timeline, loop toggle, CONFIG area, the second row of preset buttons.
-- Beat/timeline visualization and animation approach (Reanimated works on web and native).
-- Check: contrast of the small grey-green section labels in light mode. Confirm exact color values from the mockup source.
+- Design handoff received: `_references/DESIGN/` (tokens.css, main-screen.html, design-spec.md, logo files). It is the visual source of truth. Its palette replaces the one sampled from the first mockups, and its darker light-mode secondary text fixes the contrast concern. Review notes and the list of refinements are in `docs/design-brief.md`, section 12.
+- Handoff is read-only source material. Refinements are made in a working copy.
+- Beat timeline: positions, bar split and labels are computed from the engine's beat times, not hard-coded. The weight shift marker moves live in CONFIG. Animation follows the audio schedule (Reanimated works on web and native). Playing state and animation still need to be designed.
+- Short Game presets and a three-by-two grid for them: to be added to the working copy.
+- Fonts: bundle through Expo and hold the first render until loaded. Use the wordmark SVG and drop Michroma.
+- Missing icon files: Android adaptive foreground and monochrome, and a splash image.
+- Not yet designed: CONFIG screen (to be made in this project), phone landscape, playing state.
+- Product name: the handoff says "Swing Sync", the project says "Golf Tempo". Undecided. Check availability before adopting.
 
 ### 9. Phone behavior to verify on real devices
 - Whether the Screen Wake Lock API keeps an iPhone awake in Safari while playing.

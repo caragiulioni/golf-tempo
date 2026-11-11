@@ -58,8 +58,7 @@ c) **Available sessions in two rows.** There are now more presets than fit in on
 - Game length control: Long game / Short game.
 - Available sessions: the two-row preset grid. The selected preset is clearly marked.
 - Background loop toggle (on or off, off by default).
-- Light/dark mode toggle.
-- Entry to CONFIG mode.
+- Light/dark mode toggle and entry to CONFIG mode, both in the header menu (see section 12).
 - A small hint on iPhone: "No sound? Check your silent switch."
 
 ### Beat timeline (needs the most design thought)
@@ -122,3 +121,69 @@ The icon should be fun and recognizable at small sizes. A few directions to try:
 
 - Short Game may get slower presets, so its preset grid could grow.
 - The Short Game weight shift position starts at about 3/4 of the way from takeaway to top of swing (the Long Game is about 2/3). It is tentative and tuned by ear. It does not change the visual design, only where the marker sits on the timeline.
+
+## 12. Design handoff review
+
+A first design handoff arrived in `_references/DESIGN/` (tokens, a responsive main screen in HTML, a spec, and logo files). This section records the review so the refinements are not lost. The handoff is the visual source of truth. Where it conflicts with sections 1 to 11, the handoff wins, except for the points below.
+
+Review method: the HTML, CSS and spec were read as code. They were not rendered, and the exported boards mentioned in the spec were not in the folder.
+
+### Keep
+- Palette and tokens in `tokens.css` and `logo/palette.json` (supersedes the palette sampled from the first mockups).
+- Selected state = fill, 2px outline and check mark. Color is never the only signal.
+- Gold is used only for the weight shift (marker, label) and the ball.
+- Layout by breakpoint: phone single column, tablet single column with larger sizes, laptop two columns.
+- Removed Voice / String / Bossa Nova row.
+- The S swoosh mark, in dark and light versions.
+
+### Refinements (to make in the working copy of the main screen, then carry into the build)
+1. **Play button and session numbers are too small.** Cause: on laptop, `.play` is set to 150px and then overridden to 112px a few lines later. The spec says 88px on phones where the CSS has 72px. The spec says the button overlaps the card edge, but the CSS puts it beside the number. Make the play button larger and the session numbers larger, especially on phones.
+2. **Short Game presets.** The list is empty in the mockup. Fill in 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Six items in a five-column grid leave one orphan, so use three columns by two rows for Short Game. The grid must also cope with more Short Game presets later.
+3. **Timeline ratios.** The Long Game (3:1) and Short Game (2:1) need different splits for the backswing and downswing bars and labels. The weight shift sits at about half of the whole swing in both categories.
+4. **Timeline data comes from the engine.** Marker positions, bar split and labels must be computed from the engine's beat times, not hard-coded. The weight shift marker must also move live in CONFIG mode while the slider is dragged. If Tour Tempo's beat 3 delay is confirmed, the real proportions differ from the label ratios (for 30/10, top of swing near 67% of the swing instead of 75%).
+5. **Playing state.** Define it: a pause icon in the play button, an updated accessible label ("Play" or "Pause"), and a timeline animation. Proposed animation: a playhead sweeps along the bar in real time, each marker lights up as its beep sounds, and the weight shift diamond pulses in gold. It follows the audio schedule, not a separate timer.
+6. **Silent-switch hint** shows on iPhone only, not always.
+7. **Small text.** Phase labels are 10px and others are 11 to 12px on phones. Raise them, since the app is used outdoors in glare.
+8. **Fit check.** "168/56" in five columns on a 320px-wide phone looks tight. Test at 320 and 360.
+9. **Segmented control check mark** must follow the selected option (it stays on "Long game" in the mockup).
+10. **Landscape on phones** is not designed yet.
+11. **Header menu** replaces the separate theme and CONFIG buttons, so the wordmark does not wrap at 320px (see "Header menu" below). Not built in the HTML mockup; it is specified here and built in the app.
+
+### Changes already made in the working copy (`docs/design/main-screen.html`)
+- Desktop (1100px and up): `.num` font-size 190px to 155px.
+- Tablet (700 to 1099px): `.play` 112px to 90px.
+- Phone (under 700px): `.play` 72px to 55px.
+- Laptop keeps its own `.play` rule (112px).
+- Short Game presets filled in (14/7 to 24/12) in a three-by-two grid. Switching game updates the session numbers, the pill (3 : 1 or 2 : 1) and the timeline split, and each game remembers its own selected preset (defaults 30/10 and 24/12). The Game length check mark now follows the selection. The mockup computes the timeline from the label ratio; the app uses the engine's beat times.
+- Open issue found in the render: on phones in Short Game, the "Weight shift" and "Top" labels overlap, because top of swing moves to about 67% and the weight shift stays near 50%. Options to decide later: shorter labels on phones ("Shift"), or put the weight shift label above the track.
+- Checked by rendering at 1100, 800, 360 and 320px wide.
+
+### Header menu
+Layout: `[logo mark + wordmark]` on the left, `[menu button]` on the right. Nothing else in the header.
+
+Menu button:
+- A hamburger icon, at least 44 by 44 points, styled like the other header buttons in the handoff (surface fill, 1px border, chip radius).
+- Accessible label "Menu". Announces whether the menu is open or closed.
+
+Dropdown:
+- Opens below the button, aligned to its right edge, on top of the page content.
+- Items, in order:
+  1. **Config.** Opens CONFIG mode. Temporary: removed in the final release, possibly replaced by a "How to" item.
+  2. **Light mode / Dark mode.** The label names the mode it switches to. Switching saves the choice (see `.kiro/steering/tech.md`).
+- Each item is a full-width row at least 44 points tall.
+- Closes when an item is chosen, when tapping outside it, and on Escape (web).
+- Keyboard: focus moves into the menu when it opens and returns to the menu button when it closes.
+- Built as a shared `Menu` component in `src/ui/components/` from React Native pieces, not a web-only dropdown, so it works on phones. Its overlay and outside-tap behavior can be shared with the confirmation dialog.
+- Colors, radius and spacing from the theme tokens.
+
+### Fonts
+The mockup loads Inter, Space Grotesk and Michroma from a web service. In the app they must be bundled through Expo and loaded before the first render. Michroma is used only for the small wordmark. Use the wordmark SVG instead and drop that font.
+
+### Icon files still needed
+Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist.
+
+### CONFIG mode
+Not in the handoff. It will be designed in this project, together with Kiro, as a simple, temporary screen. It needs a live-moving weight shift marker on the timeline.
+
+### Product name
+The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided. Before adopting a new name, check it is not already in use by another app.
