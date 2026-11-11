@@ -18,8 +18,9 @@ Follows `.kiro/steering/workflow.md`. Stop for review at the end of every wave, 
 
 ## Wave 2.3: Phone behavior
 
-- [ ] 1. Screen wake lock while playing. Check: the phone stays awake.
-- [ ] 2. Auto-pause when hidden or locked; resume needs a tap. Check: switch tabs, then lock the phone.
-- [ ] 3. Long session check, 5 minutes. Check: scheduled against actual time stays tiny.
-- [ ] 4. Real device testing: desktop, iPad Safari, Android Chrome (two phones). Check: results recorded per device in `docs/porting-guide.md`.
-- [ ] 5. Porting notes. Check: entry added to `docs/porting-guide.md`.
+- [x] 1. Screen wake lock while playing (`webSession.ts`). Check, desktop: Play shows "Wake lock: held", Stop shows "idle".
+- [x] 2. Keep playing when hidden or locked; pause cleanly if the system takes the audio away; do not catch up after a freeze. Check, desktop: switch tabs while playing and come back; sound continued with no gaps and the log shows hidden then visible.
+- [x] 3. Clock readout and event log in the audio lab. Check: run time and audio-versus-device clock drift update every second.
+- [ ] 4. An https address for the phones: Netlify draft deploy of the web export. Check: the link opens the audio lab on a phone.
+- [ ] 5. Real device testing: desktop, iPad Safari, Android Chrome (two phones). Includes locking the phone while playing. Check: results recorded per device in `docs/porting-guide.md`.
+- [ ] 6. Porting notes. Check: entry added to `docs/porting-guide.md`.

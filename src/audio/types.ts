@@ -16,4 +16,9 @@ export interface AudioAdapter {
   playTone(voice: Voice, time: number): void;
   /** Silence everything, including tones already scheduled for later. */
   stopAll(): void;
+  /**
+   * Call `listener` when the system takes the audio away (for example iOS on lock).
+   * Returns a function that removes the listener.
+   */
+  onSuspended(listener: () => void): () => void;
 }

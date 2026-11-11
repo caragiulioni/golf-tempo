@@ -38,8 +38,11 @@ interface AudioAdapter {
 
 ## Phone behavior
 
-- Wake lock: requested on play, released on stop. Wrapped in a small web-only helper so native can swap it.
-- Visibility: on `visibilitychange` to hidden, stop and report "paused". The UI shows a tap to resume.
+- Wake lock: `attachWebSession` in `webSession.ts` (web-only) asks for it when the player starts playing and lets go on stop or pause. The browser drops it when the page is hidden, so it asks again when the page is visible. Needs https or localhost.
+- Background: the same helper tells the player when the page is hidden. The player then schedules 5 s ahead instead of 0.25 s, so slowed timers do not leave gaps. Playback keeps going.
+- System takes audio away (iOS on lock): the adapter reports `onSuspended` (any AudioContext state other than running, including Safari's 'interrupted'). The player stops, silences, and goes to the `paused` state. Resuming needs a tap and starts from beat 1.
+- Timer starved (page frozen): if the next swing's start is already in the past, the player does not catch up. It starts a fresh run from beat 1 and reports `onResync`.
+- Whether each device keeps playing on lock is decided by the device tests (Wave 2.3, task 5). Results go in `docs/porting-guide.md`.
 
 ## Checking
 

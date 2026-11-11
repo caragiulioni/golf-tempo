@@ -12,7 +12,9 @@ import {
   type PlayerState,
   type ScheduledBeep,
   type ScheduledSwing,
+  type WakeLockStatus,
   type WeightShiftToneStyle,
+  attachWebSession,
 } from '../../audio';
 import {
   PRESETS,
@@ -39,12 +41,27 @@ function Button({ label, onPress, selected }: { label: string; onPress: () => vo
 
 type RunStats = { swings: number; minLeadMs: number; lastCycle: number };
 const EMPTY_STATS: RunStats = { swings: 0, minLeadMs: Number.POSITIVE_INFINITY, lastCycle: 0 };
+const LOG_LINES_SHOWN = 10;
+const CLOCK_READOUT_INTERVAL_MS = 1000;
+
+type RunClock = { seconds: number; driftMs: number };
 
 export default function AudioLab() {
   const adapterRef = useRef<AudioAdapter | null>(null);
   const playerRef = useRef<Player | null>(null);
   const [playerState, setPlayerState] = useState<PlayerState>('stopped');
   const [stats, setStats] = useState<RunStats>(EMPTY_STATS);
+  const [wakeLock, setWakeLock] = useState<WakeLockStatus>('idle');
+  const [log, setLog] = useState<string[]>([]);
+  const [clock, setClock] = useState<RunClock>({ seconds: 0, driftMs: 0 });
+  const detachRef = useRef<(() => void) | null>(null);
+  // Where the audio clock and the device clock were when the run began.
+  const clockStartRef = useRef<{ audio: number; wall: number } | null>(null);
+
+  function addLog(text: string) {
+    const time = new Date().toLocaleTimeString();
+    setLog((lines) => [`${time}  ${text}`, ...lines].slice(0, LOG_LINES_SHOWN));
+  }
   const [category, setCategory] = useState<Category>('long');
   const [preset, setPreset] = useState<Preset>(PRESETS.long[4]);
   const [settings, setSettings] = useState(defaultWeightShiftSettings());
@@ -65,10 +82,19 @@ export default function AudioLab() {
 
   function getPlayer(): Player {
     if (!playerRef.current) {
-      playerRef.current = createPlayer(getAdapterNow(), {
+      const adapter = getAdapterNow();
+      const player = createPlayer(adapter, {
+        onResync: () => addLog('Timer fell behind. Restarted from beat 1.'),
         onState: (state) => {
           setPlayerState(state);
-          if (state === 'playing') setStats(EMPTY_STATS);
+          addLog(`Player: ${state}`);
+          if (state === 'playing') {
+            setStats(EMPTY_STATS);
+            if (!clockStartRef.current) {
+              clockStartRef.current = { audio: adapter.now(), wall: performance.now() };
+            }
+          }
+          if (state === 'stopped' || state === 'paused') clockStartRef.current = null;
         },
         onSwing: (swing: ScheduledSwing) =>
           setStats((s) => ({
@@ -77,6 +103,14 @@ export default function AudioLab() {
             lastCycle: swing.cycleSeconds,
           })),
       });
+      detachRef.current = attachWebSession(player, {
+        onWakeLock: (status) => {
+          setWakeLock(status);
+          addLog(`Wake lock: ${status}`);
+        },
+        onVisibility: (hidden) => addLog(hidden ? 'Page hidden or phone locked' : 'Page visible again'),
+      });
+      playerRef.current = player;
     }
     return playerRef.current;
   }
@@ -89,8 +123,28 @@ export default function AudioLab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preset, settings, includeWeightShift, toneStyle]);
 
-  // Stop the sound if this screen goes away.
-  useEffect(() => () => playerRef.current?.stop(), []);
+  // Stop the sound and let go of the wake lock if this screen goes away.
+  useEffect(
+    () => () => {
+      playerRef.current?.stop();
+      detachRef.current?.();
+    },
+    [],
+  );
+
+  // Once a second: how long the run has gone, and how far the audio clock has drifted
+  // from the device clock. A small, steady number is fine. A growing one is a problem.
+  useEffect(() => {
+    const id = setInterval(() => {
+      const start = clockStartRef.current;
+      const adapter = adapterRef.current;
+      if (!start || !adapter) return;
+      const audioSeconds = adapter.now() - start.audio;
+      const wallSeconds = (performance.now() - start.wall) / 1000;
+      setClock({ seconds: wallSeconds, driftMs: (audioSeconds - wallSeconds) * 1000 });
+    }, CLOCK_READOUT_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
 
   async function playBeep(type: 'beat1' | 'weightShift' | 'beat2' | 'beat3') {
     const adapter = await getAdapter();
@@ -175,6 +229,15 @@ export default function AudioLab() {
         Swings scheduled: {stats.swings}. Cycle: {stats.lastCycle.toFixed(3)} s. Closest a swing came to
         being late: {Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}
       </Text>
+
+      <Text>
+        Wake lock: {wakeLock}. Run time: {clock.seconds.toFixed(0)} s. Audio clock vs device clock:{' '}
+        {clock.driftMs.toFixed(1)} ms
+      </Text>
+      <Text style={styles.label}>Event log (newest first)</Text>
+      {log.map((line, i) => (
+        <Text key={i}>{line}</Text>
+      ))}
 
       <Text style={styles.label}>One swing</Text>
       <View style={styles.row}>

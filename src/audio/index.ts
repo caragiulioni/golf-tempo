@@ -17,3 +17,4 @@ export {
   type SwingOptions,
 } from './player';
 export { createWebAudioAdapter } from './webAudio';
+export { attachWebSession, type WakeLockStatus, type WebSessionListeners } from './webSession';

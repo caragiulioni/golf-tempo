@@ -11,9 +11,18 @@ const PEAK_GAIN = 0.4;
 export function createWebAudioAdapter(): AudioAdapter {
   let context: AudioContext | null = null;
   let active = new Set<OscillatorNode>();
+  const suspendedListeners = new Set<() => void>();
 
   function getContext(): AudioContext {
-    if (!context) context = new AudioContext();
+    if (!context) {
+      context = new AudioContext();
+      // Safari reports 'interrupted' when the phone takes audio away (lock, call).
+      context.onstatechange = () => {
+        if (context && context.state !== 'running') {
+          for (const listener of suspendedListeners) listener();
+        }
+      };
+    }
     return context;
   }
 
@@ -57,6 +66,13 @@ export function createWebAudioAdapter(): AudioAdapter {
         active.add(osc);
         osc.onended = () => active.delete(osc);
       }
+    },
+
+    onSuspended(listener) {
+      suspendedListeners.add(listener);
+      return () => {
+        suspendedListeners.delete(listener);
+      };
     },
 
     stopAll() {
