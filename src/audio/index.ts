@@ -16,5 +16,10 @@ export {
   type ScheduledSwing,
   type SwingOptions,
 } from './player';
-export { createWebAudioAdapter } from './webAudio';
+export {
+  createWebAudioAdapter,
+  type WebAudioAdapter,
+  type WebAudioInfo,
+  type WebAudioOptions,
+} from './webAudio';
 export { attachWebSession, type WakeLockStatus, type WebSessionListeners } from './webSession';

@@ -165,6 +165,7 @@ export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerList
     run++;
     clearTimers();
     adapter.stopAll();
+    adapter.release?.();
     setState('paused');
   });
 
@@ -195,6 +196,7 @@ export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerList
       run++;
       clearTimers();
       adapter.stopAll();
+      adapter.release?.();
       options = null;
       setState('stopped');
     },

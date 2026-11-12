@@ -22,5 +22,5 @@ Follows `.kiro/steering/workflow.md`. Stop for review at the end of every wave, 
 - [x] 2. Keep playing when hidden or locked; pause cleanly if the system takes the audio away; do not catch up after a freeze. Check, desktop: switch tabs while playing and come back; sound continued with no gaps and the log shows hidden then visible.
 - [x] 3. Clock readout and event log in the audio lab. Check: run time and audio-versus-device clock drift update every second.
 - [x] 4. An https address for the phones: Netlify draft deploy of the web export. Check: the link opens the audio lab on a phone.
-- [ ] 5. Real device testing: desktop, iPad Safari, Android Chrome (two phones). Includes locking the phone while playing. Check: results recorded per device in `docs/porting-guide.md`.
+- [ ] 5. Real device testing: desktop, iPad Safari, Android Chrome (two phones). Includes locking the phone while playing. Check: results recorded per device in `docs/porting-guide.md`. Done so far: Mac desktop, Pixel 6 Chrome, iPad (Safari and Chrome). Pending: the brother's Android, tested through the Audio lab menu item once spec 3 exists. Experiments in progress: bigger audio buffer (`?latency=playback`) on the Pixel and a keep-alive trick (`?keepalive=1`) on the iPad.
 - [ ] 6. Porting notes. Check: entry added to `docs/porting-guide.md`.

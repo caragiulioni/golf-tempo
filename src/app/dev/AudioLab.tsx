@@ -10,6 +10,8 @@ import {
   type AudioAdapter,
   type Player,
   type PlayerState,
+  type WebAudioAdapter,
+  type WebAudioOptions,
   type ScheduledBeep,
   type ScheduledSwing,
   type WakeLockStatus,
@@ -42,12 +44,32 @@ function Button({ label, onPress, selected }: { label: string; onPress: () => vo
 type RunStats = { swings: number; minLeadMs: number; lastCycle: number };
 const EMPTY_STATS: RunStats = { swings: 0, minLeadMs: Number.POSITIVE_INFINITY, lastCycle: 0 };
 const LOG_LINES_SHOWN = 10;
+/** The Copy log button includes this many lines, so a long session is not cut off. */
+const LOG_LINES_KEPT = 300;
+
+/**
+ * Experiments, switched on from the page address:
+ *   ?latency=playback   a bigger audio buffer (try on Android if sound crackles)
+ *   ?keepalive=1        a silent audio element that may keep iOS playing on lock
+ */
+function readExperiments(): WebAudioOptions {
+  if (typeof location === 'undefined') return {};
+  const params = new URLSearchParams(location.search);
+  const latency = params.get('latency');
+  const options: WebAudioOptions = {};
+  if (latency === 'interactive' || latency === 'balanced' || latency === 'playback') {
+    options.latencyHint = latency;
+  }
+  if (params.get('keepalive') === '1') options.keepAlive = true;
+  return options;
+}
+const EXPERIMENTS = readExperiments();
 const CLOCK_READOUT_INTERVAL_MS = 1000;
 
 type RunClock = { seconds: number; driftMs: number };
 
 export default function AudioLab() {
-  const adapterRef = useRef<AudioAdapter | null>(null);
+  const adapterRef = useRef<WebAudioAdapter | null>(null);
   const playerRef = useRef<Player | null>(null);
   const [playerState, setPlayerState] = useState<PlayerState>('stopped');
   const [stats, setStats] = useState<RunStats>(EMPTY_STATS);
@@ -60,7 +82,7 @@ export default function AudioLab() {
 
   function addLog(text: string) {
     const time = new Date().toLocaleTimeString();
-    setLog((lines) => [`${time}  ${text}`, ...lines].slice(0, LOG_LINES_SHOWN));
+    setLog((lines) => [`${time}  ${text}`, ...lines].slice(0, LOG_LINES_KEPT));
   }
   const [category, setCategory] = useState<Category>('long');
   const [preset, setPreset] = useState<Preset>(PRESETS.long[4]);
@@ -68,9 +90,15 @@ export default function AudioLab() {
   const [toneStyle, setToneStyle] = useState<WeightShiftToneStyle>('distinct');
   const [includeWeightShift, setIncludeWeightShift] = useState(true);
   const [report, setReport] = useState<string[]>([]);
+  const [copyStatus, setCopyStatus] = useState('');
+  const [copyFallback, setCopyFallback] = useState('');
 
-  function getAdapterNow(): AudioAdapter {
-    if (!adapterRef.current) adapterRef.current = createWebAudioAdapter();
+  function getAdapterNow(): WebAudioAdapter {
+    if (!adapterRef.current) {
+      const adapter = createWebAudioAdapter(EXPERIMENTS);
+      adapter.onStateChange((state) => addLog(`Audio context: ${state}`));
+      adapterRef.current = adapter;
+    }
     return adapterRef.current;
   }
 
@@ -113,6 +141,41 @@ export default function AudioLab() {
       playerRef.current = player;
     }
     return playerRef.current;
+  }
+
+  /** Everything needed to understand a test run, as plain text to paste into a message. */
+  function buildLogText(): string {
+    const info = adapterRef.current?.info() ?? null;
+    const ms = (seconds: number | null | undefined) =>
+      seconds === null || seconds === undefined ? 'not reported' : `${(seconds * 1000).toFixed(1)} ms`;
+    return [
+      'Swing Tempo audio lab log',
+      `Copied at: ${new Date().toString()}`,
+      `Page: ${typeof location === 'undefined' ? 'unknown' : location.href}`,
+      `Browser: ${typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent}`,
+      `Experiments: latency=${EXPERIMENTS.latencyHint ?? 'default'}, keepalive=${EXPERIMENTS.keepAlive ? 'on' : 'off'}`,
+      `Audio context: ${info ? `${info.state}, ${info.sampleRate} Hz, base latency ${ms(info.baseLatencySeconds)}, output latency ${ms(info.outputLatencySeconds)}` : 'not created yet (nothing played)'}`,
+      `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, ${includeWeightShift ? 'with' : 'without'} weight shift`,
+      `Player: ${playerState}. Wake lock: ${wakeLock}`,
+      `Run time: ${clock.seconds.toFixed(0)} s. Audio clock vs device clock: ${clock.driftMs.toFixed(1)} ms`,
+      `Swings scheduled: ${stats.swings}. Closest a swing came to being late: ${Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}`,
+      '',
+      'Event log (newest first):',
+      ...(log.length ? log : ['(empty)']),
+    ].join('\n');
+  }
+
+  async function copyLog() {
+    const text = buildLogText();
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyStatus(`Copied ${log.length} log lines. Paste them into a message.`);
+      setCopyFallback('');
+    } catch {
+      // Some browsers block copying. Show the text so it can be selected by hand.
+      setCopyStatus('Could not copy automatically. Select the text below and copy it.');
+      setCopyFallback(text);
+    }
   }
 
   const swingOptions = { preset, settings, includeWeightShift, toneStyle };
@@ -234,10 +297,19 @@ export default function AudioLab() {
         Wake lock: {wakeLock}. Run time: {clock.seconds.toFixed(0)} s. Audio clock vs device clock:{' '}
         {clock.driftMs.toFixed(1)} ms
       </Text>
-      <Text style={styles.label}>Event log (newest first)</Text>
-      {log.map((line, i) => (
+      <Text>
+        Experiments: latency={EXPERIMENTS.latencyHint ?? 'default'}, keepalive=
+        {EXPERIMENTS.keepAlive ? 'on' : 'off'}
+      </Text>
+      <Text style={styles.label}>Event log (newest first, last {LOG_LINES_SHOWN} shown)</Text>
+      {log.slice(0, LOG_LINES_SHOWN).map((line, i) => (
         <Text key={i}>{line}</Text>
       ))}
+      <View style={styles.row}>
+        <Button label="Copy log" onPress={copyLog} />
+      </View>
+      {copyStatus ? <Text>{copyStatus}</Text> : null}
+      {copyFallback ? <Text selectable>{copyFallback}</Text> : null}
 
       <Text style={styles.label}>One swing</Text>
       <View style={styles.row}>

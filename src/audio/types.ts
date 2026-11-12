@@ -21,4 +21,6 @@ export interface AudioAdapter {
    * Returns a function that removes the listener.
    */
   onSuspended(listener: () => void): () => void;
+  /** Optional. Called when playback ends (stopped or paused), so the platform can let go of the audio session. */
+  release?(): void;
 }

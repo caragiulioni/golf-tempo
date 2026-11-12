@@ -27,7 +27,12 @@ Test in desktop browsers plus iOS Safari and Android Chrome on real phones. Also
 
 | Device | OS / browser version | Result | Notes |
 |---|---|---|---|
-| (none tested yet) | | | |
+| Mac laptop (Apple silicon) | desktop browser (version not recorded) | Pass | Repeat, stop, restart, background tab and 2 minute drift check all fine. |
+| Pixel 6 | Chrome (version not recorded) | Pass | Wake lock kept the screen on. Pressing lock: a couple of hits sounded crunchy for two lock periods, then stable; logs stayed clean. Experiment pending. |
+| iPad (model not recorded) | iPadOS Safari and Chrome (versions not recorded) | Works, stops on lock | Clock drift 0.3 to 4.2 ms. Closest swing 97 ms ahead. Pressing lock stops the sound completely. Experiment pending. |
+| Brother's Android | | Pending | Tested later through the Audio lab menu item (spec 3). Not yet tested. |
+
+Model and version details still need to be recorded for each device above.
 
 ### Native (after the port)
 
