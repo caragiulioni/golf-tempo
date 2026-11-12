@@ -54,11 +54,19 @@ export const START_DELAY_SECONDS = 0.1;
  * The user has to tap to resume. 'stopped' means the user stopped it.
  */
 /**
- * If the audio clock falls this far behind the device clock while playing, the phone is
- * stalling the audio (seen on a Pixel 6 after a few minutes locked). Beeps would come out
- * crunchy and late, so the player pauses instead. Normal wobble is a few milliseconds.
+ * If the audio clock falls this far behind the device clock within one check window, the
+ * phone is stalling the audio (seen on a Pixel 6 after a few minutes locked). Beeps would
+ * come out late and broken, so the player pauses instead. Normal wobble is a few milliseconds.
  */
 export const STALL_THRESHOLD_SECONDS = 0.15;
+/**
+ * The two clocks are compared over a rolling window, not since Play. The audio clock and
+ * the device clock come from different chips and drift apart slowly (about 20 parts per
+ * million on a Pixel 6, about 35 ms in 30 minutes). Over a long session that normal drift
+ * would add up and trip the guard on a phone whose audio clock runs slow. Over 10 s it is
+ * well under 1 ms, while a real stall (audio clock stopped) still trips within 0.15 s.
+ */
+export const STALL_WINDOW_SECONDS = 10;
 
 /**
  * Why playback paused. 'hidden': the phone locked or another app came to the front.
@@ -125,9 +133,9 @@ export function createPlayer(
 ): Player {
   const wallClockMs =
     config.wallClockMs ?? (() => (typeof performance !== 'undefined' ? performance.now() : Date.now()));
-  // Where the audio clock and the device clock were when the current run began.
-  let audioStart = 0;
-  let wallStartMs = 0;
+  // Where the audio clock and the device clock were at the start of the current check window.
+  let windowAudio = 0;
+  let windowWallMs = 0;
   const listenerSet = new Set<PlayerListeners>([initialListeners]);
   const notify = <K extends keyof PlayerListeners>(key: K, ...args: Parameters<NonNullable<PlayerListeners[K]>>) => {
     for (const l of listenerSet) (l[key] as ((...a: unknown[]) => void) | undefined)?.(...args);
@@ -164,11 +172,18 @@ export function createPlayer(
 
   function scheduleDueSwings() {
     if (state !== 'playing' || !options) return;
-    // Stall guard: the audio clock should keep pace with the device clock.
-    const behind = (wallClockMs() - wallStartMs) / 1000 - (adapter.now() - audioStart);
+    // Stall guard: within each window the audio clock should keep pace with the device clock.
+    const wallNowMs = wallClockMs();
+    const audioNow = adapter.now();
+    const wallElapsed = (wallNowMs - windowWallMs) / 1000;
+    const behind = wallElapsed - (audioNow - windowAudio);
     if (behind > STALL_THRESHOLD_SECONDS) {
       pauseNow('stalled', behind);
       return;
+    }
+    if (wallElapsed >= STALL_WINDOW_SECONDS) {
+      windowAudio = audioNow;
+      windowWallMs = wallNowMs;
     }
     // Fell behind (page frozen, timer starved): do not play missed swings all at once.
     // Start a fresh run from beat 1 instead.
@@ -192,9 +207,9 @@ export function createPlayer(
   }
 
   function beginRun() {
-    audioStart = adapter.now();
-    wallStartMs = wallClockMs();
-    nextStart = audioStart + START_DELAY_SECONDS;
+    windowAudio = adapter.now();
+    windowWallMs = wallClockMs();
+    nextStart = windowAudio + START_DELAY_SECONDS;
     setState('playing');
     scheduleDueSwings();
     tick = setInterval(scheduleDueSwings, TIMER_INTERVAL_MS);
