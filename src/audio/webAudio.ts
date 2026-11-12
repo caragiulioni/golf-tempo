@@ -1,6 +1,5 @@
 import { TONES } from './tones';
 import type { AudioAdapter, Voice } from './types';
-import { createKeepAlive } from './webKeepAlive';
 
 /** Peak volume of one beep (0 to 1). Leaves room so overlapping beeps do not clip. */
 const PEAK_GAIN = 0.4;
@@ -51,8 +50,6 @@ const DEFAULT_LATENCY_HINT: AudioContextLatencyCategory = 'playback';
 export type WebAudioOptions = {
   /** Audio buffer size hint. Default 'playback'. Use 'interactive' to compare the small buffer. */
   latencyHint?: AudioContextLatencyCategory;
-  /** EXPERIMENT. Keep a silent audio element playing so iOS may keep audio on lock. */
-  keepAlive?: boolean;
 };
 
 /** What the browser says about its audio, for the Copy log button. */
@@ -62,7 +59,6 @@ export type WebAudioInfo = {
   baseLatencySeconds: number | null;
   outputLatencySeconds: number | null;
   latencyHint: string;
-  keepAlive: boolean;
 };
 
 export type WebAudioAdapter = AudioAdapter & {
@@ -77,7 +73,6 @@ export type WebAudioAdapter = AudioAdapter & {
  * Beeps are scheduled on the audio clock (AudioContext.currentTime).
  */
 export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAdapter {
-  const keepAlive = options.keepAlive ? createKeepAlive() : null;
   const stateListeners = new Set<(state: string) => void>();
   let context: AudioContext | null = null;
   const active = new Set<ActiveTone>();
@@ -100,8 +95,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
 
   return {
     async unlock() {
-      // Both of these must happen inside a user tap, before the first await.
-      keepAlive?.start();
+      // Must happen inside a user tap, before the first await.
       const ctx = getContext();
       if (ctx.state !== 'running') await ctx.resume();
       await waitForClockToRun(ctx);
@@ -147,10 +141,6 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
       }
     },
 
-    release() {
-      keepAlive?.stop();
-    },
-
     info() {
       if (!context) return null;
       return {
@@ -159,7 +149,6 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
         baseLatencySeconds: typeof context.baseLatency === 'number' ? context.baseLatency : null,
         outputLatencySeconds: typeof context.outputLatency === 'number' ? context.outputLatency : null,
         latencyHint: options.latencyHint ?? DEFAULT_LATENCY_HINT,
-        keepAlive: Boolean(keepAlive),
       };
     },
 

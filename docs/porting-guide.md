@@ -46,6 +46,45 @@ At least one Android device and at least one iOS device (phone or tablet).
 
 ## Entries
 
+### timing-engine
+- What was built: the timing brain of the app, in `src/engine/`. It holds the 16 tempo presets (10 Long Game, 6 Short Game) and works out when each beep happens in one swing: beat 1, the weight shift beat, beat 2 and beat 3. It returns a plain list of "this beep at this many seconds". It makes no sound and shows nothing on screen.
+- Carries over unchanged: everything in `src/engine/` (files `presets.ts`, `beats.ts`, `weightShift.ts`, `sequence.ts`, `repeat.ts`, `index.ts`; `repeat.ts`, the pause between swings, was added during the audio spec). It is plain TypeScript with no web, React or audio code, so it is expected to work the same on iOS and Android. Not run on a phone yet. The tests (`*.test.ts`) run on a computer only and are not part of the app.
+- Web-only, must be replaced on native: nothing. A search of `src/engine/` found no browser, React or audio references.
+- Needs testing on a real device: nothing on its own. When the audio spec is built, check on both an Android device and an iOS device that the beeps really land at the times this list gives (beat 1 at 0 s, beat 2 at the first number divided by 30, and so on).
+- Decisions and reasons:
+  - Beat 3 comes 0.20 s later than the printed preset numbers imply. This was measured on all 11 Tour Tempo presets (`_references/tempo-measurements.md`), so it is copied on purpose. Do not "fix" it. The value is `BEAT3_DELAY_SECONDS` in `src/engine/beats.ts`.
+  - The weight shift position is a fraction between beat 1 and beat 2 (0.05 to 0.95), so it sits in the same relative place at every tempo.
+  - Run the engine tests with `npm test` from the project root.
+
+### audio-playback
+- What was built: the part that turns the engine's beep list into sound. It makes four beeps in code (no sound files): beat 1, the weight shift beat (shorter and higher, so it stands out), beat 2 and beat 3. It plays them on the audio system's own clock, repeats the swing with a pause that grows at slower tempos, starts and stops cleanly, and restarts from beat 1 when a setting changes. It keeps the screen awake while playing and stops when the phone locks. A temporary test screen, the Audio lab (`src/app/dev/AudioLab.tsx`), was built to listen and to copy a log.
+- Carries over unchanged (expected, not yet run on a phone):
+  - `src/audio/types.ts`: the list of what any audio system must do (start up after a tap, tell the time, play a beep at a time, stop everything, report when the phone takes the sound away, and an optional "release" step). The phone version follows this same list.
+  - `src/audio/tones.ts`: what each beep sounds like (pitch, length). Plain data.
+  - `src/audio/player.ts`: repeating, start, stop, restart on change, pause, and the stall guard. Plain TypeScript using ordinary timers only to top up the schedule, never to decide when a beep sounds. React Native has these timers.
+  - `src/engine/repeat.ts`: the pause between swings.
+- Web-only, must be replaced on native:
+  - `src/audio/webAudio.ts`: makes the sound with the browser's Web Audio. Replace with a phone audio library behind the same list in `types.ts`. Candidate: `react-native-audio-api`, which copies the Web Audio design, so this file should port with modest changes (untested). `expo-audio` plays sound files and is not built for scheduling beeps made in code. `react-native-audio-api` needs an Expo development build; the Expo Go app is not enough.
+  - `src/audio/webSession.ts`: keeps the screen on (browser wake lock) and stops the beats when the page is hidden. Replace with `expo-keep-awake` and the app's own "went to background" event (React Native `AppState`).
+  - The Audio lab's Copy log button uses the browser clipboard and the page address. Needs a small change (for example `expo-clipboard`) so the lab can run on a phone. The lab is meant to stay as a hidden Diagnostics page for exactly this, see `.kiro/specs/_index.md`, spec 6.
+  - The optional `release()` step in `types.ts` is not used on the web. On native it is the place to switch off the audio session when playback stops.
+- Needs testing on a real device (both an Android device and an iOS device; a pass on one does not count for the other):
+  - Beeps start after the first tap, sound at the right times, and the weight shift beep is clearly audible.
+  - A 30 minute session with the screen on: no crunches, no pauses.
+  - Locking the phone. On the web the beats stop on lock (see below). A phone app can keep playing when locked, but only with extra setup: on iOS, turn on background audio for the app and set the audio session to "playback" (this also makes it ignore the silent switch); on Android, run a foreground service (the notification music apps show). Decide whether to do this when porting, then test it on both.
+  - Calls and other apps taking the sound: the player has a pause for this ("system"); the native adapter must report it.
+  - Delay between scheduling and hearing a beep, on each device (see below).
+- Decisions and reasons:
+  - Beeps are scheduled ahead on the audio clock (about 0.25 s), topped up by a 25 ms timer. Each swing starts exactly one cycle after the last, so there is no drift. Values: `LOOKAHEAD_SECONDS`, `TIMER_INTERVAL_MS` in `src/audio/player.ts`.
+  - Bigger audio buffer by default (`latencyHint: 'playback'` in `src/audio/webAudio.ts`). On a Pixel 6 the small buffer crackled while locked; the bigger one did not. Cost: more delay before a beep is heard (about 250 to 280 ms on the Pixel, 56 ms on a Mac). Beep spacing is not affected.
+  - That delay matters for anything visual (spec 3): the picture must be shifted by it. The browser reports it as `outputLatency`; Safari 16.6 on iPad does not, so a fallback is needed. On native, measure it per device.
+  - Stops when the phone locks or another app comes to the front. A locked Pixel 6 played cleanly for about 4 minutes, then crunched and stopped; the iPad stops on lock by itself. Stopping straight away means the beats are either right or silent. Plain-language version for the user: `docs/development-decisions.md`, entry 1.
+  - Stall guard: if the audio clock falls more than 0.15 s behind the device clock, the player pauses instead of playing late beats (`STALL_THRESHOLD_SECONDS`). It catches a full stall, not small crunches.
+  - After the first tap, the player waits until the audio clock is really moving before scheduling. Some phones report "ready" while the clock is still at zero.
+  - Stopping fades a beep out over a few milliseconds instead of cutting it, which clicked.
+  - Tried and removed: playing silent audio in the background to keep the phone treating the page like a music player. It did not help on the Pixel.
+  - Some lock tests may have been opened from Gmail's in-app browser, not the browser app (see the note under the web results table).
+
 ## Final guide checklist (written after the last spec)
 
 - [ ] Plain-language overview: what the app is and what porting involves.
@@ -54,13 +93,3 @@ At least one Android device and at least one iOS device (phone or tablet).
 - [ ] List of web-only parts and their native replacements.
 - [ ] Known risks and untested areas.
 - [ ] How to open the hidden Audio lab (Diagnostics page) and use it as the first test on a phone: play, lock the phone, tap Copy log, send the log.
-
-### timing-engine
-- What was built: the timing brain of the app, in `src/engine/`. It holds the 16 tempo presets (10 Long Game, 6 Short Game) and works out when each beep happens in one swing: beat 1, the weight shift beat, beat 2 and beat 3. It returns a plain list of "this beep at this many seconds". It makes no sound and shows nothing on screen.
-- Carries over unchanged: everything in `src/engine/` (files `presets.ts`, `beats.ts`, `weightShift.ts`, `sequence.ts`, `index.ts`). It is plain TypeScript with no web, React or audio code, so it is expected to work the same on iOS and Android. Not run on a phone yet. The tests (`*.test.ts`) run on a computer only and are not part of the app.
-- Web-only, must be replaced on native: nothing. A search of `src/engine/` found no browser, React or audio references.
-- Needs testing on a real device: nothing on its own. When the audio spec is built, check on both an Android device and an iOS device that the beeps really land at the times this list gives (beat 1 at 0 s, beat 2 at the first number divided by 30, and so on).
-- Decisions and reasons:
-  - Beat 3 comes 0.20 s later than the printed preset numbers imply. This was measured on all 11 Tour Tempo presets (`_references/tempo-measurements.md`), so it is copied on purpose. Do not "fix" it. The value is `BEAT3_DELAY_SECONDS` in `src/engine/beats.ts`.
-  - The weight shift position is a fraction between beat 1 and beat 2 (0.05 to 0.95), so it sits in the same relative place at every tempo.
-  - Run the engine tests with `npm test` from the project root.

@@ -48,9 +48,8 @@ const LOG_LINES_SHOWN = 10;
 const LOG_LINES_KEPT = 300;
 
 /**
- * Experiments, switched on from the page address:
+ * Experiment, switched on from the page address:
  *   ?latency=interactive   the small audio buffer, to compare (the default is 'playback')
- *   ?keepalive=1        a silent audio element that may keep iOS playing on lock
  */
 function readExperiments(): WebAudioOptions {
   if (typeof location === 'undefined') return {};
@@ -60,7 +59,6 @@ function readExperiments(): WebAudioOptions {
   if (latency === 'interactive' || latency === 'balanced' || latency === 'playback') {
     options.latencyHint = latency;
   }
-  if (params.get('keepalive') === '1') options.keepAlive = true;
   return options;
 }
 const EXPERIMENTS = readExperiments();
@@ -168,7 +166,7 @@ export default function AudioLab() {
       `Copied at: ${new Date().toString()}`,
       `Page: ${typeof location === 'undefined' ? 'unknown' : location.href}`,
       `Browser: ${typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent}`,
-      `Experiments: latency=${EXPERIMENTS.latencyHint ?? 'playback (default)'}, keepalive=${EXPERIMENTS.keepAlive ? 'on' : 'off'}`,
+      `Experiments: latency=${EXPERIMENTS.latencyHint ?? 'playback (default)'}`,
       `Audio context: ${info ? `${info.state}, ${info.sampleRate} Hz, base latency ${ms(info.baseLatencySeconds)}, output latency ${ms(info.outputLatencySeconds)}` : 'not created yet (nothing played)'}`,
       `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, ${includeWeightShift ? 'with' : 'without'} weight shift`,
       `Player: ${playerState}. Wake lock: ${wakeLock}`,
@@ -323,8 +321,7 @@ export default function AudioLab() {
         {clock.driftMs.toFixed(1)} ms
       </Text>
       <Text>
-        Experiments: latency={EXPERIMENTS.latencyHint ?? 'playback (default)'}, keepalive=
-        {EXPERIMENTS.keepAlive ? 'on' : 'off'}
+        Experiments: latency={EXPERIMENTS.latencyHint ?? 'playback (default)'}
       </Text>
       <Text style={styles.label}>Event log (newest first, last {LOG_LINES_SHOWN} shown)</Text>
       {log.slice(0, LOG_LINES_SHOWN).map((line, i) => (
