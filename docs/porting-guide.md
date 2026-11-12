@@ -32,6 +32,8 @@ Test in desktop browsers plus iOS Safari and Android Chrome on real phones. Also
 | iPad (model not recorded) | Safari 16.6 (iPadOS 16.6; reports itself as a Mac, which is normal for iPad Safari). Chrome also tried earlier, version not recorded | Pass (stops on lock) | Clock drift 0.3 to 4.2 ms in an earlier run, closest swing 97 ms ahead. Wake lock works (held while playing). On lock, Safari reports the audio as 'interrupted' first, so the player pauses with reason 'system'; Play afterwards resumes the audio and starts from beat 1 (checked twice). Safari does not report output delay (`outputLatency`), so the visuals need a fallback. |
 | Brother's Android | | Pending | Tested later through the Audio lab menu item (spec 3). Not yet tested. |
 
+Caveat: some Pixel and iPad runs may have been opened from the Gmail app, which loads the page inside Gmail (an in-app browser tab) instead of the Chrome or Safari app. The logs cannot tell the two apart. This only matters for the locked-phone results; screen-on results are not affected, and the app now stops on lock either way. Later runs are opened in the browser app itself. One check in an in-app tab is still worth doing, since real users will open links from email and texts.
+
 Versions come from the browser's user agent in the audio lab log. Device models still need to be recorded for the iPad.
 
 ### Native (after the port)
