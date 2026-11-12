@@ -182,6 +182,12 @@ The mockup loads Inter, Space Grotesk and Michroma from a web service. In the ap
 ### Icon files still needed
 Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist.
 
+Owner: Mike (Photoshop, Illustrator or AI-assisted). Needed only for the native app, not the web build. Rough guide, to be checked against Expo's documentation at the time:
+- Adaptive icon foreground: 1024 by 1024 PNG, transparent background, logo kept inside the middle area (about the central two thirds), because Android crops the edges into different shapes.
+- Adaptive icon background: a solid color from the palette, or a 1024 by 1024 PNG.
+- Monochrome: the same logo shape in one flat color on a transparent background, same size and position as the foreground.
+- Splash: the logo mark (or wordmark) as a PNG on a transparent background, plus one background color for light mode and one for dark.
+
 ### CONFIG mode
 Not in the handoff. It will be designed in this project, together with Kiro, as a simple, temporary screen. It needs a live-moving weight shift marker on the timeline.
 
