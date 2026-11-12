@@ -28,7 +28,7 @@ Test in desktop browsers plus iOS Safari and Android Chrome on real phones. Also
 | Device | OS / browser version | Result | Notes |
 |---|---|---|---|
 | Mac laptop (Apple silicon) | desktop browser (version not recorded) | Pass | Repeat, stop, restart, background tab and 2 minute drift check all fine. |
-| Pixel 6 | Chrome (version not recorded) | Pass | Wake lock kept the screen on. Pressing lock: a couple of hits sounded crunchy for two lock periods, then stable; logs stayed clean. Experiment pending. |
+| Pixel 6 | Chrome (version not recorded) | Pass with bigger audio buffer | Wake lock kept the screen on. Locking the phone: with the small default buffer, crunches in the middle of a lock (5 across three locks of 15 to 26 s); with the bigger buffer (`latencyHint: 'playback'`) none across three locks. Cost: output delay 280 ms vs 16 ms, so visuals must be shifted. Sound kept playing through every lock. Still to do: one long lock (several minutes). |
 | iPad (model not recorded) | iPadOS Safari and Chrome (versions not recorded) | Works, stops on lock | Clock drift 0.3 to 4.2 ms. Closest swing 97 ms ahead. Pressing lock stops the sound completely. Experiment pending. |
 | Brother's Android | | Pending | Tested later through the Audio lab menu item (spec 3). Not yet tested. |
 

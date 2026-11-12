@@ -44,6 +44,11 @@ interface AudioAdapter {
 - Timer starved (page frozen): if the next swing's start is already in the past, the player does not catch up. It starts a fresh run from beat 1 and reports `onResync`.
 - Whether each device keeps playing on lock is decided by the device tests (Wave 2.3, task 5). Results go in `docs/porting-guide.md`.
 
+## Audio buffer and output delay
+
+- The web adapter asks for a bigger audio buffer (`latencyHint: 'playback'`) by default. Reason: on a Pixel 6 the small buffer crackled while the phone was locked (5 crunches in three locks), the bigger one did not (none in three locks). We schedule ahead, so we do not need the low delay.
+- Cost: about 280 ms between scheduling a beep and hearing it (Pixel 6, reported by `AudioContext.outputLatency`; 16 ms with the small buffer). Beep spacing is not affected. Anything visual must be shifted by this amount: the UI spec has to read `info().outputLatencySeconds` and delay the animation by it. If a browser does not report it, assume it is unknown and say so in the porting guide.
+
 ## Checking
 
 - Engine additions: automated tests.

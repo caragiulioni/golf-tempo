@@ -23,11 +23,17 @@ async function waitForClockToRun(ctx: AudioContext): Promise<void> {
   }
 }
 
+/**
+ * A bigger audio buffer. Beeps are scheduled ahead on the audio clock, so a small buffer
+ * buys nothing here, and on a Pixel 6 the small one crackled while the phone was locked
+ * (the bigger one did not). The cost is more delay between scheduling and hearing a beep
+ * (about 280 ms on that phone). The UI must shift anything visual by the amount the
+ * browser reports (AudioContext.outputLatency, see info()).
+ */
+const DEFAULT_LATENCY_HINT: AudioContextLatencyCategory = 'playback';
+
 export type WebAudioOptions = {
-  /**
-   * EXPERIMENT. 'playback' asks the browser for a bigger audio buffer, which is
-   * harder to upset but adds a little output delay. Default: the browser's choice.
-   */
+  /** Audio buffer size hint. Default 'playback'. Use 'interactive' to compare the small buffer. */
   latencyHint?: AudioContextLatencyCategory;
   /** EXPERIMENT. Keep a silent audio element playing so iOS may keep audio on lock. */
   keepAlive?: boolean;
@@ -63,9 +69,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
 
   function getContext(): AudioContext {
     if (!context) {
-      context = options.latencyHint
-        ? new AudioContext({ latencyHint: options.latencyHint })
-        : new AudioContext();
+      context = new AudioContext({ latencyHint: options.latencyHint ?? DEFAULT_LATENCY_HINT });
       // Safari reports 'interrupted' when the phone takes audio away (lock, call).
       context.onstatechange = () => {
         if (!context) return;
@@ -133,7 +137,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
         sampleRate: context.sampleRate,
         baseLatencySeconds: typeof context.baseLatency === 'number' ? context.baseLatency : null,
         outputLatencySeconds: typeof context.outputLatency === 'number' ? context.outputLatency : null,
-        latencyHint: options.latencyHint ?? 'default',
+        latencyHint: options.latencyHint ?? DEFAULT_LATENCY_HINT,
         keepAlive: Boolean(keepAlive),
       };
     },
