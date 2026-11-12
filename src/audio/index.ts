@@ -7,9 +7,12 @@ export {
   type WeightShiftToneStyle,
 } from './tones';
 export {
+  STALL_THRESHOLD_SECONDS,
   createPlayer,
   scheduleSwing,
+  type PauseReason,
   type Player,
+  type PlayerConfig,
   type PlayerListeners,
   type PlayerState,
   type ScheduledBeep,

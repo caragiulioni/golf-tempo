@@ -59,6 +59,16 @@ export const START_DELAY_SECONDS = 0.1;
  * 'paused' means the phone or browser took the audio away (for example iOS on lock).
  * The user has to tap to resume. 'stopped' means the user stopped it.
  */
+/**
+ * If the audio clock falls this far behind the device clock while playing, the phone is
+ * stalling the audio (seen on a Pixel 6 after a few minutes locked). Beeps would come out
+ * crunchy and late, so the player pauses instead. Normal wobble is a few milliseconds.
+ */
+export const STALL_THRESHOLD_SECONDS = 0.15;
+
+/** Why the player paused itself. */
+export type PauseReason = 'system' | 'stalled';
+
 export type PlayerState = 'stopped' | 'playing' | 'restarting' | 'paused';
 
 /** One swing that was scheduled, for the UI to follow. Times are on the audio clock. */
@@ -77,6 +87,13 @@ export type PlayerListeners = {
   onSwing?: (swing: ScheduledSwing) => void;
   /** The timer fell behind (for example the page was frozen), so the run restarted from beat 1. */
   onResync?: () => void;
+  /** The player paused itself. For 'stalled', `behindSeconds` is how far the audio clock had fallen behind. */
+  onPaused?: (reason: PauseReason, behindSeconds?: number) => void;
+};
+
+export type PlayerConfig = {
+  /** Device clock in milliseconds, used only to notice stalls. Default: performance.now(). */
+  wallClockMs?: () => number;
 };
 
 export interface Player {
@@ -101,7 +118,16 @@ export interface Player {
  * Repeats swings forever. The timer only tops up the schedule a little ahead of time.
  * When each beep sounds comes from the audio clock and the engine, never from the timer.
  */
-export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerListeners = {}): Player {
+export function createPlayer(
+  adapter: AudioAdapter,
+  initialListeners: PlayerListeners = {},
+  config: PlayerConfig = {},
+): Player {
+  const wallClockMs =
+    config.wallClockMs ?? (() => (typeof performance !== 'undefined' ? performance.now() : Date.now()));
+  // Where the audio clock and the device clock were when the current run began.
+  let audioStart = 0;
+  let wallStartMs = 0;
   const listenerSet = new Set<PlayerListeners>([initialListeners]);
   const notify = <K extends keyof PlayerListeners>(key: K, ...args: Parameters<NonNullable<PlayerListeners[K]>>) => {
     for (const l of listenerSet) (l[key] as ((...a: unknown[]) => void) | undefined)?.(...args);
@@ -128,8 +154,23 @@ export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerList
     restartTimer = null;
   }
 
+  function pauseNow(reason: PauseReason, behindSeconds?: number) {
+    run++;
+    clearTimers();
+    adapter.stopAll();
+    adapter.release?.();
+    setState('paused');
+    notify('onPaused', reason, behindSeconds);
+  }
+
   function scheduleDueSwings() {
     if (state !== 'playing' || !options) return;
+    // Stall guard: the audio clock should keep pace with the device clock.
+    const behind = (wallClockMs() - wallStartMs) / 1000 - (adapter.now() - audioStart);
+    if (behind > STALL_THRESHOLD_SECONDS) {
+      pauseNow('stalled', behind);
+      return;
+    }
     // Fell behind (page frozen, timer starved): do not play missed swings all at once.
     // Start a fresh run from beat 1 instead.
     if (nextStart < adapter.now()) {
@@ -153,7 +194,9 @@ export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerList
   }
 
   function beginRun() {
-    nextStart = adapter.now() + START_DELAY_SECONDS;
+    audioStart = adapter.now();
+    wallStartMs = wallClockMs();
+    nextStart = audioStart + START_DELAY_SECONDS;
     setState('playing');
     scheduleDueSwings();
     tick = setInterval(scheduleDueSwings, TIMER_INTERVAL_MS);
@@ -162,11 +205,7 @@ export function createPlayer(adapter: AudioAdapter, initialListeners: PlayerList
   // The phone or browser took the audio away (iOS does this on lock). Stop cleanly.
   adapter.onSuspended(() => {
     if (state !== 'playing' && state !== 'restarting') return;
-    run++;
-    clearTimers();
-    adapter.stopAll();
-    adapter.release?.();
-    setState('paused');
+    pauseNow('system');
   });
 
   return {

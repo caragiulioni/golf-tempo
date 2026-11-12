@@ -77,6 +77,9 @@ export default function AudioLab() {
   const [log, setLog] = useState<string[]>([]);
   const [clock, setClock] = useState<RunClock>({ seconds: 0, driftMs: 0 });
   const detachRef = useRef<(() => void) | null>(null);
+  // For the "Simulate audio stall" test button: pushes the device clock ahead so the
+  // audio clock looks like it fell behind.
+  const wallOffsetMsRef = useRef(0);
   // Where the audio clock and the device clock were when the run began.
   const clockStartRef = useRef<{ audio: number; wall: number } | null>(null);
 
@@ -111,8 +114,16 @@ export default function AudioLab() {
   function getPlayer(): Player {
     if (!playerRef.current) {
       const adapter = getAdapterNow();
-      const player = createPlayer(adapter, {
+      const player = createPlayer(
+        adapter,
+        {
         onResync: () => addLog('Timer fell behind. Restarted from beat 1.'),
+        onPaused: (reason, behind) =>
+          addLog(
+            reason === 'stalled'
+              ? `Paused: audio stalled (audio clock ${((behind ?? 0) * 1000).toFixed(0)} ms behind)`
+              : 'Paused: the system took the audio away',
+          ),
         onState: (state) => {
           setPlayerState(state);
           addLog(`Player: ${state}`);
@@ -130,7 +141,9 @@ export default function AudioLab() {
             minLeadMs: Math.min(s.minLeadMs, swing.leadSeconds * 1000),
             lastCycle: swing.cycleSeconds,
           })),
-      });
+        },
+        { wallClockMs: () => performance.now() + wallOffsetMsRef.current },
+      );
       detachRef.current = attachWebSession(player, {
         onWakeLock: (status) => {
           setWakeLock(status);
@@ -287,7 +300,17 @@ export default function AudioLab() {
       <View style={styles.row}>
         <Button label="Play" onPress={() => getPlayer().start(swingOptions)} />
         <Button label="Stop" onPress={() => getPlayer().stop()} />
+        <Button
+          label="Simulate audio stall (test)"
+          onPress={() => {
+            wallOffsetMsRef.current += 500;
+            addLog('Test: pushed the device clock ahead by 500 ms');
+          }}
+        />
       </View>
+      {playerState === 'paused' ? (
+        <Text style={styles.selectedText}>Playback paused. Tap Play to start again from beat 1.</Text>
+      ) : null}
       <Text>
         Swings scheduled: {stats.swings}. Cycle: {stats.lastCycle.toFixed(3)} s. Closest a swing came to
         being late: {Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}
