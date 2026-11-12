@@ -122,7 +122,9 @@ export default function AudioLab() {
           addLog(
             reason === 'stalled'
               ? `Paused: audio stalled (audio clock ${((behind ?? 0) * 1000).toFixed(0)} ms behind)`
-              : 'Paused: the system took the audio away',
+              : reason === 'hidden'
+                ? 'Paused: page hidden or phone locked'
+                : 'Paused: the system took the audio away',
           ),
         onState: (state) => {
           setPlayerState(state);

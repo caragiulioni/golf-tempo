@@ -39,11 +39,11 @@ interface AudioAdapter {
 ## Phone behavior
 
 - Wake lock: `attachWebSession` in `webSession.ts` (web-only) asks for it when the player starts playing and lets go on stop or pause. The browser drops it when the page is hidden, so it asks again when the page is visible. Needs https or localhost.
-- Background: the same helper tells the player when the page is hidden. The player then schedules 5 s ahead instead of 0.25 s, so slowed timers do not leave gaps. Playback keeps going.
+- Hidden page: the same helper calls `player.pause('hidden')` when the page is hidden (lock or app switch). Coming back does not restart by itself; the user taps Play. (An earlier version kept playing in the background by scheduling 5 s ahead. Device tests showed a locked Pixel 6 degrading after about 4 minutes, so it was replaced.)
 - System takes audio away (iOS on lock): the adapter reports `onSuspended` (any AudioContext state other than running, including Safari's 'interrupted'). The player stops, silences, and goes to the `paused` state. Resuming needs a tap and starts from beat 1.
 - Timer starved (page frozen): if the next swing's start is already in the past, the player does not catch up. It starts a fresh run from beat 1 and reports `onResync`.
 - Stall guard: at every timer tick the player compares how far the audio clock has moved with how far the device clock has moved since the run began. If the audio clock is more than `STALL_THRESHOLD_SECONDS` (0.15 s) behind, the phone is stalling the audio, so the player pauses (`onPaused('stalled')`) instead of playing late, crunchy beeps. Reason: on a Pixel 6 locked for several minutes, the audio degraded and stopped while the page kept running. Normal readings stay within about 60 ms. Checked with a throwaway fake-clock test (keeps playing when in step, pauses on a stall, schedules nothing after, can start again).
-- Whether each device keeps playing on lock is decided by the device tests (Wave 2.3, task 5). Results go in `docs/porting-guide.md`.
+- Device results go in `docs/porting-guide.md`. Plain-language background for the user: `docs/development-decisions.md`, entry 1.
 
 ## Audio buffer and output delay
 

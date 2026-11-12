@@ -19,9 +19,10 @@ export type WebSessionListeners = {
 };
 
 /**
- * Keeps the screen awake while the player plays, and tells the player when the
- * page is in the background so it schedules further ahead. Returns a function that
- * undoes everything.
+ * Keeps the screen awake while the player plays, and pauses the player when the page
+ * is hidden (phone locked or another app in front). A locked Pixel 6 played cleanly for
+ * about 4 minutes, then crunched and stalled, so stopping straight away is the safer
+ * choice: the beats are either right or silent. Returns a function that undoes everything.
  */
 export function attachWebSession(player: Player, listeners: WebSessionListeners = {}): () => void {
   if (typeof document === 'undefined') return () => {};
@@ -82,15 +83,17 @@ export function attachWebSession(player: Player, listeners: WebSessionListeners 
 
   function onVisibilityChange() {
     const hidden = document.visibilityState === 'hidden';
-    player.setBackground(hidden);
     listeners.onVisibility?.(hidden);
+    if (hidden) {
+      player.pause('hidden');
+      return;
+    }
     // The wake lock is dropped when the page is hidden. Ask again when it is back.
     const state = player.getState();
     if (!hidden && (state === 'playing' || state === 'restarting')) void acquire();
   }
 
   document.addEventListener('visibilitychange', onVisibilityChange);
-  player.setBackground(document.visibilityState === 'hidden');
 
   return () => {
     document.removeEventListener('visibilitychange', onVisibilityChange);

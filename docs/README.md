@@ -8,6 +8,7 @@ This folder holds working documents about the project that aren't plans for a sp
 
 - `client_questions.md`: questions for the person who will use the app. Answers get written under each question. Once a question is answered, the decision moves to `dev_questions.md` and the question is removed.
 - `dev_questions.md`: the decision register. It lists what has been decided, what was learned from measuring Tour Tempo, and what is still open.
+- `development-decisions.md`: plain-language notes for the user (Mike) on choices made during development: the problem, what was tried, what the app does now, how much it matters, and how it could be fixed later. One entry per decision.
 - `porting-guide.md`: a running log of what must change to move the app from the web to iOS and Android. It also records which devices the audio has been tested on.
 
 ## Why it matters

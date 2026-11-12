@@ -42,12 +42,6 @@ export function scheduleSwing(
 
 /** How far ahead of the audio clock the next swing is scheduled, in seconds. */
 export const LOOKAHEAD_SECONDS = 0.25;
-/**
- * Same, while the page is in the background or the phone is locked. Browsers slow
- * timers down there (often to about once a second), so schedule far enough ahead
- * that a slow timer never leaves a gap.
- */
-export const BACKGROUND_LOOKAHEAD_SECONDS = 5;
 /** How often the timer checks whether the next swing needs scheduling, in ms. */
 export const TIMER_INTERVAL_MS = 25;
 /** Silence after a change (or a start) before the new run begins, in seconds. */
@@ -66,8 +60,11 @@ export const START_DELAY_SECONDS = 0.1;
  */
 export const STALL_THRESHOLD_SECONDS = 0.15;
 
-/** Why the player paused itself. */
-export type PauseReason = 'system' | 'stalled';
+/**
+ * Why playback paused. 'hidden': the phone locked or another app came to the front.
+ * 'system': the phone took the audio away. 'stalled': the audio output fell behind.
+ */
+export type PauseReason = 'hidden' | 'system' | 'stalled';
 
 export type PlayerState = 'stopped' | 'playing' | 'restarting' | 'paused';
 
@@ -87,7 +84,7 @@ export type PlayerListeners = {
   onSwing?: (swing: ScheduledSwing) => void;
   /** The timer fell behind (for example the page was frozen), so the run restarted from beat 1. */
   onResync?: () => void;
-  /** The player paused itself. For 'stalled', `behindSeconds` is how far the audio clock had fallen behind. */
+  /** Playback paused. For 'stalled', `behindSeconds` is how far the audio clock had fallen behind. */
   onPaused?: (reason: PauseReason, behindSeconds?: number) => void;
 };
 
@@ -100,8 +97,11 @@ export interface Player {
   getState(): PlayerState;
   /** Add more listeners. Returns a function that removes them. */
   subscribe(listeners: PlayerListeners): () => void;
-  /** Tell the player the page is in the background (true) or visible (false). */
-  setBackground(background: boolean): void;
+  /**
+   * Pause now and silence everything. The user taps Play to start again from beat 1.
+   * Does nothing unless playing or restarting.
+   */
+  pause(reason: PauseReason): void;
   /** Start from beat 1. Call from a user tap the first time. Works when stopped or paused. Does nothing if already playing. */
   start(options: SwingOptions): Promise<void>;
   /** Stop now and silence everything, including beeps already scheduled. */
@@ -132,7 +132,6 @@ export function createPlayer(
   const notify = <K extends keyof PlayerListeners>(key: K, ...args: Parameters<NonNullable<PlayerListeners[K]>>) => {
     for (const l of listenerSet) (l[key] as ((...a: unknown[]) => void) | undefined)?.(...args);
   };
-  let background = false;
   let state: PlayerState = 'stopped';
   let options: SwingOptions | null = null;
   let nextStart = 0;
@@ -178,8 +177,7 @@ export function createPlayer(
       adapter.stopAll();
       notify('onResync');
     }
-    const lookahead = background ? BACKGROUND_LOOKAHEAD_SECONDS : LOOKAHEAD_SECONDS;
-    while (nextStart - adapter.now() < lookahead) {
+    while (nextStart - adapter.now() < LOOKAHEAD_SECONDS) {
       const swingStart = nextStart;
       const beeps = scheduleSwing(adapter, swingStart, options);
       const cycle = cycleSeconds(options.preset);
@@ -218,8 +216,9 @@ export function createPlayer(
       };
     },
 
-    setBackground(next) {
-      background = next;
+    pause(reason) {
+      if (state !== 'playing' && state !== 'restarting') return;
+      pauseNow(reason);
     },
 
     async start(next) {
