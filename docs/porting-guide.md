@@ -51,6 +51,7 @@ At least one Android device and at least one iOS device (phone or tablet).
 - [ ] Step-by-step: run on a simulator, run on a real device, build for the stores.
 - [ ] List of web-only parts and their native replacements.
 - [ ] Known risks and untested areas.
+- [ ] How to open the hidden Audio lab (Diagnostics page) and use it as the first test on a phone: play, lock the phone, tap Copy log, send the log.
 
 ### timing-engine
 - What was built: the timing brain of the app, in `src/engine/`. It holds the 16 tempo presets (10 Long Game, 6 Short Game) and works out when each beep happens in one swing: beat 1, the weight shift beat, beat 2 and beat 3. It returns a plain list of "this beep at this many seconds". It makes no sound and shows nothing on screen.
