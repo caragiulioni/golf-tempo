@@ -5,6 +5,22 @@ import { createKeepAlive } from './webKeepAlive';
 /** Peak volume of one beep (0 to 1). Leaves room so overlapping beeps do not clip. */
 const PEAK_GAIN = 0.4;
 
+/**
+ * Stopping a beep that is sounding must fade it out, not cut it, or the cut makes a click.
+ * The fade is an exponential approach to silence; after STOP_FADE_SECONDS it is inaudible
+ * and the oscillators are stopped.
+ */
+const STOP_FADE_TIME_CONSTANT = 0.004;
+const STOP_FADE_SECONDS = 0.06;
+
+/** One beep that has been scheduled and has not finished yet. */
+type ActiveTone = {
+  /** Separate from the beep's own envelope, so fading it never disturbs that envelope. */
+  fader: GainNode;
+  oscillators: OscillatorNode[];
+  startTime: number;
+};
+
 /** How long to wait for the audio clock to start moving after a tap, in ms. */
 const CLOCK_WARMUP_TIMEOUT_MS = 1500;
 const CLOCK_WARMUP_POLL_MS = 10;
@@ -64,7 +80,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
   const keepAlive = options.keepAlive ? createKeepAlive() : null;
   const stateListeners = new Set<(state: string) => void>();
   let context: AudioContext | null = null;
-  let active = new Set<OscillatorNode>();
+  const active = new Set<ActiveTone>();
   const suspendedListeners = new Set<() => void>();
 
   function getContext(): AudioContext {
@@ -105,7 +121,12 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
       gain.gain.setValueAtTime(0, time);
       gain.gain.linearRampToValueAtTime(PEAK_GAIN, time + tone.attackSeconds);
       gain.gain.exponentialRampToValueAtTime(0.0001, end);
-      gain.connect(ctx.destination);
+      // The fader stays at full volume until stopAll() fades it.
+      const fader = ctx.createGain();
+      gain.connect(fader);
+      fader.connect(ctx.destination);
+      const activeTone: ActiveTone = { fader, oscillators: [], startTime: time };
+      active.add(activeTone);
 
       const parts: Array<[number, number]> = [
         [tone.frequency, 1],
@@ -121,8 +142,8 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
         partGain.connect(gain);
         osc.start(time);
         osc.stop(end + 0.02);
-        active.add(osc);
-        osc.onended = () => active.delete(osc);
+        activeTone.oscillators.push(osc);
+        osc.onended = () => active.delete(activeTone);
       }
     },
 
@@ -157,14 +178,22 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
     },
 
     stopAll() {
-      for (const osc of active) {
-        try {
-          osc.stop();
-        } catch {
-          // Already stopped.
+      if (!context) return;
+      const now = context.currentTime;
+      for (const tone of active) {
+        // Fade to silence. A beep that has not started yet is silenced the same way,
+        // so it makes no sound when its turn comes.
+        tone.fader.gain.setTargetAtTime(0, now, STOP_FADE_TIME_CONSTANT);
+        if (tone.startTime <= now) {
+          for (const osc of tone.oscillators) {
+            try {
+              osc.stop(now + STOP_FADE_SECONDS);
+            } catch {
+              // Already stopped.
+            }
+          }
         }
       }
-      active = new Set();
     },
   };
 }
