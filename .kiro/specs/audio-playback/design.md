@@ -48,7 +48,7 @@ interface AudioAdapter {
 ## Audio buffer and output delay
 
 - The web adapter asks for a bigger audio buffer (`latencyHint: 'playback'`) by default. Reason: on a Pixel 6 the small buffer crackled while the phone was locked (5 crunches in three locks), the bigger one did not (none in three locks). We schedule ahead, so we do not need the low delay.
-- Cost: about 280 ms between scheduling a beep and hearing it (Pixel 6, reported by `AudioContext.outputLatency`; 16 ms with the small buffer). Beep spacing is not affected. Anything visual must be shifted by this amount: the UI spec has to read `info().outputLatencySeconds` and delay the animation by it. If a browser does not report it, assume it is unknown and say so in the porting guide.
+- Cost: about 280 ms between scheduling a beep and hearing it (Pixel 6, reported by `AudioContext.outputLatency`; 16 ms with the small buffer). Beep spacing is not affected. Anything visual must be shifted by this amount: the UI spec has to read `info().outputLatencySeconds` and delay the animation by it. Safari (iPad, 16.6) does not report it, so the UI needs a fallback (for example `baseLatency`, or a measured per-platform estimate). Recorded in the porting guide.
 
 ## Checking
 
