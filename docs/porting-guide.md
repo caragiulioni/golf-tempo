@@ -92,4 +92,5 @@ At least one Android device and at least one iOS device (phone or tablet).
 - [ ] Step-by-step: run on a simulator, run on a real device, build for the stores.
 - [ ] List of web-only parts and their native replacements.
 - [ ] Known risks and untested areas.
+- [ ] Native icon and splash files: Android adaptive icon (foreground, background, monochrome) and a splash image, made by Mike. What is needed: `docs/design-brief.md`, section 12, "Icon files still needed". Then point `app.json` at them (it still uses the Expo template placeholders in `assets/`).
 - [ ] How to open the hidden Audio lab (Diagnostics page) and use it as the first test on a phone: play, lock the phone, tap Copy log, send the log.
