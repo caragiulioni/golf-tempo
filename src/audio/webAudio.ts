@@ -5,6 +5,24 @@ import { createKeepAlive } from './webKeepAlive';
 /** Peak volume of one beep (0 to 1). Leaves room so overlapping beeps do not clip. */
 const PEAK_GAIN = 0.4;
 
+/** How long to wait for the audio clock to start moving after a tap, in ms. */
+const CLOCK_WARMUP_TIMEOUT_MS = 1500;
+const CLOCK_WARMUP_POLL_MS = 10;
+
+/**
+ * Right after a tap, some phones report 'running' while the audio clock is still at
+ * zero, then jump ahead once the speaker has really opened (slower with a bigger buffer).
+ * Scheduling during that jump makes the first swing late. This waits until the clock has
+ * actually moved. It only runs once per start and has nothing to do with beat timing.
+ */
+async function waitForClockToRun(ctx: AudioContext): Promise<void> {
+  const first = ctx.currentTime;
+  const deadline = Date.now() + CLOCK_WARMUP_TIMEOUT_MS;
+  while (ctx.state === 'running' && ctx.currentTime <= first && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, CLOCK_WARMUP_POLL_MS));
+  }
+}
+
 export type WebAudioOptions = {
   /**
    * EXPERIMENT. 'playback' asks the browser for a bigger audio buffer, which is
@@ -66,6 +84,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
       keepAlive?.start();
       const ctx = getContext();
       if (ctx.state !== 'running') await ctx.resume();
+      await waitForClockToRun(ctx);
     },
 
     now() {
