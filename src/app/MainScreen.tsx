@@ -6,8 +6,8 @@
 import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATEGORY_RATIO, PRESETS, defaultWeightShiftSettings, presetLabel } from '../engine';
-import type { Category, Preset } from '../engine';
+import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
+import type { Category, Preset, WeightShiftSettings } from '../engine';
 import {
   laptopColumns,
   maxContentWidth,
@@ -61,6 +61,8 @@ type Props = {
   presetByCategory: Record<Category, number>;
   onCategoryChange: (category: Category) => void;
   onPresetChange: (category: Category, index: number) => void;
+  /** Weight shift positions to play and draw with. */
+  weightShiftSettings: WeightShiftSettings;
   onOpenConfig: () => void;
   onOpenLab: () => void;
 };
@@ -70,6 +72,7 @@ export function MainScreen({
   presetByCategory,
   onCategoryChange,
   onPresetChange,
+  weightShiftSettings,
   onOpenConfig,
   onOpenLab,
 }: Props) {
@@ -81,7 +84,7 @@ export function MainScreen({
   const selected = presets[selectedIndex];
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
-  const session = usePlayerSession({ preset: selected, loop });
+  const session = usePlayerSession({ preset: selected, loop, settings: weightShiftSettings });
 
   const hero = (
     <Card
@@ -107,7 +110,7 @@ export function MainScreen({
       ) : null}
       <BeatTimeline
         preset={selected}
-        weightShiftPosition={defaultWeightShiftSettings()[category]}
+        weightShiftPosition={weightShiftSettings[category]}
         playing={session.playing}
         subscribeSwings={onSwing}
         audioNow={audioNow}

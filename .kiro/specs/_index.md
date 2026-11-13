@@ -47,7 +47,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Scope:** Temporary CONFIG entry in the header menu, weight shift slider with a safe range (Long Game starts at 0.50, Short Game at 0.60), a background loop on/off choice while calibrating (the brother decides whether to calibrate with the loop on or off; the weight shift never sits on the drum grid, so the loop can pull his ear), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.
 - **Depends on:** timing-engine, audio-playback, app-shell-ui.
 - **Blockers:** none known.
-- **Spec:** not started
+- **Spec:** DONE (`.kiro/specs/config-mode/`). Wave plan waiting for approval, no code yet. Open decisions are listed at the end of the tasks review message: reset behavior, nudge buttons, config-mode tests, export extras.
 - **Built:** not started
 
 ### 6. final-weight-shift-release

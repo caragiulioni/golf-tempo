@@ -16,7 +16,7 @@ import {
   type SwingOptions,
   type WebAudioAdapter,
 } from '../../audio';
-import { defaultWeightShiftSettings, type Preset } from '../../engine';
+import type { Preset, WeightShiftSettings } from '../../engine';
 import { resolveOutputDelay, resolveOutputDelayForSwing, type OutputDelay } from '../lib/outputDelay';
 import { currentPlatformKey } from '../lib/platformKey';
 import { addLog } from './sessionLog';
@@ -24,7 +24,8 @@ import { addLog } from './sessionLog';
 /** What the screen shows under the play button. */
 export type SessionMessage = 'paused' | 'startFailed' | null;
 
-export type SessionSelection = { preset: Preset; loop: boolean };
+/** `settings` are the weight shift positions to play with (plain data, so this file knows nothing about CONFIG). */
+export type SessionSelection = { preset: Preset; loop: boolean; settings: WeightShiftSettings };
 
 export const START_FAILED_TEXT = 'Audio could not start. Tap play to try again.';
 export const PAUSED_TEXT = 'Playback paused. Tap play to resume.';
@@ -113,15 +114,15 @@ export function audioNow(): number | null {
   return sharedAdapter ? sharedAdapter.now() : null;
 }
 
-export function swingOptionsFor({ preset, loop }: SessionSelection): SwingOptions {
-  return { preset, settings: defaultWeightShiftSettings(), includeWeightShift: true, loop };
+export function swingOptionsFor({ preset, loop, settings }: SessionSelection): SwingOptions {
+  return { preset, settings, includeWeightShift: true, loop };
 }
 
 export function usePlayerSession(selection: SessionSelection) {
   // Peek only; the player is created on the first press, inside the tap.
   const [playerState, setPlayerState] = useState<PlayerState>(() => player?.getState() ?? 'stopped');
   const [message, setMessage] = useState<SessionMessage>(null);
-  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop]); // eslint-disable-line react-hooks/exhaustive-deps
+  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop, selection.settings]); // eslint-disable-line react-hooks/exhaustive-deps
   // Latest options for toggle() and for 6.3 (restart on change).
   const optionsRef = useRef(swingOptions);
   optionsRef.current = swingOptions;

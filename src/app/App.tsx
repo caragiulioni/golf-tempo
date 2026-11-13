@@ -18,6 +18,7 @@ import { useReduceMotion } from '../ui/hooks/useReduceMotion';
 import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS } from '../engine';
 import type { Category } from '../engine';
 import { ConfigPlaceholder } from './ConfigPlaceholder';
+import { useAppliedSettings } from './ConfigMount';
 import { AudioLabMount } from './AudioLabMount';
 import { MainScreen } from './MainScreen';
 import { IntroScreen } from './IntroScreen';
@@ -40,6 +41,7 @@ export default function App() {
     SpaceGrotesk_700Bold,
     Michroma_400Regular,
   });
+  const applied = useAppliedSettings();
   const [themeDone, setThemeDone] = useState(false);
   const [choice, setChoice] = useState<ThemeChoice | null>(null);
   const [minDone, setMinDone] = useState(false);
@@ -76,7 +78,8 @@ export default function App() {
 
   // A font error counts as done (R8.4).
   const fontsDone = fontsLoaded || fontError != null;
-  const loaded = themeDone && fontsDone;
+  // Saved weight shift values load with the theme, so the first frame already uses them.
+  const loaded = themeDone && applied.loaded && fontsDone;
   // R9.2 to R9.7: leave after loading AND 1000 ms, or on tap once loaded, or at 3000 ms regardless.
   const leaving = timeoutDone || (loaded && (minDone || tapped));
   // Fonts failed or too slow: text uses the system font from here on.
@@ -97,6 +100,7 @@ export default function App() {
                 presetByCategory={presetByCategory}
                 onCategoryChange={setCategory}
                 onPresetChange={onPresetChange}
+                weightShiftSettings={applied.state.settings}
                 onOpenConfig={() => setScreen('config')}
                 onOpenLab={() => setScreen('lab')}
               />
