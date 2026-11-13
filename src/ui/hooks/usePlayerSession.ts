@@ -17,6 +17,8 @@ import {
   type WebAudioAdapter,
 } from '../../audio';
 import { defaultWeightShiftSettings, type Preset } from '../../engine';
+import { resolveOutputDelay, type OutputDelay } from '../lib/outputDelay';
+import { currentPlatformKey } from '../lib/platformKey';
 import { addLog } from './sessionLog';
 
 /** What the screen shows under the play button. */
@@ -32,6 +34,16 @@ type SwingListener = (swing: ScheduledSwing) => void;
 let player: Player | null = null;
 let sharedAdapter: WebAudioAdapter | null = null;
 const swingListeners = new Set<SwingListener>();
+// Output delay resolved at the latest swing. Null until the first swing.
+let lastDelay: OutputDelay | null = null;
+
+/**
+ * Seconds between a beep's audio-clock time and it being heard. The latest swing's value;
+ * before the first swing, the platform fallback.
+ */
+export function outputDelay(): number {
+  return (lastDelay ?? resolveOutputDelay(null, currentPlatformKey(Platform.OS))).seconds;
+}
 
 /** The shared player, created on first use. Null where there is no audio adapter (not web). */
 export function getSharedPlayer(): Player | null {
@@ -41,7 +53,12 @@ export function getSharedPlayer(): Player | null {
   sharedAdapter = adapter;
   adapter.onStateChange((state) => addLog(`Audio context: ${state}`));
   const created = createPlayer(adapter, {
-    onSwing: (swing) => swingListeners.forEach((listener) => listener(swing)),
+    onSwing: (swing) => {
+      // Resolve first, so listeners read this swing's value (R6.5: applies from this swing on).
+      lastDelay = resolveOutputDelay(sharedAdapter?.info() ?? null, currentPlatformKey(Platform.OS));
+      addLog(`Output delay ${Math.round(lastDelay.seconds * 1000)} ms (${lastDelay.source})`);
+      swingListeners.forEach((listener) => listener(swing));
+    },
     onState: (state) => addLog(`Player: ${state}`),
     onResync: () => addLog('Timer fell behind. Restarted from beat 1.'),
     onPaused: (reason, behind) =>

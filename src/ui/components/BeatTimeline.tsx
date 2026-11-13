@@ -29,18 +29,14 @@ type Props = {
   subscribeSwings?: (listener: (swing: ScheduledSwing) => void) => () => void;
   /** The audio clock in seconds, or null when there is none. */
   audioNow?: () => number | null;
-  /** Seconds between a beep being scheduled and being heard. Defaults to outputDelaySeconds(). */
+  /**
+   * Seconds between a beep being scheduled and being heard. Read once per swing, so a
+   * changed value applies from the next swing. Defaults to no delay.
+   */
   outputDelay?: () => number;
 };
 
-/**
- * Seconds from a beep's scheduled audio time until it is heard. The visuals are shifted
- * by this so they line up with the sound.
- * TODO(9.1): replace with the measured output latency. Constant 0 until then.
- */
-export function outputDelaySeconds(): number {
-  return 0;
-}
+const NO_DELAY = () => 0;
 
 const NAMES: Record<TimelineMarkerType, string> = {
   beat1: 'Takeaway',
@@ -77,7 +73,7 @@ export function BeatTimeline({
   playing = false,
   subscribeSwings,
   audioNow,
-  outputDelay = outputDelaySeconds,
+  outputDelay = NO_DELAY,
 }: Props) {
   const { mode } = useTheme();
   const { layout } = useLayout();

@@ -34,6 +34,7 @@ import {
   START_FAILED_TEXT,
   audioNow,
   onSwing,
+  outputDelay,
   usePlayerSession,
 } from '../ui/hooks/usePlayerSession';
 import { readDeviceInfo, shouldShowSilentSwitchHint } from '../ui/lib/silentSwitch';
@@ -104,6 +105,7 @@ export function MainScreen({
         playing={session.playing}
         subscribeSwings={onSwing}
         audioNow={audioNow}
+        outputDelay={outputDelay}
       />
     </Card>
   );
