@@ -24,6 +24,7 @@ export function ConfigMount({ category, presetByCategory, applied, onBack }: Pro
       initialCategory={category}
       initialPresetIndex={presetByCategory}
       applied={applied.state}
+      onApply={applied.apply}
       onBack={onBack}
     />
   );

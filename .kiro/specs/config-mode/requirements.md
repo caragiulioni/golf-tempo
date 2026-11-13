@@ -63,7 +63,7 @@ Shared decisions are in `product.md` (CONFIG mode section), `tech.md` (persisten
 
 1. WHEN the user presses APPLY, THE Config_Mode SHALL save the chosen category's Draft_Value as its Applied_Value, and leave the other category as it was. APPLY SHALL NOT restart playback.
 2. THE Config_Screen SHALL show, for the chosen category, the Applied_Value (or "Default" if none) and whether the Draft_Value is Unapplied.
-3. WHILE the chosen category is not Unapplied, THE APPLY control SHALL be disabled.
+3. WHILE the chosen category is not Unapplied and has already been applied once, THE APPLY control SHALL be disabled. A category never applied keeps APPLY enabled, so the starting value can be saved as a deliberate choice (the export then says `applied: true`).
 4. WHEN the user presses reset, THE slider SHALL return to the Default_Value for the chosen category. Reset SHALL NOT save; the user presses APPLY to save.
 5. WHEN APPLY completes, THE main screen SHALL use the value from then on (R2.3).
 

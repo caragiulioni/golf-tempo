@@ -45,11 +45,13 @@ Stop for review (audio).
 
 ## Wave 5.5: APPLY, reset, leave dialog, export
 
-- [ ] 1. APPLY, reset and the saved status line. Check [MANUAL]: APPLY saves the chosen category only (check Long, then Short, in dev tools or by reload); disabled when nothing to apply; reload, then main screen plays with the value at several tempos in that category and the other category is unchanged; reset moves the slider to 0.50 (Long) or 0.60 (Short) and shows "Not applied yet" until APPLY; APPLY during playback does not restart it.
-- [ ] 2. Leave confirmation. Check [MANUAL]: no dialog when clean; with Long changed, with Short changed, and with both, back shows the dialog; No stays with drafts intact; Yes leaves and the drafts are gone on reopening; Escape acts as No; main screen unchanged after Yes.
-- [ ] 3. EXPORT and Copy. Check [MANUAL]: JSON shows both categories with the saved values and `applied` flags; an unapplied draft is not in it and a note is shown; Copy works on desktop Chrome and the pasted text parses; blocked clipboard shows the select-by-hand hint.
+- [x] 1. APPLY, reset and the saved status line. Check [MANUAL]: APPLY saves the chosen category only (check Long, then Short, in dev tools or by reload); disabled when nothing to apply; reload, then main screen plays with the value at several tempos in that category and the other category is unchanged; reset moves the slider to 0.50 (Long) or 0.60 (Short) and shows "Not applied yet" until APPLY; APPLY during playback does not restart it.
+- [x] 2. Leave confirmation. Check [MANUAL]: no dialog when clean; with Long changed, with Short changed, and with both, back shows the dialog; No stays with drafts intact; Yes leaves and the drafts are gone on reopening; Escape acts as No; main screen unchanged after Yes.
+- [x] 3. EXPORT and Copy. Check [MANUAL]: JSON shows both categories with the saved values and `applied` flags; an unapplied draft is not in it and a note is shown; Copy works on desktop Chrome and the pasted text parses; blocked clipboard shows the select-by-hand hint.
 
-- [ ] 4. In-app How to (R11): `HOW_TO_STEPS` constant and a collapsible block at the top of `ConfigScreen`. Reuse check first (`Card`, `SectionLabel`, `AppText`). Check [MANUAL]: reads clearly in light and dark, button names match the screen, closed by default after first read is not required; slider visible at 568 pt tall when closed.
+- [x] 4. In-app How to (R11): `HOW_TO_STEPS` constant and a collapsible block at the top of `ConfigScreen`. Reuse check first (`Card`, `SectionLabel`, `AppText`). Check [MANUAL]: reads clearly in light and dark, button names match the screen, closed by default after first read is not required; slider visible at 568 pt tall when closed.
+
+Result: built `ConfigScreen` additions (APPLY, RESET, status line, leave dialog), `ExportPanel.tsx`, `exportDevice.ts`, `HowTo.tsx` and `howToSteps.ts`. Typecheck, tests and web export pass. Manual checks are for the reviewer. APPLY stays enabled on a never-applied category (R6.3 updated).
 
 Stop for review.
 

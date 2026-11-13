@@ -1,7 +1,8 @@
 // Reuse check (Wave 5.4): listed src/ui/components, src/ui/lib and src/theme.
 // Reused as is: Card, SectionLabel, Badge (ratio), BeatTimeline, PlayButton, StatusMessage,
 // SegmentedControl, PresetGrid, PresetButton, Switch, IconButton (back, minus, plus), AppText,
-// Slider, useLayout, theme tokens. Category options and preset helpers moved from MainScreen
+// Slider, useLayout, theme tokens. Wave 5.5 adds Button (APPLY, RESET) and ConfirmDialog (both
+// built in 5.3), plus HowTo and ExportPanel (this folder). Category options and preset helpers moved from MainScreen
 // to src/ui/lib/categoryUi.ts so both screens share them. Nothing new is created here.
 // TEMPORARY: the whole src/config-mode/ folder is deleted in spec 6.
 import React, { useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   CATEGORY_RATIO,
+  DEFAULT_WEIGHT_SHIFT_POSITIONS,
   PRESETS,
   WEIGHT_SHIFT_RANGE,
   presetLabel,
@@ -21,7 +23,9 @@ import {
   AppText,
   Badge,
   BeatTimeline,
+  Button,
   Card,
+  ConfirmDialog,
   IconButton,
   PlayButton,
   PresetButton,
@@ -45,9 +49,17 @@ import {
 import { CATEGORY_NAME, CATEGORY_OPTIONS, PRESET_COLUMNS, presetKey } from '../ui/lib/categoryUi';
 import { snapToStep } from '../ui/lib/snapToStep';
 import type { AppliedState } from './appliedSettings';
+import { ExportPanel } from './ExportPanel';
+import { HowTo } from './HowTo';
 
 /** One slider step, and one press of a nudge button. */
 export const SLIDER_STEP = 0.01;
+
+const LEAVE_TITLE = "You have changes you haven't applied. Leave without applying?";
+
+/** Positions are steps of 0.01, so anything closer than this is the same value. */
+const same = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+const percentOf = (position: number) => Math.round(position * 100);
 
 type Props = {
   /** Where the main screen was when Config opened. After that the two are independent. */
@@ -55,10 +67,12 @@ type Props = {
   initialPresetIndex: Record<Category, number>;
   /** What is saved on this device. The sliders start here. */
   applied: AppliedState;
+  /** Saves one category's position on this device. The main screen uses it from then on. */
+  onApply: (category: Category, position: number) => void;
   onBack: () => void;
 };
 
-export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onBack }: Props) {
+export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onApply, onBack }: Props) {
   const { colors } = useTheme();
   const { layout } = useLayout();
   const laptop = layout === 'laptop';
@@ -72,6 +86,7 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
   const [committed, setCommitted] = useState<WeightShiftSettings>(applied.settings);
   // Not saved, and not shared with the main screen's switch: off every time Config opens.
   const [loop, setLoop] = useState(false);
+  const [leaveDialog, setLeaveDialog] = useState(false);
 
   const presets = PRESETS[category];
   const selected = presets[presetIndex[category]];
@@ -93,7 +108,29 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
   const nudge = (direction: 1 | -1) =>
     onSliderEnd(snapToStep(draft + direction * SLIDER_STEP, WEIGHT_SHIFT_RANGE.min, WEIGHT_SHIFT_RANGE.max, SLIDER_STEP));
 
-  const percent = Math.round(draft * 100);
+  // Unapplied: the slider is not where the saved value is. Checked per category.
+  const unapplied: Record<Category, boolean> = {
+    long: !same(drafts.long, applied.settings.long),
+    short: !same(drafts.short, applied.settings.short),
+  };
+  const anyUnapplied = unapplied.long || unapplied.short;
+  const saved = applied.settings[category];
+  const neverApplied = !applied.applied[category];
+  // APPLY is also open on a category never applied, so "the default is right" can be saved.
+  const canApply = unapplied[category] || neverApplied;
+
+  const apply = () => onApply(category, draft);
+  const reset = () => onSliderEnd(DEFAULT_WEIGHT_SHIFT_POSITIONS[category]);
+  // Back asks first if there is anything to lose.
+  const requestBack = () => (anyUnapplied ? setLeaveDialog(true) : onBack());
+
+  const statusText = unapplied[category]
+    ? `NOT APPLIED YET. Saved: ${neverApplied ? 'nothing yet' : `${percentOf(saved)} %`}. Slider: ${percentOf(draft)} %. Press APPLY to save.`
+    : neverApplied
+      ? `Saved: nothing yet. Using the starting value, ${percentOf(saved)} %. Press APPLY to keep it.`
+      : `Saved: ${percentOf(saved)} %. This is what the app plays.`;
+
+  const percent = percentOf(draft);
   const seconds = weightShiftTime(selected, draft).toFixed(2);
 
   const hero = (
@@ -155,6 +192,24 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
           </AppText>
         </View>
       </View>
+      <View style={styles.statusBox}>
+        <AppText
+          size="label"
+          variant={unapplied[category] ? 'label' : 'ui'}
+          color={unapplied[category] ? 'text' : 'text2'}
+          accessibilityRole={unapplied[category] ? 'alert' : undefined}
+        >
+          {statusText}
+        </AppText>
+      </View>
+      <View style={styles.buttonRow}>
+        <View style={styles.buttonBox}>
+          <Button label="APPLY" variant="primary" disabled={!canApply} onPress={apply} accessibilityLabel={`Apply ${CATEGORY_NAME[category]} weight shift`} />
+        </View>
+        <View style={styles.buttonBox}>
+          <Button label="RESET" onPress={reset} accessibilityLabel="Reset to the starting value" />
+        </View>
+      </View>
     </Card>
   );
 
@@ -189,6 +244,7 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
         />
       </View>
       <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
+      <ExportPanel applied={applied} hasUnapplied={anyUnapplied} />
     </View>
   );
 
@@ -197,11 +253,12 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.page}>
           <View style={styles.titleRow}>
-            <IconButton icon="back" onPress={onBack} accessibilityLabel="Back" />
+            <IconButton icon="back" onPress={requestBack} accessibilityLabel="Back" />
             <AppText variant="brand" size="title" accessibilityRole="header">
               Config
             </AppText>
           </View>
+          <HowTo />
           {laptop ? (
             <View style={styles.laptopColumns}>
               {hero}
@@ -215,6 +272,17 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onB
           )}
         </View>
       </ScrollView>
+      <ConfirmDialog
+        visible={leaveDialog}
+        title={LEAVE_TITLE}
+        confirmLabel="Yes"
+        cancelLabel="No"
+        onConfirm={() => {
+          setLeaveDialog(false);
+          onBack();
+        }}
+        onCancel={() => setLeaveDialog(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -265,6 +333,11 @@ const styles = StyleSheet.create({
   sliderBox: { flex: 1 },
   /** "Takeaway" under the left end, "Top" under the right end. */
   sliderEnds: { flexDirection: 'row', justifyContent: 'space-between' },
+  /** Saved and unapplied status under the slider. */
+  statusBox: { gap: spacing.xs },
+  /** APPLY and RESET side by side. */
+  buttonRow: { flexDirection: 'row', gap: spacing.md },
+  buttonBox: { flex: 1 },
   /** Right-hand column: game length, tempo, loop switch. */
   controlsColumn: { gap: spacing.xl },
   controlsColumnLaptop: { flex: laptopColumns.controls },
