@@ -5,7 +5,7 @@
 // built in 5.3), plus HowTo and ExportPanel (this folder). Category options and preset helpers moved from MainScreen
 // to src/ui/lib/categoryUi.ts so both screens share them. Nothing new is created here.
 // TEMPORARY: the whole src/config-mode/ folder is deleted in spec 6.
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -87,6 +87,7 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onA
   // Not saved, and not shared with the main screen's switch: off every time Config opens.
   const [loop, setLoop] = useState(false);
   const [leaveDialog, setLeaveDialog] = useState(false);
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   const presets = PRESETS[category];
   const selected = presets[presetIndex[category]];
@@ -129,6 +130,12 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onA
     : neverApplied
       ? `Saved: nothing yet. Using the starting value, ${percentOf(saved)} %. Press APPLY to keep it.`
       : `Saved: ${percentOf(saved)} %. This is what the app plays.`;
+
+  // EXPORT is the last thing on the screen, so scrolling to the end shows the text and the Copy
+  // button. The short wait lets the new content be laid out first.
+  const revealExport = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
+  };
 
   const percent = percentOf(draft);
   const seconds = weightShiftTime(selected, draft).toFixed(2);
@@ -245,13 +252,13 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onA
           }}
         />
       </View>
-      <ExportPanel applied={applied} hasUnapplied={anyUnapplied} />
+      <ExportPanel applied={applied} hasUnapplied={anyUnapplied} onRevealed={revealExport} />
     </View>
   );
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.page}>
           <View style={styles.titleRow}>
             <IconButton icon="back" onPress={requestBack} accessibilityLabel="Back" />

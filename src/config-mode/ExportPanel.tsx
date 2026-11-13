@@ -18,9 +18,11 @@ type Props = {
   applied: AppliedState;
   /** True when either category has slider changes that are not applied. */
   hasUnapplied: boolean;
+  /** Called after the export text or a copy message appears, so the screen can scroll it into view. */
+  onRevealed?: () => void;
 };
 
-export function ExportPanel({ applied, hasUnapplied }: Props) {
+export function ExportPanel({ applied, hasUnapplied, onRevealed }: Props) {
   const { colors } = useTheme();
   const [exportedAt, setExportedAt] = useState<Date | null>(null);
   const [copyStatus, setCopyStatus] = useState<'none' | 'copied' | 'failed'>('none');
@@ -30,6 +32,14 @@ export function ExportPanel({ applied, hasUnapplied }: Props) {
     setExportedAt(null);
     setCopyStatus('none');
   }, [applied]);
+
+  // The export appears below the button, often off screen. Tell the screen to scroll down to it.
+  // The copy message appears below the Copy button, so it asks again.
+  useEffect(() => {
+    if (!exportedAt && copyStatus === 'none') return;
+    onRevealed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exportedAt, copyStatus]);
 
   const text = exportedAt ? buildExportText(applied, exportedAt, deviceUserAgent()) : null;
 
