@@ -39,6 +39,8 @@ import {
 } from '../ui/hooks/usePlayerSession';
 import { readDeviceInfo, shouldShowSilentSwitchHint } from '../ui/lib/silentSwitch';
 
+const SILENT_SWITCH_HINT = 'No sound? Check silent mode, mute in Control Center and the volume.'; // R4.8
+
 // Fixed for the life of the page, so read once.
 const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
@@ -97,7 +99,7 @@ export function MainScreen({
       ) : null}
       {session.message === 'paused' ? <StatusMessage variant="info" text={PAUSED_TEXT} /> : null}
       {showSilentSwitchHint ? (
-        <StatusMessage variant="hint" text="No sound? Check your silent switch." />
+        <StatusMessage variant="hint" text={SILENT_SWITCH_HINT} />
       ) : null}
       <BeatTimeline
         preset={selected}
@@ -200,7 +202,13 @@ const styles = StyleSheet.create({
   heroCard: { gap: spacing.lg },
   heroCardLaptop: { flex: laptopColumns.hero },
   /** Top row of the hero card: section label left, ratio badge right. */
-  heroHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  heroHeaderRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
   /** Row with the tempo numbers and the play button. */
   tempoRow: {
     flexDirection: 'row',

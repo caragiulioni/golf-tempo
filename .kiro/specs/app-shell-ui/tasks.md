@@ -178,29 +178,29 @@ Conventions for every task:
     - _Requirements: 6.1, 6.3, 6.8_
   - [x] 9.3 Checkpoint - STOP FOR REVIEW (Wave 3.9, timing and audio)
 
-- [ ] 10. Wave 3.10: Polish and wrap-up. Goal: spec checked on all sizes, documented, marked done.
-  - [ ] 10.1 Responsive pass **[MANUAL]**
+- [x] 10. Wave 3.10: Polish and wrap-up. Goal: spec checked on all sizes, documented, marked done.
+  - [x] 10.1 Responsive pass **[MANUAL]**
     - Fix only layout issues found. Check: 320, 360, 700, 1100, 1920 widths; phone landscape 568x320 to 932x430 shows play button and timeline without vertical scroll; no horizontal scroll; every tap target 44 or more; min text sizes per brief sections 8 and 12.
     - _Requirements: 7.1 to 7.5_
-  - [ ] 10.2 Accessibility and motion pass **[MANUAL]**
+  - [x] 10.2 Accessibility and motion pass **[MANUAL]**
     - Fix only issues found. Check: labels and roles, focus order, contrast (labels 4.5:1, markers 3:1), reduce motion on intro and timeline, offline fonts, Michroma used only for the wordmark text.
     - _Requirements: 5.5, 8.1, 8.5, 9.8_
-  - [ ] 10.3 Porting notes
+  - [x] 10.3 Porting notes
     - Files: `docs/porting-guide.md` (one entry, existing format).
     - Check [MANUAL]: exactly one entry with three groups (web-only, expected to carry over, untested on native), each item with a file path, plain language, "expected to work" or "untested" unless run on a device, phone-check and delay results referenced.
     - _Requirements: 11.4, 11.5, 11.6_
-  - [ ] 10.4 Update index and structure docs
+  - [x] 10.4 Update index and structure docs
     - Files: `.kiro/specs/_index.md` (spec 3: Spec DONE; Built DONE after review), `.kiro/steering/structure.md` (add `src/audio-lab/`, note `src/ui/lib` and `src/ui/hooks`).
     - Check [MANUAL]: both files match what exists on disk; `npm run typecheck`, `npm test` and `npx expo export --platform web` pass.
     - _Requirements: 10.7, 11.4_
-  - [ ] 10.5 Final checkpoint - STOP FOR REVIEW (Wave 3.10)
+  - [x] 10.5 Final checkpoint - STOP FOR REVIEW (Wave 3.10)
 
 ## Notes
 
 - Manual-check tasks are marked **[MANUAL]**. Device steps by the user are marked "user does the device part".
 - The temporary gallery (`src/app/dev/Gallery.tsx`) is a component showcase, not the real layout, so repeats on it are expected. It is deleted in Wave 3.4 (task 4.2).
 - The old audio lab opened from the gallery has no back control. The real back control (44 pt, R10.1) is built in task 8.1, and the old lab is replaced in 8.3.
-- TODO (wording, temporary): the silent-switch hint "No sound? Check your silent switch." does not fit iPads, which often have no switch (the tester's iPad has only volume buttons and a top button). Improve the text, for example "No sound? Check silent mode, mute in Control Center and the volume." Revisit in task 10.2 and confirm on the iPad and an iPhone. Text is in `src/app/MainScreen.tsx` (R4.8 wording would change too).
+- Known limitation (decided at the Wave 3.10 review): phone landscape (R7.3) needs about 360 pt of height at 568x320, about 40 pt too much, so the page scrolls. Not built. Options: two-column short-landscape layout (tempo and play left, timeline right), or trim the stack (smaller tempo, less padding, no ratio row). `useLayout` already returns `isShortLandscape` for this. The gold fill over the bars is about 1.4:1 contrast, accepted.
 - No optional (`*`) tasks: engine-style tests are required in 1.1 to 1.3. No property tests, since the design has no Correctness Properties section.
 - Plan can change as we learn; any change is reported at the next stop.
 

@@ -84,7 +84,7 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 5. WHILE the Player is stopped or paused, THE App SHALL show a play icon and the accessible label "Play".
 6. WHEN the Player reports it paused (page hidden, system took the audio, or stalled), THE App SHALL show a visible message stating that playback paused and that a tap resumes, and SHALL keep the message visible until the user presses the button or the Player starts playing again.
 7. IF audio cannot be unlocked or started when the user presses the button, THEN THE App SHALL keep the Player stopped, show the play icon with the label "Play", and show a visible message stating that audio could not start and that the user can tap to try again.
-8. WHERE the device is an iPhone or iPad, THE App SHALL show the hint "No sound? Check your silent switch." near the play/pause button at all times while the Current session header is visible.
+8. WHERE the device is an iPhone or iPad, THE App SHALL show the hint "No sound? Check silent mode, mute in Control Center and the volume." near the play/pause button at all times while the Current session header is visible.
 
 ### Requirement 5: Beat timeline
 

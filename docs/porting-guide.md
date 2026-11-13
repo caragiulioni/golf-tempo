@@ -139,6 +139,43 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
   - Tried and removed: playing silent audio in the background to keep the phone treating the page like a music player. It did not help on the Pixel.
   - Some lock tests may have been opened from Gmail's in-app browser, not the browser app (see the note under the web results table).
 
+### app-shell-ui
+- What was built: everything you see and tap, except sound on a phone. An intro screen, the main screen (Long Game / Short Game switch, preset buttons, play button, tempo numbers, the beat timeline with lights and a moving playhead), a header with a menu (Config placeholder, light/dark switch, Audio lab), the saved light/dark choice, and the Audio lab moved inside the app. Play, pause and restart-on-change work through the audio player from the audio spec. Written with React Native pieces so most of it should run on a phone.
+- Carries over unchanged (expected to work, not confirmed beyond this): the app was opened once on a Pixel 6 and an iPad through Expo Go and the first screen showed, with no crash. Nothing else was checked on those devices (see "Phone check" above). Expected to work:
+  - Theme and design values: `src/theme/` (`tokens.ts`, `ThemeProvider.tsx`). Light/dark follows the device setting through React Native's `useColorScheme`.
+  - Shared building blocks: everything in `src/ui/components/` (text, icons, buttons, header, cards, preset grid, play button, status messages, switch).
+  - Screens and layout: `src/app/MainScreen.tsx`, `src/app/IntroScreen.tsx`, `src/app/App.tsx`, `src/app/ConfigPlaceholder.tsx`, and the size rules in `src/ui/hooks/useLayout.ts`.
+  - Saved settings: `src/storage/` uses AsyncStorage, which uses the phone's own storage on iOS and Android.
+  - Safe areas (keeps content clear of the status bar and notch): `react-native-safe-area-context`, set up in `src/app/App.tsx`. Added after the Android header problem, expected fixed, not re-checked.
+  - Reduce motion: `src/ui/hooks/useReduceMotion.ts` uses React Native's accessibility setting (expected, untested).
+  - Beat timeline: `src/ui/components/BeatTimeline.tsx` uses React Native's `Animated` and `react-native-svg`. The drawing is expected to work. The animation is untested on native. The playhead and fill move with `useNativeDriver: false`, so they run on the JavaScript side and could look less smooth on a slow phone.
+  - Plain TypeScript helpers: `src/ui/lib/outputDelay.ts`, `src/ui/lib/timelineGeometry.ts`. They have tests and no browser code.
+- Web-only, must be replaced on native:
+  - `src/ui/hooks/usePlayerSession.ts`: only creates the web audio adapter and attaches the web session when `Platform.OS === 'web'`. On iOS and Android it makes no player, so Play shows "Audio could not start. Tap play to try again." Replace with the native audio adapter and a native keep-awake and background handler (see the audio-playback entry).
+  - `src/ui/lib/silentSwitch.ts` (`readDeviceInfo`) reads the browser's `navigator`. It is safe where `navigator` is missing (returns empty values). `src/ui/lib/platformKey.ts` uses it to guess iOS, Android or desktop in the browser. On native it uses `Platform.OS` first, so it should still pick the right one. Untested.
+  - `src/audio-lab/AudioLab.tsx`: Copy log uses the browser clipboard, and the log text reads the page address and browser name. These are all guarded behind `Platform.OS === 'web'`, so on a phone the lab should open but Copy log fails with an error and the text stays selectable. Replace with `expo-clipboard` for a real native copy.
+  - `src/ui/hooks/useFocusRing.ts`: the keyboard focus ring uses the browser's `:focus-visible`. Phones do not need it; on native the ring never shows by design.
+  - `src/ui/components/Menu.tsx`: the Escape key (listens on the browser `document`), and moving keyboard focus to the first item on open and back to the menu button on close (browser DOM calls), are guarded by `Platform.OS === 'web'`. Closing by tapping outside and by the Android back button uses React Native's `Modal` and should carry over, untested. Screen reader focus on native is not handled.
+  - `src/audio/webSession.ts` (used through `usePlayerSession.ts`) uses `navigator.wakeLock` and `document` visibility events. Already listed in the audio-playback entry.
+  - The silent-switch hint in `src/app/MainScreen.tsx` ("No sound? Check silent mode, mute in Control Center and the volume.") is written for iPhone and iPad. It shows on any iOS device and in iOS Safari, never on Android or desktop. On a native iOS app with audio set to "playback", the silent switch is ignored, so the wording may need to change or go.
+- Needs testing on a real device (all untested on native; the only native result is that the first screen opened in Expo Go):
+  - Audio: nothing plays in Expo Go (and the planned `react-native-audio-api` needs a development build). Test on both Android and iOS once built.
+  - Keeping the screen awake while playing, and what happens when the phone locks.
+  - Light/dark switching on the device, both the menu toggle and following the device setting. The Phone check recorded no issues, but no list of what was looked at, so treat as untested.
+  - Menu: open, pick each item, close by outside tap and by the Android back button.
+  - Timeline animation: playhead sweep, marker lights landing with the beeps, weight shift pulse, no stuck lights after stop or preset change.
+  - Reduce motion: turn on the phone's setting and check the intro fade, playhead and pulse stay still.
+  - Fonts offline: the fonts come from the `@expo-google-fonts/*` packages. Open the app with no network and check the text still uses them (Inter, Space Grotesk, Michroma).
+  - Android safe area fix: reload the app on the Pixel 6 and check the header clears the status bar.
+  - Real phone sizes, rotation, and tap size of the play button.
+- Decisions and reasons:
+  - Wordmark: the app name is set in Michroma text as a placeholder (`src/ui/components/BrandName.tsx`, `src/ui/brand.ts`) until a finished SVG wordmark exists. Michroma is used for that text only.
+  - Output delay: the picture is shifted by how late the sound reaches the ears. The first swing of each run always uses a fixed fallback for the platform: iOS 3 ms, Android 280 ms, desktop 50 ms (a placeholder; Mac Chrome reported 56 ms). From the second swing the browser's reported value is used. Code: `src/ui/lib/outputDelay.ts`. Evidence and devices are in the "Output delay check" section above. Native will need its own measurements.
+  - Phone check and the Android header fix are in the "Phone check" section above. The Expo Go iOS sign-in steps are in "Getting Expo Go to open the app on iOS" in the same section. Follow them before testing on an iPhone or iPad.
+  - Play button is 75 on phones (`layoutSizes` in `src/theme/tokens.ts`). That is a user decision, not the design handoff value. Do not change it without asking.
+  - Named styles: each component keeps its styles in `StyleSheet.create` at the bottom of the file, and values come from the theme, so a porter can find and change them in one place.
+  - The loop switch is shown but disabled; the background loop is a later spec.
+
 ## Final guide checklist (written after the last spec)
 
 - [ ] Plain-language overview: what the app is and what porting involves.

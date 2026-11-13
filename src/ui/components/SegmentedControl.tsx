@@ -3,6 +3,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { borderWidth, radius, spacing, useTheme } from '../../theme';
+import { useFocusRing } from '../hooks/useFocusRing';
 import { AppText } from './AppText';
 import { Icon } from './Icon';
 
@@ -31,32 +32,42 @@ export function SegmentedControl<T extends string>({
       accessibilityLabel={accessibilityLabel}
       style={[styles.group, { backgroundColor: colors.surface, borderColor: colors.border }]}
     >
-      {options.map((option) => {
-        const selected = option.value === value;
-        return (
-          <Pressable
-            key={option.value}
-            accessibilityRole="radio"
-            accessibilityLabel={option.label}
-            accessibilityState={{ checked: selected }}
-            onPress={() => {
-              if (!selected) onChange(option.value);
-            }}
-            style={[styles.option, selected && { backgroundColor: colors.accent }]}
-          >
-            {selected ? <Icon name="check" size={CHECK_SIZE} color="onAccent" /> : null}
-            <AppText
-              variant="label"
-              size="body"
-              color={selected ? 'onAccent' : 'text'}
-              numberOfLines={1}
-            >
-              {option.label}
-            </AppText>
-          </Pressable>
-        );
-      })}
+      {options.map((option) => (
+        <Option
+          key={option.value}
+          label={option.label}
+          selected={option.value === value}
+          onPress={() => onChange(option.value)}
+        />
+      ))}
     </View>
+  );
+}
+
+function Option({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const { colors } = useTheme();
+  const { onFocus, onBlur, ringStyle } = useFocusRing();
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityLabel={label}
+      accessibilityState={{ checked: selected }}
+      onPress={() => {
+        if (!selected) onPress();
+      }}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      style={[
+        styles.option,
+        selected && { backgroundColor: colors.accent },
+        ringStyle(colors.accent),
+      ]}
+    >
+      {selected ? <Icon name="check" size={CHECK_SIZE} color="onAccent" /> : null}
+      <AppText variant="label" size="body" color={selected ? 'onAccent' : 'text'} numberOfLines={1}>
+        {label}
+      </AppText>
+    </Pressable>
   );
 }
 
