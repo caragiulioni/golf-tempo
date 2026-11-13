@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import {
   Inter_400Regular,
@@ -82,33 +83,35 @@ export default function App() {
   const onFadeEnd = useCallback(() => setIntroGone(true), []);
 
   return (
-    <View style={{ flex: 1 }}>
-      {leaving ? (
-        <ThemeProvider initialChoice={choice}>
-          {/* Stays mounted but hidden off the main screen so selection survives. */}
-          <View style={{ flex: 1, display: screen === 'main' ? 'flex' : 'none' }}>
-            <MainScreen
-              category={category}
-              presetByCategory={presetByCategory}
-              onCategoryChange={setCategory}
-              onPresetChange={onPresetChange}
-              onOpenConfig={() => setScreen('config')}
-              // The real lab arrives in Wave 3.8; until then the item only closes the menu.
-              onOpenLab={() => {}}
-            />
-          </View>
-          {screen === 'config' ? <ConfigPlaceholder onBack={() => setScreen('main')} /> : null}
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      ) : null}
-      {introGone ? null : (
-        <IntroScreen
-          onTap={onTap}
-          leaving={leaving}
-          onFadeEnd={onFadeEnd}
-          reduceMotion={reduceMotion}
-        />
-      )}
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }}>
+        {leaving ? (
+          <ThemeProvider initialChoice={choice}>
+            {/* Stays mounted but hidden off the main screen so selection survives. */}
+            <View style={{ flex: 1, display: screen === 'main' ? 'flex' : 'none' }}>
+              <MainScreen
+                category={category}
+                presetByCategory={presetByCategory}
+                onCategoryChange={setCategory}
+                onPresetChange={onPresetChange}
+                onOpenConfig={() => setScreen('config')}
+                // The real lab arrives in Wave 3.8; until then the item only closes the menu.
+                onOpenLab={() => {}}
+              />
+            </View>
+            {screen === 'config' ? <ConfigPlaceholder onBack={() => setScreen('main')} /> : null}
+            <StatusBar style="auto" />
+          </ThemeProvider>
+        ) : null}
+        {introGone ? null : (
+          <IntroScreen
+            onTap={onTap}
+            leaving={leaving}
+            onFadeEnd={onFadeEnd}
+            reduceMotion={reduceMotion}
+          />
+        )}
+      </View>
+    </SafeAreaProvider>
   );
 }

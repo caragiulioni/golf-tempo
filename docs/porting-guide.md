@@ -44,6 +44,43 @@ At least one Android device and at least one iOS device (phone or tablet).
 |---|---|---|---|
 | (none tested yet) | | | |
 
+## Phone check (one-time, app-shell-ui)
+
+Date: 2026-11-13. This is the one-time check that the app opens on a phone. Both devices were real devices (not simulators), started with `npm start` and opened in the Expo Go app.
+
+Native status: opens on both; everything else untested on native.
+
+| Device | OS version | How it was opened | Result |
+|---|---|---|---|
+| Pixel 6 (Android) | Android version not recorded | Scanned the QR code from `npm start` with Expo Go. No sign-in needed. | Opens. First screen renders, no crash, no red error screen. One problem: the header sat hard against the top of the screen, under the status bar. |
+| iPad (written down as "iPad 11", so the exact model is unclear) | iPadOS version not recorded | Expo Go, after signing in (see below). | Opens. No issues reported. |
+
+### The Android header problem
+
+- What happened: the header was pushed up under the status bar (the strip with the clock and battery).
+- Cause: React Native's built-in `SafeAreaView` does nothing on Android.
+- Fix applied: added `react-native-safe-area-context` 5.11.1. `SafeAreaProvider` is in `src/app/App.tsx`, and `SafeAreaView` is used in `src/app/MainScreen.tsx` and `src/app/ConfigPlaceholder.tsx`.
+- Status: expected fixed, not yet re-checked on the Pixel after reloading the app.
+
+### Getting Expo Go to open the app on iOS (the hard part)
+
+The latest Expo Go on iOS needs you to be signed in to the same Expo account in two places. Without that, it will not open the app.
+
+1. In the terminal, run `npx expo login`. Check it worked with `npx expo whoami`.
+2. In the Expo Go app, sign in on the Home tab (the avatar icon).
+3. Restart the dev server (`npm start`) after logging in on the terminal. A server started before logging in does not pick up the login.
+
+Things that tripped us up:
+- An Expo account created with "Sign in with Google" has no password. Set one first with the forgot-password flow on expo.dev, then use it for `npx expo login`.
+- Expo Go also offers an organization / SSO login. That is not the normal login. Use the regular email and password one.
+- Android did not ask for sign-in at the time of this check. That may change in newer Expo Go versions.
+
+### Not tested
+
+- Audio in Expo Go. Web Audio does not run natively; the native audio adapter is a later spec. The planned library `react-native-audio-api` needs a development build, so Expo Go cannot test it.
+- Menu behaviour beyond opening it.
+- Switching light and dark mode on the device. No issues were reported, but no list of what was looked at was recorded, so treat this as untested.
+
 ## Entries
 
 ### timing-engine

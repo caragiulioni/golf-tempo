@@ -2,7 +2,8 @@
 // PresetButton, AppText, useLayout and theme tokens are reused as is. Nothing new is created.
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
 import React from 'react';
-import { SafeAreaView, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
 import type { Category, Preset } from '../engine';
 import {

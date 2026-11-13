@@ -107,7 +107,7 @@ Conventions for every task:
   - [ ] 4.5 Checkpoint - STOP FOR REVIEW (Wave 3.4, end of first UI wave)
 
 - [ ] 5. Wave 3.5: One-time phone check. Goal: know whether the app opens on a phone.
-  - [ ] 5.1 Expo Go phone check **[MANUAL, user does the device part]**
+  - [x] 5.1 Expo Go phone check **[MANUAL, user does the device part]**
     - Run `npm start`, open on a real phone through Expo Go (simulator or emulator only if no phone). Record device model, OS version, real/simulator/emulator, what worked and what did not in `docs/porting-guide.md`. If it fails to open, record the reason and error and mark "untested on native".
     - Check [MANUAL]: first screen renders with no crash or red screen; entry exists. Exactly one such check in this spec.
     - _Requirements: 11.1, 11.2, 11.3_
