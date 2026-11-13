@@ -200,6 +200,7 @@ Conventions for every task:
 - Manual-check tasks are marked **[MANUAL]**. Device steps by the user are marked "user does the device part".
 - The temporary gallery (`src/app/dev/Gallery.tsx`) is a component showcase, not the real layout, so repeats on it are expected. It is deleted in Wave 3.4 (task 4.2).
 - The old audio lab opened from the gallery has no back control. The real back control (44 pt, R10.1) is built in task 8.1, and the old lab is replaced in 8.3.
+- TODO (wording, temporary): the silent-switch hint "No sound? Check your silent switch." does not fit iPads, which often have no switch (the tester's iPad has only volume buttons and a top button). Improve the text, for example "No sound? Check silent mode, mute in Control Center and the volume." Revisit in task 10.2 and confirm on the iPad and an iPhone. Text is in `src/app/MainScreen.tsx` (R4.8 wording would change too).
 - No optional (`*`) tasks: engine-style tests are required in 1.1 to 1.3. No property tests, since the design has no Correctness Properties section.
 - Plan can change as we learn; any change is reported at the next stop.
 

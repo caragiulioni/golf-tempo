@@ -2,7 +2,7 @@
 // PresetButton, AppText, useLayout and theme tokens are reused as is. Nothing new is created.
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
 import type { Category, Preset } from '../engine';
@@ -25,10 +25,16 @@ import {
   PresetGrid,
   SectionLabel,
   SegmentedControl,
+  StatusMessage,
   Switch,
 } from '../ui/components';
 import type { SegmentedOption } from '../ui/components';
 import { useLayout } from '../ui/hooks/useLayout';
+import { PAUSED_TEXT, START_FAILED_TEXT, usePlayerSession } from '../ui/hooks/usePlayerSession';
+import { readDeviceInfo, shouldShowSilentSwitchHint } from '../ui/lib/silentSwitch';
+
+// Fixed for the life of the page, so read once.
+const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
 const CATEGORY_OPTIONS: ReadonlyArray<SegmentedOption<Category>> = [
   { value: 'long', label: 'Long game' },
@@ -38,7 +44,6 @@ const CATEGORY_NAME: Record<Category, string> = { long: 'Long game', short: 'Sho
 const COLUMNS: Record<Category, 3 | 5> = { long: 5, short: 3 };
 
 const presetKey = (p: Preset) => `${p.category}-${p.backFrames}-${p.downFrames}`;
-const noop = () => {};
 
 type Props = {
   category: Category;
@@ -64,6 +69,7 @@ export function MainScreen({
   const presets = PRESETS[category];
   const selectedIndex = presetByCategory[category];
   const selected = presets[selectedIndex];
+  const session = usePlayerSession({ preset: selected });
 
   const hero = (
     <Card
@@ -78,9 +84,15 @@ export function MainScreen({
         <View style={{ flexShrink: 1 }}>
           <Badge variant="tempo" back={selected.backFrames} down={selected.downFrames} />
         </View>
-        {/* Play is not wired to audio yet (task 4.5). */}
-        <PlayButton playing={false} onPress={noop} />
+        <PlayButton playing={session.playing} onPress={session.toggle} />
       </View>
+      {session.message === 'startFailed' ? (
+        <StatusMessage variant="info" text={START_FAILED_TEXT} />
+      ) : null}
+      {session.message === 'paused' ? <StatusMessage variant="info" text={PAUSED_TEXT} /> : null}
+      {showSilentSwitchHint ? (
+        <StatusMessage variant="hint" text="No sound? Check your silent switch." />
+      ) : null}
       {/* Slot for the BeatTimeline (later task). Empty on purpose. */}
       <View
         style={{
