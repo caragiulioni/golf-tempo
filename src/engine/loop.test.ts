@@ -56,8 +56,7 @@ describe('loopEvents, all presets', () => {
       });
 
       if (!usesAnchoredGrid(p)) {
-        it('even grid (fast Long Game): like Tour Tempo, beats within half a step of steps 4 and 6', () => {
-          expect(p.category).toBe('long');
+        it('even grid (fast Long Game, all Short Game): like Tour Tempo, beats within half a step of their steps', () => {
           const step = cycle / STEPS_PER_BAR;
           times.forEach((t, i) => expect(t).toBeCloseTo(i * step, 9));
           expect(Math.abs(times[anchor.beat2] - beat2)).toBeLessThan(step / 2);
@@ -206,19 +205,18 @@ describe('audit fixes', () => {
     expect(middle[1] - middle[0]).toBeCloseTo((beat3 - beat2) / 4, 9);
   });
 
-  it('Short Game: beat 2 sits exactly on step 3 and the kick on step 4 is a full step later', () => {
+  it('Short Game uses the even grid: every step the same length, no speed change inside the bar', () => {
     for (const p of SHORT_GAME_PRESETS) {
+      expect(usesAnchoredGrid(p), presetLabel(p)).toBe(false);
       const times = stepTimes(p);
-      const { beat2 } = beatTimes(p);
-      expect(times[3]).toBeCloseTo(beat2, 9);
-      const kickAfter = times[4] - beat2;
-      expect(kickAfter, presetLabel(p)).toBeGreaterThan(0.14);
+      const first = times[1] - times[0];
+      for (let i = 1; i < times.length; i++) expect(times[i] - times[i - 1]).toBeCloseTo(first, 9);
     }
   });
 
-  it('Long Game fast presets keep the even grid (unchanged)', () => {
+  it('grid choice: fast Long even, slow Long anchored, Short even', () => {
     for (const p of LONG_GAME_PRESETS.slice(0, 5)) expect(usesAnchoredGrid(p)).toBe(false);
     for (const p of LONG_GAME_PRESETS.slice(5)) expect(usesAnchoredGrid(p)).toBe(true);
-    for (const p of SHORT_GAME_PRESETS) expect(usesAnchoredGrid(p)).toBe(true);
+    for (const p of SHORT_GAME_PRESETS) expect(usesAnchoredGrid(p)).toBe(false);
   });
 });

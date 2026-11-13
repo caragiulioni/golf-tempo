@@ -71,12 +71,14 @@ export function AudioLab({ onBack }: Props) {
   const [toneStyle, setToneStyle] = useState<WeightShiftToneStyle>('distinct');
   const [includeWeightShift, setIncludeWeightShift] = useState(true);
   const [loop, setLoop] = useState(false);
+  // Beats Off: the loop plays on its own, so the groove can be heard without the beeps.
+  const [beepsOn, setBeepsOn] = useState(true);
   const [report, setReport] = useState<string[]>([]);
   const [copyStatus, setCopyStatus] = useState('');
   const [copyFailed, setCopyFailed] = useState(false);
   const [fallbackText, setFallbackText] = useState('');
 
-  const swingOptions = { preset, settings, includeWeightShift, toneStyle, loop };
+  const swingOptions = { preset, settings, includeWeightShift, toneStyle, loop, beeps: beepsOn };
 
   // On entering: stop the main screen's run. Follow the player's state and swings.
   // On leaving: stop any lab audio.
@@ -121,7 +123,7 @@ export function AudioLab({ onBack }: Props) {
   useEffect(() => {
     player?.change(swingOptions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, settings, includeWeightShift, toneStyle, loop]);
+  }, [preset, settings, includeWeightShift, toneStyle, loop, beepsOn]);
 
   // Once a second: run time, and how far the audio clock has drifted from the device clock.
   useEffect(() => {
@@ -175,7 +177,7 @@ export function AudioLab({ onBack }: Props) {
       `Page: ${web && typeof location !== 'undefined' ? location.href : 'unknown'}`,
       `Browser: ${web && typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'}`,
       `Audio context: ${info ? `${info.state}, ${info.sampleRate} Hz, base latency ${ms(info.baseLatencySeconds)}, output latency ${ms(info.outputLatencySeconds)}` : 'not created yet (nothing played)'}`,
-      `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, ${includeWeightShift ? 'with' : 'without'} weight shift, loop ${loop ? 'on' : 'off'}`,
+      `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, ${includeWeightShift ? 'with' : 'without'} weight shift, beeps ${beepsOn ? 'on' : 'off'}, loop ${loop ? 'on' : 'off'}`,
       `Player: ${playerState}. Wake lock: ${wakeLock}`,
       `Run time: ${clock.seconds.toFixed(0)} s. Audio clock vs device clock: ${clock.driftMs.toFixed(1)} ms`,
       `Swings scheduled: ${stats.swings}. Closest a swing came to being late: ${Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}`,
@@ -284,8 +286,25 @@ export function AudioLab({ onBack }: Props) {
 
           <SectionLabel>Beats</SectionLabel>
           {optionGrid('Beats', [
-            { key: 'with', label: 'With weight shift', selected: includeWeightShift, onPress: () => setIncludeWeightShift(true) },
-            { key: 'without', label: 'Three beats only', selected: !includeWeightShift, onPress: () => setIncludeWeightShift(false) },
+            {
+              key: 'with',
+              label: 'With weight shift',
+              selected: beepsOn && includeWeightShift,
+              onPress: () => {
+                setBeepsOn(true);
+                setIncludeWeightShift(true);
+              },
+            },
+            {
+              key: 'without',
+              label: 'Three beats only',
+              selected: beepsOn && !includeWeightShift,
+              onPress: () => {
+                setBeepsOn(true);
+                setIncludeWeightShift(false);
+              },
+            },
+            { key: 'off', label: 'Off', selected: !beepsOn, onPress: () => setBeepsOn(false) },
           ])}
 
           <SectionLabel>Background loop</SectionLabel>

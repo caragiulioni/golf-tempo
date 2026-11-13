@@ -24,8 +24,9 @@ export const STEPS_PER_BAR = 12;
  * The step each beat sits on when the grid is anchored to the beats (see stepTimes).
  * Long Game (3:1): beat 2 on step 4 (with a kick), beat 3 on step 6 (with a snare).
  * Short Game (2:1): beat 2 falls near step 3 of an even bar (3.1 to 3.3 across the
- * presets), so it is anchored to step 3. Anchoring it to step 4 would stretch the middle of
- * the bar by up to 67%. Beat 3 stays on step 6 (with a snare).
+ * presets) and beat 3 near step 6. Short Game uses the even grid (see
+ * ANCHOR_MIN_BEAT2_SECONDS); these are the steps it would use if anchoring were switched
+ * back on (it was tried and rejected by ear).
  */
 export const ANCHOR_STEPS: Readonly<Record<Category, { beat2: number; beat3: number }>> = {
   long: { beat2: 4, beat3: 6 },
@@ -64,13 +65,16 @@ export type LoopOptions = {
 /**
  * Which presets use the beat-anchored grid instead of the even grid, by the beat 1 to
  * beat 2 time. Long Game: presets up to 1.0 s (18/6 to 30/10, the ones Tour Tempo has) use
- * the even grid, exactly like Tour Tempo; slower ones are anchored. Short Game: always
- * anchored (0), because on an even grid its beat 2 lands 0.13 to 0.17 s before the kick on
- * step 4. 0 means always anchored. Infinity means always even.
+ * the even grid, exactly like Tour Tempo; slower ones are anchored. Short Game: always the
+ * even grid (Infinity). Anchoring Short Game was tried in the November 2026 audit and
+ * rejected by ear: the loop sped up between beat 2 and beat 3 (5% at 14/7, 23% at 24/12),
+ * more noticeable the slower the preset. On the even grid Short Game beat 2 lands 0.13 to
+ * 0.17 s before the kick on step 4.
+ * 0 means always anchored. Infinity means always even.
  */
 export const ANCHOR_MIN_BEAT2_SECONDS: Readonly<Record<Category, number>> = {
   long: 1.0,
-  short: 0,
+  short: Infinity,
 };
 
 /** True when the preset's grid is anchored to its beats (see stepTimes). */

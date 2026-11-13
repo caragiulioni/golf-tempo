@@ -31,6 +31,12 @@ export type SwingOptions = {
   toneStyle?: WeightShiftToneStyle;
   /** Play the background loop. Default false. */
   loop?: boolean;
+  /**
+   * Sound the beeps. Default true. False plays the loop on its own (Audio lab, for
+   * listening to the groove). The beeps are still scheduled and reported, silently, so
+   * logs and visuals keep their times.
+   */
+  beeps?: boolean;
 };
 
 /** The loop events of one bar on the audio clock, or none when the loop is off. */
@@ -48,13 +54,13 @@ export function scheduleSwing(
   startTime: number,
   options: SwingOptions,
 ): ScheduledBeep[] {
-  const { preset, settings, includeWeightShift = true, toneStyle } = options;
+  const { preset, settings, includeWeightShift = true, toneStyle, beeps: soundBeeps = true } = options;
   const events = buildSequence({ preset, settings, includeWeightShift });
   // Beeps first. Loop events only add sound and never change beep timing.
   const beeps = events.map((event) => {
     const voice = voiceFor(preset.category, event.type, toneStyle);
     const time = startTime + event.time;
-    adapter.playTone(voice, time);
+    if (soundBeeps) adapter.playTone(voice, time);
     return { type: event.type, voice, time };
   });
   // An adapter without playLoopVoice plays no loop.
