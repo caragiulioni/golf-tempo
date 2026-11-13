@@ -17,7 +17,7 @@ import {
   type WebAudioAdapter,
 } from '../../audio';
 import { defaultWeightShiftSettings, type Preset } from '../../engine';
-import { resolveOutputDelay, type OutputDelay } from '../lib/outputDelay';
+import { resolveOutputDelay, resolveOutputDelayForSwing, type OutputDelay } from '../lib/outputDelay';
 import { currentPlatformKey } from '../lib/platformKey';
 import { addLog } from './sessionLog';
 
@@ -36,6 +36,8 @@ let sharedAdapter: WebAudioAdapter | null = null;
 const swingListeners = new Set<SwingListener>();
 // Output delay resolved at the latest swing. Null until the first swing.
 let lastDelay: OutputDelay | null = null;
+// Swings scheduled since the player last became 'playing'. 0 means the next one is the first of the run.
+let swingsInRun = 0;
 
 /**
  * Seconds between a beep's audio-clock time and it being heard. The latest swing's value;
@@ -55,11 +57,22 @@ export function getSharedPlayer(): Player | null {
   const created = createPlayer(adapter, {
     onSwing: (swing) => {
       // Resolve first, so listeners read this swing's value (R6.5: applies from this swing on).
-      lastDelay = resolveOutputDelay(sharedAdapter?.info() ?? null, currentPlatformKey(Platform.OS));
-      addLog(`Output delay ${Math.round(lastDelay.seconds * 1000)} ms (${lastDelay.source})`);
+      lastDelay = resolveOutputDelayForSwing(
+        sharedAdapter?.info() ?? null,
+        currentPlatformKey(Platform.OS),
+        swingsInRun,
+      );
+      addLog(
+        `Output delay ${Math.round(lastDelay.seconds * 1000)} ms (${lastDelay.source})${swingsInRun === 0 ? ' first swing' : ''}`,
+      );
       swingListeners.forEach((listener) => listener(swing));
+      swingsInRun += 1;
     },
-    onState: (state) => addLog(`Player: ${state}`),
+    onState: (state) => {
+      // The state event fires before the first swing of a run (start, restart, resume).
+      if (state === 'playing') swingsInRun = 0;
+      addLog(`Player: ${state}`);
+    },
     onResync: () => addLog('Timer fell behind. Restarted from beat 1.'),
     onPaused: (reason, behind) =>
       addLog(

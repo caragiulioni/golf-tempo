@@ -81,6 +81,23 @@ Things that tripped us up:
 - Menu behaviour beyond opening it.
 - Switching light and dark mode on the device. No issues were reported, but no list of what was looked at was recorded, so treat this as untested.
 
+### Output delay check (app-shell-ui, Wave 3.9)
+
+Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-tempo-beta.netlify.app, opened in the browser. The question: does the app know how late the sound reaches the ears, so the timeline lights land with the beeps?
+
+| Device | Browser | What was recorded |
+|---|---|---|
+| Mac laptop | Chrome 157 (Macintosh) | Real log. Audio context running, 44100 Hz, base latency 23.2 ms, output latency 56.0 ms. Every swing from the second one logged `Output delay 56 ms (reported)`. |
+| iPad (written down earlier as "iPad 11") | Safari, version not recorded this time | By eye and ear the lights land with the beeps ("works great"). Later log: three loops at 30/10, every `Output delay` was 3 ms. |
+| Pixel 6 | Chrome 157 (Android version hidden by Chrome) | By eye and ear it works great. Log at 30/10: first three swings reported 24 ms, 272 ms, 280 ms. |
+
+- Known gap: the first swing of a run logged `Output delay 0 ms (reported)`. The browser had not yet filled in its output latency when the first swing was scheduled. Fixed: 0 is treated as not reported, so the first swing uses the platform fallback constant directly (not the base latency, which is far smaller than the real delay, e.g. 23 ms vs 280 ms on Pixel).
+- Pixel 6 evidence (user-reported from the Audio lab at 30/10): the first three swings after Play logged 24 ms, 272 ms, 280 ms. The browser reports a small non-zero startup value, so the zero rule does not catch it. New rule: the first swing of every run (start, restart, resume from pause) uses the platform fallback constant (log line ends with `first swing`); from the second swing the reported value is used. Re-checked on the Pixel with the new build (2026-11-13): first swing logged 280 ms (fallback, first swing), then 264 ms and 272 ms (reported); lights looked good; each restart (Play again, preset change) logged `first swing` again. iPad re-check: every log line 3 ms, including the first.
+- The first swing of each run uses the fallback value on every platform.
+- Fallback values: iOS 3 ms (measured on iPad Safari, every logged delay was 3 ms), Android 280 ms (from the Pixel 6 log: 24, 272, 280 ms), desktop 50 ms (still a placeholder; Mac Chrome reported 56 ms). The iOS constant was 100 ms before the iPad measurement.
+- To tighten later: open the Audio lab on the iPad and on the Pixel, play a few presets, copy the log and read the `Output delay` lines.
+- Not claimed: nothing here was checked on native (Expo) builds.
+
 ## Entries
 
 ### timing-engine

@@ -10,10 +10,12 @@ export type LatencyInfo = {
 } | null;
 export type PlatformKey = 'ios' | 'android' | 'desktop';
 
-// Placeholders until measured (R6.8). Android is from the Pixel 6 report;
-// iOS is a guess until the iPad measurement.
+// Fallback delays (R6.8). iOS measured on iPad Safari: 3 ms (every logged delay,
+// 3 loops at 30/10). Android from Pixel 6: first swing reported 24 ms, then 272
+// and 280 ms, so constant 0.28. Desktop 0.05 is a placeholder (Mac Chrome
+// reported 56 ms).
 export const FALLBACK_DELAY_SECONDS: Record<PlatformKey, number> = {
-  ios: 0.1,
+  ios: 0.003,
   android: 0.28,
   desktop: 0.05,
 };
@@ -24,6 +26,12 @@ function isUsable(value: number | null | undefined): value is number {
 
 export function resolveOutputDelay(info: LatencyInfo, platform: PlatformKey): OutputDelay {
   if (info) {
+    // Zero counts as not reported: browsers report 0 right after Play, before
+    // the speaker opens. Base latency is far smaller than the real delay
+    // (23 ms vs 280 ms on Pixel), so go straight to the platform constant.
+    if (info.outputLatencySeconds === 0) {
+      return { seconds: FALLBACK_DELAY_SECONDS[platform], source: 'fallback' };
+    }
     if (isUsable(info.outputLatencySeconds)) {
       return { seconds: info.outputLatencySeconds, source: 'reported' };
     }
@@ -32,4 +40,20 @@ export function resolveOutputDelay(info: LatencyInfo, platform: PlatformKey): Ou
     }
   }
   return { seconds: FALLBACK_DELAY_SECONDS[platform], source: 'fallback' };
+}
+
+/**
+ * The first swing of every run (start, restart, resume) uses the platform constant,
+ * because browsers report a startup value that is too small (Pixel 6: 24 ms, then
+ * 272 and 280 ms). Later swings resolve normally.
+ */
+export function resolveOutputDelayForSwing(
+  info: LatencyInfo,
+  platform: PlatformKey,
+  swingIndexInRun: number,
+): OutputDelay {
+  if (swingIndexInRun === 0) {
+    return { seconds: FALLBACK_DELAY_SECONDS[platform], source: 'fallback' };
+  }
+  return resolveOutputDelay(info, platform);
 }

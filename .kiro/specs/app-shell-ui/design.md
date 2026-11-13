@@ -146,15 +146,17 @@ export type OutputDelay = { seconds: number; source: OutputDelaySource };
 export type LatencyInfo = { outputLatencySeconds?: number | null; baseLatencySeconds?: number | null } | null;
 export type PlatformKey = 'ios' | 'android' | 'desktop';
 
-// Placeholders until measured (R6.8). Android is from the Pixel 6 report; iOS is a guess until the iPad measurement.
-export const FALLBACK_DELAY_SECONDS: Record<PlatformKey, number> = { ios: 0.1, android: 0.28, desktop: 0.05 };
+// R6.8. iOS measured on iPad Safari (3 ms); Android from the Pixel 6 report; desktop is a placeholder (Mac Chrome reported 56 ms).
+export const FALLBACK_DELAY_SECONDS: Record<PlatformKey, number> = { ios: 0.003, android: 0.28, desktop: 0.05 };
 
 export function resolveOutputDelay(info: LatencyInfo, platform: PlatformKey): OutputDelay;
 ```
 
-Rules (R6.2 to R6.4): `info` null (no context yet) → fallback. `outputLatencySeconds` finite and ≥ 0 → reported. Else `baseLatencySeconds` finite and ≥ 0 → that value, source `'fallback'`. Else the platform constant, source `'fallback'`. Platform detection (`detectPlatform()`) lives in `usePlayerSession`, not in the pure module.
+Rules (R6.2 to R6.4): `info` null (no context yet) → fallback. `outputLatencySeconds` finite and > 0 → reported (exactly zero is treated as not yet reported, because browsers report 0 right after Play, and goes straight to the platform constant, skipping base latency, which is far smaller than the real delay). Else `baseLatencySeconds` finite and ≥ 0 → that value, source `'fallback'`. Else the platform constant, source `'fallback'`. Platform detection (`detectPlatform()`) lives in `usePlayerSession`, not in the pure module.
 
-Use: the hook calls `resolveOutputDelay(adapter.info(), platform)` in `onSwing`, so a changed value applies from that swing on and does not touch swings in progress (R6.5). It writes one lab log line, `Output delay NNN ms (reported|fallback)`, per swing (R6.7). The fallback constants are updated in a task after measuring the iPad (Safari 16.6) and Pixel 6, and the measurements go in `docs/porting-guide.md` (R6.8).
+First-swing rule (R6.5a): `resolveOutputDelayForSwing(info, platform, swingIndexInRun)` returns the platform constant (source `'fallback'`) for index 0 and calls `resolveOutputDelay` otherwise. The hook keeps a module counter `swingsInRun`, reset to 0 when the player state becomes `'playing'` (that event fires before the run's first swing) and incremented after each `onSwing`. The first log line of a run ends with ` first swing`.
+
+Use: the hook calls `resolveOutputDelayForSwing(adapter.info(), platform, swingsInRun)` in `onSwing`, so a changed value applies from that swing on and does not touch swings in progress (R6.5). It writes one lab log line, `Output delay NNN ms (reported|fallback)`, per swing (R6.7). The fallback constants are updated in a task after measuring the iPad (Safari 16.6) and Pixel 6, and the measurements go in `docs/porting-guide.md` (R6.8).
 
 Visual time of an event = `beep.time + delay.seconds` on the audio clock. The timeline converts that to a delay from now with `adapter.now()`: `msUntil = (beep.time + delay - adapter.now()) * 1000`.
 
@@ -214,7 +216,7 @@ No property-based tests. The two pure functions (`resolveOutputDelay`, `timeline
 ## Testing Strategy
 
 - Vitest (pure functions only; config `include` widened to `src/ui/lib/**/*.test.ts`):
-  - `outputDelay.test.ts`: reported value used; `null`, `undefined`, negative, `NaN` and `Infinity` for `outputLatencySeconds` fall to `baseLatencySeconds`, then to the platform constant; `info` null uses the constant; source labels are right; zero is accepted as reported.
+  - `outputDelay.test.ts`: reported value used; `null`, `undefined`, negative, `NaN` and `Infinity` for `outputLatencySeconds` fall to `baseLatencySeconds`, then to the platform constant; `info` null uses the constant; source labels are right; zero goes straight to the platform constant, even when a base latency is present.
   - `timelineGeometry.test.ts`: for all 16 presets the x values are strictly increasing, within 0..1, beat 1 at 0 and beat 3 at 1; the diamond position follows `weightShiftTime`; labels use the preset's frame counts; the split sits at beat 2; the result changes when the preset changes; `labelsOverlap` cases.
 - Manual checks (reported per task): theme switch and reload with no flash; intro timing; fonts offline; presets fit at 320 and 360; breakpoints and rotation keep state; play, pause, restart on change; beeps against lights on Mac, Pixel 6 and iPad (do the lights land with the beeps, not before); reduce motion; lab runs on native without errors; one phone check via Expo Go; porting notes entry.
 

@@ -167,16 +167,16 @@ Conventions for every task:
     - _Requirements: 2.5, 10.1, 10.7_
   - [x] 8.4 Checkpoint - STOP FOR REVIEW (Wave 3.8, audio)
 
-- [ ] 9. Wave 3.9: Output delay. Goal: visuals land with what is heard, constants set from measurements.
-  - [ ] 9.1 Apply delay to visuals and log it
+- [x] 9. Wave 3.9: Output delay. Goal: visuals land with what is heard, constants set from measurements.
+  - [x] 9.1 Apply delay to visuals and log it
     - Files: `src/ui/hooks/usePlayerSession.ts`, `src/ui/components/BeatTimeline.tsx`.
     - Check [MANUAL]: each swing writes one lab log line `Output delay NNN ms (reported|fallback)`; a changed value applies from the next swing only; lights are not early against the beeps on Mac.
     - _Requirements: 6.1, 6.5, 6.7_
-  - [ ] 9.2 Measure the fallback delay **[MANUAL, user does the device part]**
+  - [x] 9.2 Measure the fallback delay **[MANUAL, user does the device part]**
     - User runs the app on the iPad (Safari 16.6) and the Pixel 6 (reports about 280 ms), plays several presets, and copies the lab log from each. Agent reads the logs, then sets the iOS and Android constants in `src/ui/lib/outputDelay.ts` and records device model, browser version and values in `docs/porting-guide.md`.
     - Check [MANUAL]: on both devices the lights land with the beeps by ear and eye (within about 20 ms); [AUTO] `npm test` still passes with the new constants.
     - _Requirements: 6.1, 6.3, 6.8_
-  - [ ] 9.3 Checkpoint - STOP FOR REVIEW (Wave 3.9, timing and audio)
+  - [x] 9.3 Checkpoint - STOP FOR REVIEW (Wave 3.9, timing and audio)
 
 - [ ] 10. Wave 3.10: Polish and wrap-up. Goal: spec checked on all sizes, documented, marked done.
   - [ ] 10.1 Responsive pass **[MANUAL]**

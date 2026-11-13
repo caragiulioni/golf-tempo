@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { FALLBACK_DELAY_SECONDS, resolveOutputDelay } from './outputDelay';
+import {
+  FALLBACK_DELAY_SECONDS,
+  resolveOutputDelay,
+  resolveOutputDelayForSwing,
+} from './outputDelay';
 
 describe('resolveOutputDelay', () => {
   it('uses the reported output latency', () => {
@@ -9,10 +13,10 @@ describe('resolveOutputDelay', () => {
     });
   });
 
-  it('counts zero as reported', () => {
-    expect(resolveOutputDelay({ outputLatencySeconds: 0 }, 'android')).toEqual({
-      seconds: 0,
-      source: 'reported',
+  it('treats zero as not reported', () => {
+    expect(resolveOutputDelay({ outputLatencySeconds: 0, baseLatencySeconds: 0.023 }, 'android')).toEqual({
+      seconds: FALLBACK_DELAY_SECONDS.android,
+      source: 'fallback',
     });
   });
 
@@ -46,5 +50,24 @@ describe('resolveOutputDelay', () => {
       seconds: FALLBACK_DELAY_SECONDS.android,
       source: 'fallback',
     });
+  });
+});
+
+describe('resolveOutputDelayForSwing', () => {
+  const pixel = { outputLatencySeconds: 0.024 };
+
+  it('uses the platform constant for the first swing of a run, even if a value is reported', () => {
+    expect(resolveOutputDelayForSwing(pixel, 'android', 0)).toEqual({
+      seconds: FALLBACK_DELAY_SECONDS.android,
+      source: 'fallback',
+    });
+  });
+
+  it('resolves normally from the second swing on', () => {
+    expect(resolveOutputDelayForSwing({ outputLatencySeconds: 0.272 }, 'android', 1)).toEqual({
+      seconds: 0.272,
+      source: 'reported',
+    });
+    expect(resolveOutputDelayForSwing({ outputLatencySeconds: 0 }, 'android', 2).source).toBe('fallback');
   });
 });
