@@ -68,7 +68,7 @@ Change: Michroma (`fonts.brand`) is bundled and loaded with the others, used onl
 
 `App.tsx` runs one startup effect:
 1. `loadThemeChoice()` and `useFonts({ Inter_..., SpaceGrotesk_... })` start together.
-2. `minTimerDone` is set after 1000 ms from first render. `timeoutDone` is set after 3000 ms.
+2. `minTimerDone` is set after 2000 ms from first render. `timeoutDone` is set after 3000 ms.
 3. `loaded = themeLoaded && fontsLoaded`. Font error counts as done with `useSystemFont = true` (theme typography falls back to the system font).
 4. `canLeave = (loaded && minTimerDone) || timeoutDone`. Tap before load does nothing visible but sets `skipRequested`. `canLeave || (loaded && skipRequested)` swaps to the main screen. A tap after `loaded` leaves at once.
 5. Swap uses a 200 ms fade, or no animation when reduce motion is on (R9.8).

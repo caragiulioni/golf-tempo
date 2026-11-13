@@ -26,7 +26,7 @@ const DEFAULT_PRESET_INDEX: Record<Category, number> = {
   long: LONG_GAME_PRESETS.findIndex((p) => p.backFrames === 30 && p.downFrames === 10),
   short: SHORT_GAME_PRESETS.findIndex((p) => p.backFrames === 24 && p.downFrames === 12),
 };
-const MIN_INTRO_MS = 1000; // R9.2
+const MIN_INTRO_MS = 2000; // R9.2
 const MAX_INTRO_MS = 3000; // R8.4, R9.7
 
 export default function App() {

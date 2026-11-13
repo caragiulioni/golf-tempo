@@ -156,10 +156,10 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 #### Acceptance Criteria
 
 1. WHEN the App starts, THE Intro_Screen SHALL show the logo, the app name and the tagline "Train Your Tempo. Transform Your Game." while the saved theme choice and fonts load.
-2. WHEN the App starts, THE Intro_Screen SHALL remain visible for at least 1000 ms from first render.
-3. WHILE the saved theme choice or fonts are still loading, THE Intro_Screen SHALL remain visible, even after 1000 ms has passed.
-4. WHEN 1000 ms has passed and loading has finished, THE App SHALL replace the Intro_Screen with the main screen within 500 ms.
-5. WHEN the user taps the Intro_Screen before loading has finished, THE App SHALL keep the Intro_Screen visible until loading has finished, then show the main screen within 500 ms, without waiting for the remainder of the 1000 ms.
+2. WHEN the App starts, THE Intro_Screen SHALL remain visible for at least 2000 ms from first render.
+3. WHILE the saved theme choice or fonts are still loading, THE Intro_Screen SHALL remain visible, even after 2000 ms has passed.
+4. WHEN 2000 ms has passed and loading has finished, THE App SHALL replace the Intro_Screen with the main screen within 500 ms.
+5. WHEN the user taps the Intro_Screen before loading has finished, THE App SHALL keep the Intro_Screen visible until loading has finished, then show the main screen within 500 ms, without waiting for the remainder of the 2000 ms.
 6. WHEN the user taps the Intro_Screen after loading has finished, THE App SHALL show the main screen within 500 ms of the tap.
 7. IF the saved theme choice or fonts fail to load, THEN THE App SHALL show the main screen using the device theme setting and the system font within 3000 ms of app start, and SHALL not stay on the Intro_Screen indefinitely.
 8. WHERE the device reduce-motion setting is on, THE Intro_Screen SHALL show the logo, name and tagline as static content, with no fade, movement or scaling, and SHALL change to the main screen without a transition animation.
