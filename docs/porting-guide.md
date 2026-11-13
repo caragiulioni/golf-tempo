@@ -174,7 +174,27 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
   - Phone check and the Android header fix are in the "Phone check" section above. The Expo Go iOS sign-in steps are in "Getting Expo Go to open the app on iOS" in the same section. Follow them before testing on an iPhone or iPad.
   - Play button is 75 on phones (`layoutSizes` in `src/theme/tokens.ts`). That is a user decision, not the design handoff value. Do not change it without asking.
   - Named styles: each component keeps its styles in `StyleSheet.create` at the bottom of the file, and values come from the theme, so a porter can find and change them in one place.
-  - The loop switch is shown but disabled; the background loop is a later spec.
+  - The loop switch is shown but disabled; the background loop is a later spec. (Now live, see the background-loop entry.)
+
+### background-loop
+- What was built: an optional drum loop (kick, snare, hi-hat) that plays under the beeps, made in code with no sound files. One bar of the loop is one swing, so beat 1 always starts a bar, and the loop keeps playing through the pause between swings. The pattern copies Tour Tempo's loop, measured from its Long Game clips: 12 steps per bar, kick on steps 0, 4, 8, snare on 2, 6, 10, a hi-hat on every step. A "Background loop" switch on the main screen turns it on; it is off every time the app starts (not saved). The Audio lab has Kick, Snare and Hat buttons, a loop on/off option, and "Beats: Off" to hear the loop without the beeps.
+- Carries over unchanged (expected, not run on a phone):
+  - `src/engine/loop.ts`: where every drum hit goes, as plain lists and numbers. No browser, React or audio code. Tested (`src/engine/loop.test.ts`).
+  - `src/audio/player.ts`: schedules the loop with the beeps from the same start time on the audio clock, so they cannot drift apart. Plain TypeScript.
+  - `src/audio/types.ts`: the optional `playLoopVoice` step any audio system can provide. An audio system without it simply plays no loop.
+  - The switch wiring: `src/app/MainScreen.tsx` and `src/ui/hooks/usePlayerSession.ts`, plus `restartKey` on `src/ui/components/BeatTimeline.tsx` so the timeline resets when the loop is toggled while playing.
+- Web-only, must be replaced on native:
+  - `src/audio/webAudio.ts`, `playLoopVoice`: makes the kick (a falling sine), snare (filtered noise plus a short tone) and hat (high-passed noise) with Web Audio, through one quieter "loop bus". The native audio adapter must make the same three sounds. With `react-native-audio-api` (it copies the Web Audio design) this is expected to port with modest changes. Untested. The levels and sound shapes are named constants at the top of that file.
+- Needs testing on a real device (both an Android device and an iOS device):
+  - The loop stays locked to the beeps over a long session, and stopping or changing a setting silences the drums without a click.
+  - The kick is audible on the phone speaker (it drops to about 45 Hz, which small speakers barely play) and every beep stays clear over the loop.
+  - On the web: Pixel 6 (Chrome 157) and iPad (Safari 16.6) scheduled the loop cleanly through many restarts, with no stalls or pauses. Speaker levels were not formally rated on either; no problems were reported and no levels were changed.
+- Decisions and reasons:
+  - Long Game 18/6 to 30/10 and all Short Game use even steps, exactly like Tour Tempo. Beat 2 and beat 3 then sit slightly off the drums (up to 0.05 s at Long 18/6; Short Game beat 2 comes 0.13 to 0.17 s before the step 4 kick), as in Tour Tempo. Accepted by ear.
+  - Long Game 42/14 and slower (not in Tour Tempo) place the steps so beat 2 is on step 4 and beat 3 on the step 6 snare. Without this, beat 3 drifted up to 0.37 s off the loop at 168/56.
+  - Placing Short Game's steps around its beats was tried and rejected by ear: the loop sped up between the top of the swing and impact, worse at slower presets.
+  - Why no grid does everything: beat 3 has a fixed 0.2 s delay, so beat 2 and beat 3 can only both sit on even steps at one tempo, which is not a preset.
+  - Full history, findings and the audit: `docs/background-loop-audit-notes.md`. Plain-language summary for the user: `docs/development-decisions.md`, section 2.
 
 ## Final guide checklist (written after the last spec)
 

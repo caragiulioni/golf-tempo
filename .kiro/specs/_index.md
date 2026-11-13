@@ -41,7 +41,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Depends on:** audio-playback.
 - **Blockers:** none known. Sound and pattern are tuned by ear.
 - **Spec:** DONE (`.kiro/specs/background-loop/`)
-- **Built:** not started
+- **Built:** DONE. Checked by ear on desktop; Pixel 6 (Chrome 157) and iPad (Safari 16.6) scheduled cleanly. Not formally rated: kick and level on phone speakers. Not rechecked by eye: timeline reset when toggling the loop while playing. History and audit: `docs/background-loop-audit-notes.md`.
 
 ### 5. config-mode
 - **Scope:** Temporary CONFIG entry in the header menu, weight shift slider with a safe range (Long Game starts at 0.50, Short Game at 0.60), a background loop on/off choice while calibrating (the brother decides whether to calibrate with the loop on or off; the weight shift never sits on the drum grid, so the loop can pull his ear), independent Long/Short settings, immediate test playback (slider releases restart playback), visual position feedback, APPLY (saves one category at a time to local storage so normal mode uses it at every tempo), reset to default, yes/no confirmation dialog when leaving CONFIG with unapplied changes, JSON export of applied values with `weightShiftPosition` per category, and a short plain-language calibration guide for the brother (`docs/`, see `dev_questions.md` item 10). Lives inside the main app, not a separate branch. Isolated in its own module for easy removal.

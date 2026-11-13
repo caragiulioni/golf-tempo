@@ -30,13 +30,13 @@ Stop for review (audio).
 
 ## Wave 4.4: UI toggle
 
-- [ ] 1. Make the Loop_Switch live. Reuse check first: list `src/ui/components/`, reuse the existing `Switch` (remove only `disabled`), no new styles. Files: `src/app/MainScreen.tsx`, `src/ui/hooks/usePlayerSession.ts`. Check in the browser: switch is off on load; reload keeps it off; turning it on while stopped plays the loop on the next Play; toggling while playing restarts once (short pause, new run from beat 1); preset change keeps the loop on; Long and Short Game both play it; the switch is not greyed out.
+- [x] 1. Make the Loop_Switch live. Reuse check first: list `src/ui/components/`, reuse the existing `Switch` (remove only `disabled`), no new styles. Files: `src/app/MainScreen.tsx`, `src/ui/hooks/usePlayerSession.ts`. Check in the browser: switch is off on load; reload keeps it off; turning it on while stopped plays the loop on the next Play; toggling while playing restarts once (short pause, new run from beat 1); preset change keeps the loop on; Long and Short Game both play it; the switch is not greyed out. Result: switch behavior checked by ear in the browser. Found while listening: toggling while playing left TOP lit during the restart; fixed with `BeatTimeline` `restartKey` (commit 84e4b69). That fix was not separately rechecked by eye.
 
 Stop for review.
 
 ## Wave 4.5: Tune and porting notes
 
-- [ ] 1. Tune constants by ear (levels, hat gap, sounds), on desktop plus iPad Safari and Pixel Chrome. Check: record per device (model, browser version) whether the kick is audible on phone speakers and the beeps stay clear. Only named constants change.
-- [ ] 2. Porting notes: add an entry to `docs/porting-guide.md` in its format (web-only: Web Audio synthesis in `webAudio.ts`; unchanged: `loop.ts` and the Switch wiring; untested on native). Update `_index.md` spec 4 Built status after review.
+- [x] 1. Tune constants by ear (levels, hat gap, sounds), on desktop plus iPad Safari and Pixel Chrome. Check: record per device (model, browser version) whether the kick is audible on phone speakers and the beeps stay clear. Only named constants change. Result: desktop listening (Mac Chrome) accepted; Pixel 6 Chrome 157 and iPad Safari 16.6 scheduled cleanly through many restarts (logs). Speaker levels not formally rated per device; no problems reported, so no constants changed. Along the way: Short Game grid tried anchored and reverted to even by ear; weight shift defaults set to Long 0.50, Short 0.60.
+- [x] 2. Porting notes: add an entry to `docs/porting-guide.md` in its format (web-only: Web Audio synthesis in `webAudio.ts`; unchanged: `loop.ts` and the Switch wiring; untested on native). Update `_index.md` spec 4 Built status after review.
 
 Stop for review.
