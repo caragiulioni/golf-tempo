@@ -29,7 +29,7 @@ import {
   StatusMessage,
   Switch,
 } from '../ui/components';
-import type { SegmentedOption } from '../ui/components';
+import { CATEGORY_NAME, CATEGORY_OPTIONS, PRESET_COLUMNS, presetKey } from '../ui/lib/categoryUi';
 import { useLayout } from '../ui/hooks/useLayout';
 import {
   PAUSED_TEXT,
@@ -46,15 +46,6 @@ const SILENT_SWITCH_HINT = 'No sound? Check silent mode, mute in Control Center 
 // Fixed for the life of the page, so read once.
 const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
-const CATEGORY_OPTIONS: ReadonlyArray<SegmentedOption<Category>> = [
-  { value: 'long', label: 'Long game' },
-  { value: 'short', label: 'Short game' },
-];
-const CATEGORY_NAME: Record<Category, string> = { long: 'Long game', short: 'Short game' };
-const COLUMNS: Record<Category, 3 | 5> = { long: 5, short: 3 };
-
-const presetKey = (p: Preset) => `${p.category}-${p.backFrames}-${p.downFrames}`;
-
 type Props = {
   category: Category;
   /** Index into PRESETS[category] for each category. */
@@ -63,6 +54,8 @@ type Props = {
   onPresetChange: (category: Category, index: number) => void;
   /** Weight shift positions to play and draw with. */
   weightShiftSettings: WeightShiftSettings;
+  /** False while Config or the Audio lab is open: this screen then ignores changes and never restarts playback. */
+  active: boolean;
   onOpenConfig: () => void;
   onOpenLab: () => void;
 };
@@ -73,6 +66,7 @@ export function MainScreen({
   onCategoryChange,
   onPresetChange,
   weightShiftSettings,
+  active,
   onOpenConfig,
   onOpenLab,
 }: Props) {
@@ -84,7 +78,7 @@ export function MainScreen({
   const selected = presets[selectedIndex];
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
-  const session = usePlayerSession({ preset: selected, loop, settings: weightShiftSettings });
+  const session = usePlayerSession({ preset: selected, loop, settings: weightShiftSettings }, { active });
 
   const hero = (
     <Card
@@ -135,7 +129,7 @@ export function MainScreen({
         <SectionLabel>Available sessions</SectionLabel>
         <PresetGrid
           items={presets}
-          columns={COLUMNS[category]}
+          columns={PRESET_COLUMNS[category]}
           keyOf={presetKey}
           accessibilityLabel={`${CATEGORY_NAME[category]} tempos`}
           renderItem={(p) => {

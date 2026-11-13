@@ -93,6 +93,11 @@ export function getSharedPlayer(): Player | null {
   return created;
 }
 
+/** Stops the shared player if there is one. Never creates it (creating belongs inside a tap). */
+export function stopSharedPlayer(): void {
+  player?.stop();
+}
+
 /** The shared web adapter, for the audio lab. Null before first use and where there is no web audio. */
 export function getSharedAdapter(): WebAudioAdapter | null {
   return sharedAdapter;
@@ -118,11 +123,19 @@ export function swingOptionsFor({ preset, loop, settings }: SessionSelection): S
   return { preset, settings, includeWeightShift: true, loop };
 }
 
-export function usePlayerSession(selection: SessionSelection) {
+type SessionOptions = {
+  /**
+   * False while another screen owns playback (the main screen stays mounted under Config).
+   * An inactive session never restarts the player on a change. Default true.
+   */
+  active?: boolean;
+};
+
+export function usePlayerSession(selection: SessionSelection, { active = true }: SessionOptions = {}) {
   // Peek only; the player is created on the first press, inside the tap.
   const [playerState, setPlayerState] = useState<PlayerState>(() => player?.getState() ?? 'stopped');
   const [message, setMessage] = useState<SessionMessage>(null);
-  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop, selection.settings]); // eslint-disable-line react-hooks/exhaustive-deps
+  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
   // Latest options for toggle() and for 6.3 (restart on change).
   const optionsRef = useRef(swingOptions);
   optionsRef.current = swingOptions;
@@ -144,21 +157,34 @@ export function usePlayerSession(selection: SessionSelection) {
   const playing = playerState === 'playing' || playerState === 'restarting';
 
   // Restart on selection change (R3.10). Category changes swap the preset object too.
-  // The ref holds the last preset seen, so the first render, a strict-mode re-run and a
-  // re-render with the same preset all compare equal and do nothing. Only call this hook
-  // from MainScreen: it stays mounted under other screens, and a second instance would
-  // call change() twice.
-  // The loop switch restarts the same way.
-  const lastSelectionRef = useRef<{ preset: Preset; loop: boolean } | null>(null);
+  // The ref holds the last selection seen, so the first render, a strict-mode re-run and a
+  // re-render with the same values all compare equal and do nothing. The loop switch and the
+  // weight shift positions restart the same way. Only one active instance at a time: the main
+  // screen stays mounted (hidden) under Config, so it passes active=false while Config is open,
+  // and an inactive instance forgets the last selection so that becoming active again never
+  // restarts anything.
+  const lastSelectionRef = useRef<SessionSelection | null>(null);
   useEffect(() => {
+    if (!active) {
+      lastSelectionRef.current = null;
+      return;
+    }
     const previous = lastSelectionRef.current;
-    lastSelectionRef.current = { preset: selection.preset, loop: selection.loop };
-    if (previous === null || (previous.preset === selection.preset && previous.loop === selection.loop)) return;
+    lastSelectionRef.current = selection;
+    if (
+      previous === null ||
+      (previous.preset === selection.preset &&
+        previous.loop === selection.loop &&
+        previous.settings.long === selection.settings.long &&
+        previous.settings.short === selection.settings.short)
+    ) {
+      return;
+    }
     if (!player) return;
     const state = player.getState();
     if (state !== 'playing' && state !== 'restarting') return;
     player.change(optionsRef.current);
-  }, [selection.preset, selection.loop]);
+  }, [active, selection.preset, selection.loop, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = useCallback(async () => {
     const current = getSharedPlayer();
