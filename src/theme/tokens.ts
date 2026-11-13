@@ -131,3 +131,40 @@ export function introColors(
 ): Colors {
   return scheme === 'light' ? colors.light : colors.dark;
 }
+
+// Logo mark gradient stops, from _references/DESIGN/logo/logo-mark-*.svg.
+// Brand art, so they are fixed per mode (the mark for dark mode is light, and the reverse).
+export const logoGradient: Record<ThemeMode, { offset: number; color: string }[]> = {
+  dark: [
+    { offset: 0, color: '#C9DEC3' },
+    { offset: 0.35, color: '#A5C6A0' },
+    { offset: 0.65, color: '#86AE8C' },
+    { offset: 1, color: '#5A8668' },
+  ],
+  light: [
+    { offset: 0, color: '#1B2E23' },
+    { offset: 0.4, color: '#34523D' },
+    { offset: 0.7, color: '#4F7358' },
+    { offset: 1, color: '#7BA283' },
+  ],
+};
+
+// Ratio pill height (R3.9) and the letter spacing for small uppercase labels.
+export const badgeHeight: Record<Layout, number> = { phone: 28, tablet: 36, laptop: 36 };
+export const labelLetterSpacing = 1.5;
+
+// Shared literal values for borders, focus ring, opacity, icon stroke and the switch.
+export const borderWidth = { thin: 1, thick: 2 } as const;
+export const focusRing = { width: 2, offset: 2 } as const;
+export const opacity = { disabled: 0.5, pressed: 0.85 } as const;
+export const iconStrokeWidth = 2.5;
+// Handoff .sw: 52 x 32 track, 24 knob, 3 inset, 20 travel.
+export const switchSize = {
+  trackWidth: 52,
+  trackHeight: 32,
+  knob: 24,
+  inset: 3,
+  travel: 20,
+  rowHeight: 56,
+  rowRadius: 16,
+} as const;

@@ -1,14 +1,42 @@
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { SafeAreaView } from 'react-native';
+import { useFonts } from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
+import { SpaceGrotesk_500Medium, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
+import { ThemeProvider } from '../theme';
 import AudioLab from './dev/AudioLab';
+import Gallery from './dev/Gallery';
 
-// Placeholder root component. Replaced when the app-shell-ui spec is built.
+// TEMPORARY wiring: gallery + audio lab. Replaced in Wave 3.4.
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_700Bold,
+  });
+  const [showLab, setShowLab] = useState(false);
+
+  if (!fontsLoaded) return null;
+
   return (
-    <SafeAreaView>
-      {/* TEMPORARY: listening-test screen. Remove with src/app/dev/ in spec 3. */}
-      <AudioLab />
-      <StatusBar style="auto" />
-    </SafeAreaView>
+    <ThemeProvider initialChoice={null}>
+      <SafeAreaView style={{ flex: 1 }}>
+        {showLab ? (
+          <AudioLab />
+        ) : (
+          <Gallery onOpenAudioLab={() => setShowLab(true)} />
+        )}
+        <StatusBar style="auto" />
+      </SafeAreaView>
+    </ThemeProvider>
   );
 }

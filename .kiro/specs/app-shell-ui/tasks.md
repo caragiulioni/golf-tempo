@@ -198,6 +198,8 @@ Conventions for every task:
 ## Notes
 
 - Manual-check tasks are marked **[MANUAL]**. Device steps by the user are marked "user does the device part".
+- The temporary gallery (`src/app/dev/Gallery.tsx`) is a component showcase, not the real layout, so repeats on it are expected. It is deleted in Wave 3.4 (task 4.2).
+- The old audio lab opened from the gallery has no back control. The real back control (44 pt, R10.1) is built in task 8.1, and the old lab is replaced in 8.3.
 - No optional (`*`) tasks: engine-style tests are required in 1.1 to 1.3. No property tests, since the design has no Correctness Properties section.
 - Plan can change as we learn; any change is reported at the next stop.
 
