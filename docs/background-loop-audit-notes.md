@@ -2,6 +2,8 @@
 
 Written for a fresh reviewer (the timing engine context) who has not seen the loop work. Covers spec 4 (`.kiro/specs/background-loop/`), Waves 4.1 to 4.4. Wave 4.5 (tuning on phones, porting notes) is not done.
 
+**Update:** the engine audit is in section 8 at the end. Some rules in section 2 changed as a result (Short Game grid, slow hats, ghost kick list, a rounding bug). Section 8 is the current state where they differ.
+
 State when written: 254 tests pass, `npm run typecheck` is clean. Waves 4.1, 4.2 and 4.3 are committed (`60c9af6`, `d880bf7`, `b72dff6`). The loop rewrite (4.1b) and the main-screen switch (4.4) are uncommitted.
 
 ## 1. What was built
@@ -105,3 +107,66 @@ Caveats: screen-recording audio, beeps mixed into the same track. The hat-on-eve
 - `.kiro/specs/background-loop/requirements.md`, `design.md`, `tasks.md`.
 - `src/engine/loop.ts` and `src/engine/loop.test.ts`.
 - `_references/tempo-measurements.md` (the earlier beat timing measurements).
+
+## 8. Engine audit (November 2026)
+
+Done by the timing engine context. Method: read `loop.ts`, `loop.test.ts`, `player.ts`, the loop parts of `webAudio.ts`, `MainScreen.tsx` and `usePlayerSession.ts`; ran the tests; computed where every beat lands on the drum grid for all 16 presets; ran the real `loopEvents` through a throwaway test (deleted afterwards). The clips were not re-extracted: the earlier beat measurements cover what was needed.
+
+### 8.1 Engine integrity (answers section 5, item 1)
+- `beats.ts`, `repeat.ts`, `sequence.ts`, `presets.ts` and `weightShift.ts` were unchanged by the loop work (no diff since spec 2's last commit, `eec4167`). The only later change is the weight shift default, made on purpose (8.4).
+- `loop.ts` only reads `beatTimes` and `cycleSeconds`. It cannot move a beat.
+- The player schedules beeps first, then the loop, from the same start time on the audio clock. Each bar starts exactly where the last one ended. Stop and restart fade the drums like the beeps.
+
+### 8.2 Findings
+
+Where the beats landed against the drums before the fixes (negative means the beep is before the drum):
+
+| Preset | Grid | Beat 2 vs kick (step 4) | Beat 3 vs snare (step 6) |
+|---|---|---|---|
+| Long 18/6 | even | -33 ms | +50 ms |
+| Long 30/10 | even | -11 ms | +17 ms |
+| Long 42/14 to 168/56 | anchored | 0 | 0 |
+| Short 14/7 | even | -129 ms | +7 ms |
+| Short 18/9 | even | -147 ms | -20 ms |
+| Short 24/12 | even | -173 ms | -60 ms |
+
+1. **Short Game double hit (main cause of "hits not quite right").** On the even grid, Short Game beat 2 sits near step 3.1 to 3.3, so the kick on step 4 arrives 0.13 to 0.17 s after the beep, heard as a second hit. The pattern was copied from Long Game; no Short Game clip has a loop to copy.
+2. **Long Game fast presets flam slightly, like Tour Tempo.** Up to 50 ms at 18/6. Faithful to the clips, so kept.
+3. **Why no grid fixes everything:** beat 3 has a fixed 0.2 s delay, so beat 2 and beat 3 can only both sit on an even 12-step grid at one tempo (beat 2 at 1.2 s), which is not a preset. Every design gives up one of: an even drum pulse, beats exactly on drum hits, or no speed change inside the bar.
+4. **Bug: 60/20 hat doubled for one step after impact.** That step is exactly 0.5 s, floating point made it a hair longer, and the "longer than 0.5 s gets extra ticks" rule split it. Hat gaps went 0.5, 0.25, 0.25, 0.5.
+5. **Slow Long presets: the hat pulse sped up 13 to 26% between beat 2 and beat 3** (168/56: 0.467 s gaps, then 0.344 s). Conflicts with the product rule of a steady pulse at slow tempos.
+6. **The weight shift is never on the drum grid** (step 2.4 to 2.7, between the snare and the next hat). By design, but with the loop on it sounds between drum hits, which matters when calibrating.
+7. **Ghost kick threshold too tight:** 16/8 was 1.2 ms under the 0.17 s limit. Any pause-factor tuning could flip it.
+8. Smaller: no master limiter (beat 1 plus kick plus accented hat peaks near 0.9 of full scale by estimate, so probably not clipping; low priority). The player's loop scheduling still has no automated test. Cycle lengths differ from Tour Tempo by under 50 ms (pause only; left alone). The 30/10 to 42/14 change in grid only happens between presets, which restart anyway.
+9. Doc correction: `_references/tempo-measurements.md` said the clips include the drum loop. Only the Long Game clips do; the earlier measurement data shows no drum hits in the Short Game clips. Corrected. (Note: `structure.md` says `_references/` is not edited; that file was created by the developer during spec 1, so it was corrected in place. Move the correction to `docs/` if preferred.)
+
+### 8.3 Decisions (developer, November 2026)
+1. Short Game: anchor the grid to its beats. The developer counted the Short Game clips in 6 (not 4) and heard the beats land on the count.
+2. Slow Long presets: tick beat 2 to beat 3 as one span.
+3. Calibration: the brother chooses whether to calibrate with the loop on or off (added to spec 5's scope in `.kiro/specs/_index.md` and to `docs/dev_questions.md`).
+4. Fix the bugs (60/20 rounding, ghost kick threshold).
+5. Long Game weight shift default changes from 0.67 to 0.53.
+
+### 8.4 What changed (uncommitted, on top of the 4.1b and 4.4 work)
+
+| Change | Where |
+|---|---|
+| `ANCHOR_STEPS` per category: Long beat 2 on step 4, beat 3 on 6; Short beat 2 on step 3, beat 3 on 6. Replaces `BEAT2_STEP` and `BEAT3_STEP`. | `src/engine/loop.ts` |
+| `ANCHOR_MIN_BEAT2_SECONDS` per category: Long 1.0 (unchanged), Short 0 (always anchored). New `usesAnchoredGrid(preset)`. | `src/engine/loop.ts` |
+| `GHOST_KICK_PRESETS` list (Long 18/6, Short 14/7 and 16/8) replaces `GHOST_KICK_MAX_STEP_SECONDS`. Same presets as before. | `src/engine/loop.ts` |
+| Hat tick rounding slack (60/20 fix). | `src/engine/loop.ts` |
+| Slow anchored grids tick beat 2 to beat 3 as one span. Middle hat gaps: 84/28 0.378 s (was 0.283), 120/40 0.511 s (was 0.383), 168/56 0.517 s (was 0.344). 42/14 and 60/20 unchanged. | `src/engine/loop.ts` |
+| Events sorted at the end (kick, snare, hat on ties), so forced ghost kicks stay in order. | `src/engine/loop.ts` |
+| Long Game weight shift default 0.53 (was 0.67). | `src/engine/weightShift.ts`, steering `product.md` and `timing-engine.md`, spec 1 requirements, `docs/dev_questions.md` |
+| Tests: per-category grid checks, hats on beats for anchored grids, steady-pulse check, ghost kick list, 60/20 regression, 168/56 middle span, Short beat 2 on step 3, defaults 0.53. 286 tests pass, typecheck clean. | `src/engine/loop.test.ts`, `sequence.test.ts`, `weightShift.test.ts` |
+| Spec text brought in line. | `.kiro/specs/background-loop/requirements.md`, `design.md`, `docs/development-decisions.md` section 2 |
+| Timeline fix (found while listening): toggling the loop while playing left the stopped run's marker lights pending, so TOP lit during the restart pause. `BeatTimeline` gets a `restartKey` prop (the loop switch) that resets it like a preset change. | `src/ui/components/BeatTimeline.tsx`, `src/app/MainScreen.tsx` |
+
+Unchanged: fast Long Game (18/6 to 30/10) keeps Tour Tempo's even grid; kick, snare, hat and accent tables; the beeps; the player.
+
+### 8.5 Costs and what to listen for
+- **Short Game, new trade-off:** beats now sit on the drums, but the middle of the bar (beat 2 to beat 3) runs 5% (14/7) to 23% (24/12) faster than the rest. Listen at 24/12 especially.
+- **Short Game beat 2 is on step 3,** which is between counts if you count 6 to the bar (counts on steps 0, 2, 4, 6, 8, 10). It sits on a hat, with the kick one step later. If it should be on a count, `ANCHOR_STEPS.short.beat2` is the knob, but step 4 would stretch the middle by up to 67%.
+- **Slow Long Game:** 84/28, 120/40 and 168/56 should now feel steadier between beat 2 and beat 3. 60/20 should no longer have the quick double hat right after impact.
+- **Weight shift at 0.53:** earlier in the backswing than before (about halfway from beat 1 to beat 2).
+- Not checked by ear yet. Wave 4.5 (phones) still applies.

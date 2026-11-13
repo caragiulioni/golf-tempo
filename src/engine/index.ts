@@ -1,9 +1,8 @@
 export { BEAT3_DELAY_SECONDS, FPS, beatTimes, type BeatTimes } from './beats';
 export {
   ANCHOR_MIN_BEAT2_SECONDS,
-  BEAT2_STEP,
-  BEAT3_STEP,
-  GHOST_KICK_MAX_STEP_SECONDS,
+  ANCHOR_STEPS,
+  GHOST_KICK_PRESETS,
   GHOST_KICK_STEPS,
   HAT_ACCENT_STEPS,
   HAT_MAX_GAP_SECONDS,
@@ -12,6 +11,7 @@ export {
   STEPS_PER_BAR,
   loopEvents,
   stepTimes,
+  usesAnchoredGrid,
   type LoopEvent,
   type LoopOptions,
   type LoopVoice,

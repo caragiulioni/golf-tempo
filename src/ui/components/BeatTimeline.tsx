@@ -34,6 +34,12 @@ type Props = {
    * changed value applies from the next swing. Defaults to no delay.
    */
   outputDelay?: () => number;
+  /**
+   * Any other setting that restarts playback without changing the timeline's layout (the
+   * background loop switch). A new value drops pending marker lights and resets, the same
+   * as a preset change, so the stopped run's markers cannot light during the restart.
+   */
+  restartKey?: unknown;
 };
 
 const NO_DELAY = () => 0;
@@ -74,6 +80,7 @@ export function BeatTimeline({
   subscribeSwings,
   audioNow,
   outputDelay = NO_DELAY,
+  restartKey,
 }: Props) {
   const { mode } = useTheme();
   const { layout } = useLayout();
@@ -220,7 +227,7 @@ export function BeatTimeline({
       unsubscribe();
       reset.current();
     };
-  }, [geometry, subscribeSwings, audioNow, progress, pulse]);
+  }, [geometry, subscribeSwings, audioNow, progress, pulse, restartKey]);
 
   // Turning reduce motion on mid-play drops any sweep or pulse in progress.
   useEffect(() => {

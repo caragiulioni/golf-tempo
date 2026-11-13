@@ -23,7 +23,7 @@ describe('buildSequence', () => {
     const events = buildSequence({ preset: long(30, 10), settings: defaultWeightShiftSettings() });
     expect(events.map((e) => e.type)).toEqual(['beat1', 'weightShift', 'beat2', 'beat3']);
     expect(events[0].time).toBe(0);
-    expect(events[1].time).toBeCloseTo(0.67, 6);
+    expect(events[1].time).toBeCloseTo(0.53, 6);
     expect(events[2].time).toBeCloseTo(1.0, 6);
     expect(events[3].time).toBeCloseTo(1.5333, 3);
   });
@@ -81,7 +81,7 @@ describe('weight shift position', () => {
       const events = buildSequence({ preset, settings });
       const beat2 = events.find((e) => e.type === 'beat2')!.time;
       const shift = events.find((e) => e.type === 'weightShift')!.time;
-      expect(shift / beat2).toBeCloseTo(0.67, 6);
+      expect(shift / beat2).toBeCloseTo(0.53, 6);
     }
   });
 

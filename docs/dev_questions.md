@@ -19,9 +19,9 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - The three original beats are correct as they are in Tour Tempo and are copied as-is. Do not "correct" them to the printed numbers. The weight shift beat is one additional data point; everything stays framed around the current tempos.
 - Weight shift placement (confirmed by client): between beat 1 (takeaway) and beat 2 (top of swing). It represents the initial lateral weight transfer, which starts in the hips.
 - Position is stored as a normalized value (0 to 1) between beat 1 and beat 2 and keeps the same relative position at every tempo (confirmed by client).
-- Starting value for Long Game: about 0.67. The client's diagram divides the swing into four equal parts and puts the weight shift at the midpoint of the whole swing, which is 2 of the 3 backswing parts. To be tuned by ear in CONFIG mode.
+- Starting value for Long Game: 0.53 (decided November 2026, by ear). It replaced about 0.67, which came from the client's diagram (the midpoint of the whole swing, 2 of the 3 backswing parts). Still tuned by ear in CONFIG mode.
 - Starting value for Short Game: about 0.75, the midpoint of the whole 2:1 swing. The client's answer was "about 3/4 of the way through" the backswing, but he is not certain and is still evaluating it. Tentative; tuned by ear.
-- One rule covers both categories: the weight shift starts at the midpoint of the whole swing (about 0.67 Long Game, 0.75 Short Game).
+- The midpoint-of-the-whole-swing rule no longer covers Long Game (0.53 now). Short Game still uses it (0.75).
 - Long Game and Short Game have independent settings (confirmed). The same movement applies in Short Game, but it is more subtle: the golfer focuses on the hands moving around the torso instead of the hips and lower body. This changes what the golfer feels, not the beat.
 - The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed). Heard in the browser in the audio lab and liked: short, crisp, higher pitch (800 Hz, 0.07 s), `distinct` is the default. A `same` option exists in `src/audio/tones.ts` for comparison only.
 
@@ -44,6 +44,7 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - CONFIG lives inside the real app. No separate app or branch. A separate calibration app was considered and dropped, mainly because it would have to share the timing engine and audio layer anyway.
 - APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then uses it at every tempo, so the brother tests in the real app.
 - Leaving CONFIG with unapplied changes shows a yes/no confirmation dialog. Yes discards and leaves; No stays.
+- Calibrating with the background loop: the client chooses (loop on or off) while calibrating. The weight shift is never on the drum grid (it falls between the snare and the next hat), so the loop can pull the ear toward a drum hit; he should know he has the choice.
 - Reset-to-default button. EXPORT exports the applied values.
 - Saved values are per device. The final release removes CONFIG and stops reading (and deletes) the saved key so stale values cannot override the hard-coded ones.
 - The engine is unchanged by this: it already takes weight shift positions as input. APPLY is a UI and storage feature.

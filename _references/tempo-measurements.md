@@ -1,6 +1,6 @@
 # Tour Tempo beat measurements
 
-Measured from screen recordings of the Tour Tempo app in `_references/tempo-clips/` (local only, git-ignored). The clips include the app's background drum loop. Beeps were told apart from the drum by pitch: beat 1 about 525 Hz, beat 2 about 312 Hz, beat 3 about 350 Hz (Long Game). The drum sits near 175 Hz.
+Measured from screen recordings of the Tour Tempo app in `_references/tempo-clips/` (local only, git-ignored). The Long Game clips include the app's background drum loop; the Short Game clips do not (no drum hits were detected in them, so they were probably recorded with the loop off). Beeps were told apart from the drum by pitch: beat 1 about 525 Hz, beat 2 about 312 Hz, beat 3 about 350 Hz (Long Game). The drum sits near 175 Hz.
 
 All times in seconds. "Label" is the frame math (frames / 30) for the printed numbers. "Extra" is measured minus label for the beat 2 to beat 3 gap.
 

@@ -58,7 +58,7 @@ We measured the audio in the Tour Tempo screen recordings (`_references/tempo-cl
 - The snare plays on steps 2, 6 and 10.
 - Beat 2 lands on step 4 and beat 3 on step 6, so the beeps line up with the drums.
 - The loop keeps playing through the pause between swings.
-- The Short Game clips had no drum loop in them, so Short Game uses the same pattern.
+- The Short Game clips had no drum loop in them, so Short Game uses the same pattern, placed to fit its beats (see below).
 
 ### How the app does it
-The app uses the same pattern. The 12 steps are placed so beat 2 is always on step 4 and beat 3 on step 6, even at the slow tempos Tour Tempo does not have. At slow tempos a step can be over a second long, so extra quiet hi-hats fill it in to keep a steady pulse. The pattern lives in `src/engine/loop.ts` as plain tables, so changing the groove means changing a list. To remove the ghost kicks, set `GHOST_KICK_MAX_STEP_SECONDS` to 0.
+The app uses the same pattern. For the fast Long Game tempos the 12 steps are even, exactly as in Tour Tempo, so beat 2 and beat 3 sit very slightly off the drums (by up to 0.05 s at 18/6), as they do in Tour Tempo. For the slow Long Game tempos the steps are placed so beat 2 is on step 4 and beat 3 on step 6. In Short Game the steps are placed so beat 2 is on step 3 and beat 3 on step 6: with even steps, beat 2 landed about 0.15 s before a kick and sounded like a double hit. At slow tempos a step can be over a second long, so extra quiet hi-hats fill it in to keep a steady pulse. The pattern lives in `src/engine/loop.ts` as plain tables, so changing the groove means changing a list. The ghost kicks play on a named list of presets (`GHOST_KICK_PRESETS`); empty the list to remove them.

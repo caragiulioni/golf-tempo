@@ -1,6 +1,8 @@
 // Reuse check: Header, Card, Badge, PlayButton, SectionLabel, SegmentedControl, PresetGrid,
 // PresetButton, AppText, useLayout and theme tokens are reused as is. Nothing new is created.
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
+// Loop switch timeline fix: checked src/ui/components and src/theme; extended BeatTimeline with a
+// `restartKey` prop (no new component, no new styles or tokens).
 import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -110,6 +112,7 @@ export function MainScreen({
         subscribeSwings={onSwing}
         audioNow={audioNow}
         outputDelay={outputDelay}
+        restartKey={loop}
       />
     </Card>
   );
