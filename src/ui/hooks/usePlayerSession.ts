@@ -10,13 +10,14 @@ import {
   attachWebSession,
   createPlayer,
   createWebAudioAdapter,
-  type AudioAdapter,
   type Player,
   type PlayerState,
   type ScheduledSwing,
   type SwingOptions,
+  type WebAudioAdapter,
 } from '../../audio';
 import { defaultWeightShiftSettings, type Preset } from '../../engine';
+import { addLog } from './sessionLog';
 
 /** What the screen shows under the play button. */
 export type SessionMessage = 'paused' | 'startFailed' | null;
@@ -29,7 +30,7 @@ export const PAUSED_TEXT = 'Playback paused. Tap play to resume.';
 type SwingListener = (swing: ScheduledSwing) => void;
 
 let player: Player | null = null;
-let sharedAdapter: AudioAdapter | null = null;
+let sharedAdapter: WebAudioAdapter | null = null;
 const swingListeners = new Set<SwingListener>();
 
 /** The shared player, created on first use. Null where there is no audio adapter (not web). */
@@ -38,12 +39,32 @@ export function getSharedPlayer(): Player | null {
   if (Platform.OS !== 'web') return null;
   const adapter = createWebAudioAdapter();
   sharedAdapter = adapter;
+  adapter.onStateChange((state) => addLog(`Audio context: ${state}`));
   const created = createPlayer(adapter, {
     onSwing: (swing) => swingListeners.forEach((listener) => listener(swing)),
+    onState: (state) => addLog(`Player: ${state}`),
+    onResync: () => addLog('Timer fell behind. Restarted from beat 1.'),
+    onPaused: (reason, behind) =>
+      addLog(
+        reason === 'stalled'
+          ? `Paused: audio stalled (audio clock ${((behind ?? 0) * 1000).toFixed(0)} ms behind)`
+          : reason === 'hidden'
+            ? 'Paused: page hidden or phone locked'
+            : 'Paused: the system took the audio away',
+      ),
   });
-  attachWebSession(created); // lives as long as the page
+  // Lives as long as the page.
+  attachWebSession(created, {
+    onWakeLock: (status) => addLog(`Wake lock: ${status}`),
+    onVisibility: (hidden) => addLog(hidden ? 'Page hidden or phone locked' : 'Page visible again'),
+  });
   player = created;
   return created;
+}
+
+/** The shared web adapter, for the audio lab. Null before first use and where there is no web audio. */
+export function getSharedAdapter(): WebAudioAdapter | null {
+  return sharedAdapter;
 }
 
 /**

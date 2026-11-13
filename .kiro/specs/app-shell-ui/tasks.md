@@ -151,21 +151,21 @@ Conventions for every task:
     - _Requirements: 5.7, 5.12_
   - [x] 7.5 Checkpoint - STOP FOR REVIEW (Wave 3.7, timing)
 
-- [ ] 8. Wave 3.8: Audio lab move. Goal: lab runs inside the app on the real Player; old file gone.
-  - [ ] 8.1 Rebuild the lab in `src/audio-lab/`
+- [x] 8. Wave 3.8: Audio lab move. Goal: lab runs inside the app on the real Player; old file gone.
+  - [x] 8.1 Rebuild the lab in `src/audio-lab/`
     - Files: `src/audio-lab/AudioLab.tsx`, plus a `Button` variant in `src/ui/components/` only if nothing fits.
     - Reuse check: reuse PresetButton, Card, SectionLabel, IconButton (back, 44 pt), StatusMessage; extend before creating. Use the shared Player and adapter from `usePlayerSession`; no own `AudioContext`.
     - Check [MANUAL, listen]: lab plays through the real Player; labelled "Audio lab (testing)"; back control returns to main with category and preset kept and lab audio stopped.
     - _Requirements: 10.1 to 10.4_
-  - [ ] 8.2 Web guards and Copy log
+  - [x] 8.2 Web guards and Copy log
     - Files: `src/audio-lab/AudioLab.tsx`.
     - Check [MANUAL]: Copy log copies the full text and shows confirmation; with the clipboard blocked, text stays visible and selectable with an error shown. Every `navigator`, `location`, `document` use is behind `Platform.OS === 'web'`; unavailable features are hidden or shown disabled with a reason.
     - _Requirements: 10.5, 10.6, 10.8_
-  - [ ] 8.3 Mount point and old file removal
+  - [x] 8.3 Mount point and old file removal
     - Files: `src/app/AudioLabMount.tsx`, `src/app/App.tsx`, delete `src/app/dev/AudioLab.tsx`.
     - Check [AUTO]: `npm run typecheck` and `npx expo export --platform web` pass; no import of the old path; only `AudioLabMount` imports the lab; mount point is marked. [MANUAL] the menu item opens the lab within 300 ms; the main run stops on entering the lab.
     - _Requirements: 2.5, 10.1, 10.7_
-  - [ ] 8.4 Checkpoint - STOP FOR REVIEW (Wave 3.8, audio)
+  - [x] 8.4 Checkpoint - STOP FOR REVIEW (Wave 3.8, audio)
 
 - [ ] 9. Wave 3.9: Output delay. Goal: visuals land with what is heard, constants set from measurements.
   - [ ] 9.1 Apply delay to visuals and log it

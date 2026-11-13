@@ -12,6 +12,7 @@ src/
   engine/        Pure TypeScript timing engine. No React, no DOM, no audio APIs.
   audio/         Audio adapter interface plus web implementation (native later).
                  Tone synthesis and the 808 loop live here.
+  audio-lab/     Temporary Audio lab (testing) screen, mounted only from src/app/AudioLabMount.tsx.
   ui/            React Native UI.
     components/  Shared, reusable components (SegmentedControl, PresetButton,
                  SectionLabel, Badge, playback controls, beat timeline).

@@ -94,7 +94,7 @@ Things that tripped us up:
   - Run the engine tests with `npm test` from the project root.
 
 ### audio-playback
-- What was built: the part that turns the engine's beep list into sound. It makes four beeps in code (no sound files): beat 1, the weight shift beat (shorter and higher, so it stands out), beat 2 and beat 3. It plays them on the audio system's own clock, repeats the swing with a pause that grows at slower tempos, starts and stops cleanly, and restarts from beat 1 when a setting changes. It keeps the screen awake while playing and stops when the phone locks. A temporary test screen, the Audio lab (`src/app/dev/AudioLab.tsx`), was built to listen and to copy a log.
+- What was built: the part that turns the engine's beep list into sound. It makes four beeps in code (no sound files): beat 1, the weight shift beat (shorter and higher, so it stands out), beat 2 and beat 3. It plays them on the audio system's own clock, repeats the swing with a pause that grows at slower tempos, starts and stops cleanly, and restarts from beat 1 when a setting changes. It keeps the screen awake while playing and stops when the phone locks. A temporary test screen, the Audio lab (`src/audio-lab/AudioLab.tsx` (mounted from the menu)), was built to listen and to copy a log.
 - Carries over unchanged (expected, not yet run on a phone):
   - `src/audio/types.ts`: the list of what any audio system must do (start up after a tap, tell the time, play a beep at a time, stop everything, report when the phone takes the sound away, and an optional "release" step). The phone version follows this same list.
   - `src/audio/tones.ts`: what each beep sounds like (pitch, length). Plain data.

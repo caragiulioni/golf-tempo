@@ -18,6 +18,7 @@ import { useReduceMotion } from '../ui/hooks/useReduceMotion';
 import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS } from '../engine';
 import type { Category } from '../engine';
 import { ConfigPlaceholder } from './ConfigPlaceholder';
+import { AudioLabMount } from './AudioLabMount';
 import { MainScreen } from './MainScreen';
 import { IntroScreen } from './IntroScreen';
 
@@ -97,11 +98,11 @@ export default function App() {
                 onCategoryChange={setCategory}
                 onPresetChange={onPresetChange}
                 onOpenConfig={() => setScreen('config')}
-                // The real lab arrives in Wave 3.8; until then the item only closes the menu.
-                onOpenLab={() => {}}
+                onOpenLab={() => setScreen('lab')}
               />
             </View>
             {screen === 'config' ? <ConfigPlaceholder onBack={() => setScreen('main')} /> : null}
+            {screen === 'lab' ? <AudioLabMount onBack={() => setScreen('main')} /> : null}
             <StatusBar style="auto" />
           </ThemeProvider>
         ) : null}
