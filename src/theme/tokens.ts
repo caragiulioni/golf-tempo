@@ -92,6 +92,16 @@ export const fonts = {
   system: 'System',
 } as const;
 
+// Set once by App when the bundled fonts fail to load or are too slow (R8.4, R9.7).
+// Never reset in a session, so text does not switch fonts back and forth.
+let systemFontOnly = false;
+export function setSystemFontOnly(): void {
+  systemFontOnly = true;
+}
+/** Resolves a font token to the family to use now: the system font after a font failure. */
+export function fontFamily(name: string): string {
+  return systemFontOnly ? fonts.system : name;
+}
 export const FONT_FLOOR = 12; // smallest text anywhere
 export const PHASE_LABEL_FLOOR = 13; // timeline phase labels
 
@@ -168,3 +178,8 @@ export const switchSize = {
   rowHeight: 56,
   rowRadius: 16,
 } as const;
+// Main screen layout: page max width (handoff .app) and the empty timeline slot height.
+export const maxContentWidth = 1440;
+export const timelineSlotMinHeight: Record<Layout, number> = { phone: 120, tablet: 160, laptop: 200 };
+// Laptop column weights (handoff grid-template-columns: 1.45fr 1fr).
+export const laptopColumns = { hero: 1.45, controls: 1 } as const;

@@ -1,25 +1,34 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { spacing } from '../../theme';
 import { IconButton } from './IconButton';
+import { Menu } from './Menu';
 import { Wordmark } from './Wordmark';
 
 type Props = {
-  onMenuPress: () => void;
-  /** Whether the menu is open. Sent to screen readers as expanded state. */
-  menuExpanded?: boolean;
+  /** Menu rows. Receives `close` so each item can close the menu after it acts. */
+  menu: (close: () => void) => ReactNode;
 };
 
-export function Header({ onMenuPress, menuExpanded }: Props) {
+export function Header({ menu }: Props) {
+  const [open, setOpen] = useState(false);
+  const onOpen = useCallback(() => setOpen(true), []);
+  const close = useCallback(() => setOpen(false), []);
+
   return (
     <View style={styles.row}>
       <Wordmark />
-      <IconButton
-        icon="menu"
-        onPress={onMenuPress}
-        accessibilityLabel="Menu"
-        expanded={menuExpanded}
-      />
+      <Menu
+        open={open}
+        onOpen={onOpen}
+        onClose={close}
+        trigger={({ onPress, expanded }) => (
+          <IconButton icon="menu" onPress={onPress} accessibilityLabel="Menu" expanded={expanded} />
+        )}
+      >
+        {menu(close)}
+      </Menu>
     </View>
   );
 }

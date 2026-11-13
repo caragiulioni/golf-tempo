@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import type { TextProps, TextStyle } from 'react-native';
-import { fonts, typeSizes, useTheme } from '../../theme';
+import { fontFamily, fonts, typeSizes, useTheme } from '../../theme';
 import type { Colors } from '../../theme';
 import { useLayout } from '../hooks/useLayout';
 
@@ -34,7 +34,7 @@ export function AppText({ variant = 'ui', size, color = 'text', style, ...rest }
   const { colors } = useTheme();
   const { layout } = useLayout();
   const base: TextStyle = {
-    fontFamily: variantFont[variant],
+    fontFamily: fontFamily(variantFont[variant]),
     fontSize: typeSizes[size ?? variantDefaultSize[variant]][layout],
     color: colors[color],
   };
