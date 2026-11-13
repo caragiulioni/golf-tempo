@@ -147,7 +147,7 @@ Conventions for every task:
     - _Requirements: 5.4, 5.8, 5.13_
   - [x] 7.4 Weight shift pulse and reduce motion
     - Files: `src/ui/components/BeatTimeline.tsx`.
-    - Check [MANUAL]: 300 ms gold pulse once per swing on the diamond; with reduce motion on, no sweep or pulse and the diamond is solid gold while active.
+    - Check [MANUAL]: 300 ms white pulse ring once per swing on the diamond (the diamond is white, not gold; requirements 5.2 and 5.12); with reduce motion on, no sweep or pulse and the diamond is filled white while active.
     - _Requirements: 5.7, 5.12_
   - [x] 7.5 Checkpoint - STOP FOR REVIEW (Wave 3.7, timing)
 

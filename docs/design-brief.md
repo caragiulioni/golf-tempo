@@ -131,7 +131,7 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 ### Keep
 - Palette and tokens in `tokens.css` and `logo/palette.json` (supersedes the palette sampled from the first mockups).
 - Selected state = fill, 2px outline and check mark. Color is never the only signal.
-- Gold is used only for the weight shift (marker, label) and the ball.
+- Gold was meant only for the weight shift (marker, label) and the ball. Outdated: the diamond and its label are now white, and gold is only the timeline's progress fill (see "Gold" below).
 - Layout by breakpoint: phone single column, tablet single column with larger sizes, laptop two columns.
 - Removed Voice / String / Bossa Nova row.
 - The S swoosh mark, in dark and light versions.
@@ -141,7 +141,7 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 2. **Short Game presets.** The list is empty in the mockup. Fill in 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Six items in a five-column grid leave one orphan, so use three columns by two rows for Short Game. The grid must also cope with more Short Game presets later.
 3. **Timeline ratios.** The Long Game (3:1) and Short Game (2:1) need different splits for the backswing and downswing bars and labels. The weight shift sits at about half of the whole swing in both categories.
 4. **Timeline data comes from the engine.** Marker positions, bar split and labels must be computed from the engine's beat times, not hard-coded. The weight shift marker must also move live in CONFIG mode while the slider is dragged. If Tour Tempo's beat 3 delay is confirmed, the real proportions differ from the label ratios (for 30/10, top of swing near 67% of the swing instead of 75%).
-5. **Playing state.** Define it: a pause icon in the play button, an updated accessible label ("Play" or "Pause"), and a timeline animation. Proposed animation: a playhead sweeps along the bar in real time, each marker lights up as its beep sounds, and the weight shift diamond pulses in gold. It follows the audio schedule, not a separate timer.
+5. **Playing state.** Define it: a pause icon in the play button, an updated accessible label ("Play" or "Pause"), and a timeline animation. Proposed animation: a playhead sweeps along the bar in real time, each marker lights up as its beep sounds, and the weight shift diamond pulses (built as a white ring, not gold). It follows the audio schedule, not a separate timer.
 6. **Silent-switch hint** shows on iPhone only, not always.
 7. **Small text.** Phase labels are 10px and others are 11 to 12px on phones. Raise them, since the app is used outdoors in glare.
 8. **Fit check.** "168/56" in five columns on a 320px-wide phone looks tight. Test at 320 and 360.
@@ -191,7 +191,10 @@ Owner: Mike (Photoshop, Illustrator or AI-assisted). Needed only for the native 
 ### CONFIG mode
 Not in the handoff. It will be designed in this project, together with Kiro, as a simple, temporary screen. It needs a live-moving weight shift marker on the timeline.
 
-### Gold (weight shift color): to change
+### Gold (weight shift color): resolved, the diamond is no longer gold
+
+**Current state (November 2026): The weight shift diamond is NOT gold. It is white like the other markers (outline when idle, white fill when lit, white pulse ring). It is told apart by its diamond shape, its "Weight shift" label and its different sound. The only gold in the app is the progress fill that sweeps along the timeline bars (`timeline.gold`, #EEC967, `src/theme/tokens.ts`). Everything below is the history of how this was decided. Do not look for a gold diamond, and do not use gold for the weight shift in new screens (for example CONFIG).**
+
 The developer does not like that gold changes between modes (`#E0B84E` dark, `#8C6A0E` light), and dislikes the light-mode gold in particular. Goal: one gold that works in both modes.
 
 Contrast check (2026-11-11), against the hero cards the marker sits on (dark `#14201A`, light `#DCE6DA`):
