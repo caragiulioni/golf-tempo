@@ -77,7 +77,7 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 
 #### Acceptance Criteria
 
-1. THE App SHALL show a play/pause button in the Current session header, with a touch target of at least 88 by 88 points on phones and at least 112 by 112 points on tablet and laptop. The handoff CSS (72 / 112 / 112) and the brief's working copy (55 / 90 / 112) differ; `design.md` sets the final sizes, which SHALL NOT be smaller than these minimums, and they are checked by eye.
+1. THE App SHALL show a play/pause button in the Current session header, with a touch target of at least 112 by 112 points on tablet and laptop. On phones the button is 75 by 75 points, below the earlier 88 minimum, by the user's decision. The handoff CSS (72 / 112 / 112) and the brief's working copy (55 / 90 / 112) differ; `design.md` sets the final sizes, which SHALL NOT be smaller than these minimums, and they are checked by eye.
 2. WHEN the user presses the button while the Player is stopped or paused, THE App SHALL unlock audio and start the Player from beat 1.
 3. WHEN the user presses the button while the Player is playing, THE App SHALL stop the Player.
 4. WHILE the Player is playing, THE App SHALL show a pause icon and the accessible label "Pause".
@@ -93,18 +93,18 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 #### Acceptance Criteria
 
 1. WHEN the Selection changes, THE Timeline SHALL recompute the four marker positions, the backswing/downswing split and the phase labels from the engine's beat times for the new Selection, with no hard-coded ratios.
-2. THE Timeline SHALL show the weight shift marker as a diamond and the other three markers as a non-diamond shape, and SHALL label all four markers with text.
+2. THE Timeline SHALL show the weight shift marker as a diamond and the other three markers as a non-diamond shape, and SHALL label all four markers with text, with the weight shift marker and its name in the same white as the other markers.
 3. WHILE the Player is stopped, THE Timeline SHALL show the idle state: all four markers unlit, the playhead at the start of the bar, and all labels visible.
-4. WHILE the Player is playing, THE Timeline SHALL sweep a playhead from the start to the end of the bar once per swing and SHALL light each marker within 50 ms of its beep sounding, using the swing start times and event times from the Player and not a separate timer.
+4. WHILE the Player is playing, THE Timeline SHALL sweep a playhead and a gold fill from the start to the end of the bar once per swing, SHALL then ease them back to the start so the ease-back finishes just before the next beat 1, SHALL return each marker to its unlit state as the fill edge passes back over it, and SHALL light each marker within 50 ms of its beep sounding, using the swing start times and event times from the Player and not a separate timer.
 5. THE Timeline SHALL sit in the container that is dark in both modes with the fine grid texture (`design-brief.md`, section 12, option 5), with label text at 4.5:1 contrast or higher and marker shapes at 3:1 contrast or higher against the container.
 6. THE Timeline SHALL keep all labels and markers fully visible, untruncated and non-overlapping for every preset, from the fastest (about 1 second per swing) to the slowest (about 7 seconds), at viewport widths from 320 px to 1280 px.
-7. WHERE the device reduce-motion setting is on, THE Timeline SHALL light each marker at its beep time without the playhead sweep and without the weight shift pulse animation, showing the diamond in solid gold during its active moment instead.
+7. WHERE the device reduce-motion setting is on, THE Timeline SHALL light each marker at its beep time without the playhead sweep, the ease-back and the weight shift pulse animation, and SHALL instead step the gold fill to each marker's position as that marker lights and reset it to the start at the next beat 1.
 8. WHILE a marker is the active moment, THE Timeline SHALL show it with a non-color cue in addition to color: a larger size (at least 1.25 times the unlit size) and a filled appearance where unlit markers are outlined.
-9. THE theme module SHALL include timeline tokens: container background, grid line, one gold (#EEC967), label colors, and a lighter backswing bar at 3:1 contrast or higher against the container.
+9. THE theme module SHALL include timeline tokens: container background, grid line, one gold (#EEC967, used only for the timeline fill), label colors, and a lighter backswing bar at 3:1 contrast or higher against the container.
 10. THE Timeline SHALL draw the grid with `react-native-svg`, installed with `npx expo install` and pinned to an exact version.
 11. THE Timeline SHALL label the phases "BACKSWING · n" and "DOWN · n" and split the bar at the engine's beat 2 time, so the bar proportions can differ from the label ratio because beat 3 sounds 0.20 s later than the label implies.
-12. WHILE the Player is playing, THE Timeline SHALL pulse the weight shift diamond in gold once per swing, starting at the weight shift event time and lasting 300 ms.
-13. WHEN the Player changes from playing to stopped or paused, THE Timeline SHALL unlight all markers and return the playhead to the start of the bar within 100 ms.
+12. WHILE the Player is playing, THE Timeline SHALL pulse the weight shift diamond with a white ring once per swing, starting at the weight shift event time and lasting 300 ms.
+13. WHEN the Player changes from playing to stopped or paused, THE Timeline SHALL unlight all markers and return the playhead and fill to the start of the bar within 100 ms, cancelling any ease-back.
 14. IF the engine returns no beat times for the current Selection, THEN THE Timeline SHALL show the idle state with no markers lit and SHALL keep the Player controls usable.
 
 ### Requirement 6: Visuals delayed by audio output latency
@@ -132,8 +132,8 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 2. WHEN the viewport width crosses a breakpoint boundary (for example by resizing a browser window or rotating a device), THE App SHALL switch to the layout for the new width without reloading and without losing the selected game, selected preset or playing state.
 3. WHILE a phone is in landscape (width greater than height, and height under 500 points), THE App SHALL keep the play button and the Timeline fully visible without vertical scrolling, at viewport sizes from 568 by 320 points up to 932 by 430 points.
 4. THE App SHALL render without clipped or overlapping content, and without horizontal scrolling, at viewport widths of 320 and 360 points, including "168/56" in the Long Game preset grid.
-5. THE App SHALL give every interactive control a tap target of at least 44 by 44 points, and SHALL render all text at no less than the minimum text size set in `design-brief.md` sections 8 and 12 (item 7), which raises the phone phase labels above the handoff's 10 points and the other labels above its 11 to 12 points.
-6. WHILE the viewport is phone width and Short Game is selected, THE App SHALL show the weight shift label in a shortened form (for example "Shift") so that it does not overlap the "Top" label at 320 and 360 points, and SHALL record in the task report whether the user accepted the shortened label.
+5. THE App SHALL give every interactive control a tap target of at least 44 by 44 points, and SHALL render all text at no less than the minimum text size set in `design-brief.md` sections 8 and 12 (item 7), which raises the phone phase labels above the handoff's 10 points and the other labels above its 11 to 12 points. Note: phone phase labels are now 12 (user decision); tablet 13 and laptop 14 are unchanged.
+6. WHILE the viewport is phone width, THE App SHALL always show the weight shift label as "Shift" (both Long Game and Short Game), so that it does not overlap the "Top" label at 320 and 360 points; on tablet and laptop it uses "Weight shift" and falls back to "Shift" only on overlap. THE App SHALL record in the task report whether the user accepted the shortened label.
 7. THE App SHALL build every UI element from shared components in `src/ui/components/` and theme tokens in `src/theme/`, after the Reuse check required by `workflow.md`, with no hard-coded colors, sizes or fonts in the layout code.
 
 ### Requirement 8: Fonts, icons and branding
@@ -142,11 +142,11 @@ Decisions resolved: timeline container is `design-brief.md` section 12 option 5,
 
 #### Acceptance Criteria
 
-1. THE App SHALL bundle the Inter and Space Grotesk font files through Expo, so that no font is requested from a network source at runtime.
+1. THE App SHALL bundle the Inter, Space Grotesk and Michroma font files through Expo (Michroma only for the wordmark text), so that no font is requested from a network source at runtime.
 2. WHILE the Inter or Space Grotesk fonts are still loading, THE App SHALL not render the main screen.
-3. WHEN both fonts have finished loading, THE App SHALL render the main screen with Inter and Space Grotesk applied through theme typography tokens.
+3. WHEN the bundled fonts (Inter, Space Grotesk and Michroma) have finished loading, THE App SHALL render the main screen with Inter and Space Grotesk applied through theme typography tokens.
 4. IF either font fails to load, THEN THE App SHALL render the main screen with the system font for all text, within 3 seconds of the app starting, and SHALL keep the app usable.
-5. THE App SHALL render the Wordmark as the logo mark SVG followed by the text "SWING TEMPO" in a bundled font, as a placeholder that can be replaced later by an SVG, and SHALL not use Michroma anywhere in the app.
+5. THE App SHALL render the Wordmark as the logo mark SVG followed by the text "SWING TEMPO" in Michroma (also used for the name on the intro screen), as a placeholder that can be replaced later by an SVG, and SHALL not use Michroma for any other text.
 6. THE App SHALL use the existing app icon, favicon and web icon files without creating or modifying them.
 
 ### Requirement 9: Intro screen

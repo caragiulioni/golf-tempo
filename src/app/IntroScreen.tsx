@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
 import { fontFamily, fonts, introColors, spacing, typeSizes } from '../theme';
-import { LogoMark } from '../ui/components';
-import { APP_NAME, TAGLINE } from '../ui/brand';
+import { BrandName, LogoMark } from '../ui/components';
+import { TAGLINE } from '../ui/brand';
 import { useLayout } from '../ui/hooks/useLayout';
 
 export const INTRO_FADE_MS = 200;
@@ -47,18 +47,12 @@ export function IntroScreen({ onTap, leaving, onFadeEnd, reduceMotion }: Props) 
     >
       <Pressable accessible={false} onPress={onTap} style={styles.fill}>
         <LogoMark mode={scheme === 'light' ? 'light' : 'dark'} size={INTRO_LOGO_SIZE} />
-        <Text
-          style={[
-            styles.name,
-            {
-              color: colors.text,
-              fontFamily: fontFamily(fonts.uiBold),
-              fontSize: typeSizes.display[layout],
-            },
-          ]}
-        >
-          {APP_NAME.toUpperCase()}
-        </Text>
+        <BrandName
+          textColor={colors.text}
+          accentColor={colors.accent}
+          fontSize={typeSizes.title[layout]}
+          style={styles.name}
+        />
         <Text
           style={[
             styles.tagline,
@@ -84,6 +78,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     padding: spacing.xl,
   },
-  name: { letterSpacing: 2, textAlign: 'center' },
+  name: { textAlign: 'center' },
   tagline: { textAlign: 'center' },
 });

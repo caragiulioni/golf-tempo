@@ -1,6 +1,7 @@
 export { AppText } from './AppText';
 export type { TextVariant, TextSize } from './AppText';
 export { Badge } from './Badge';
+export { BeatTimeline } from './BeatTimeline';
 export { Card } from './Card';
 export { Header } from './Header';
 export { Icon } from './Icon';
@@ -17,3 +18,4 @@ export type { SegmentedOption } from './SegmentedControl';
 export { StatusMessage } from './StatusMessage';
 export { Switch } from './Switch';
 export { LogoMark, Wordmark } from './Wordmark';
+export { BrandName } from './BrandName';

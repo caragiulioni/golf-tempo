@@ -2,21 +2,20 @@
 // PresetButton, AppText, useLayout and theme tokens are reused as is. Nothing new is created.
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
 import React from 'react';
-import { Platform, ScrollView, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
+import { CATEGORY_RATIO, PRESETS, defaultWeightShiftSettings, presetLabel } from '../engine';
 import type { Category, Preset } from '../engine';
 import {
   laptopColumns,
   maxContentWidth,
-  radius,
   spacing,
-  timelineSlotMinHeight,
   useTheme,
 } from '../theme';
 import {
   AppText,
   Badge,
+  BeatTimeline,
   Card,
   Header,
   MenuItem,
@@ -30,7 +29,13 @@ import {
 } from '../ui/components';
 import type { SegmentedOption } from '../ui/components';
 import { useLayout } from '../ui/hooks/useLayout';
-import { PAUSED_TEXT, START_FAILED_TEXT, usePlayerSession } from '../ui/hooks/usePlayerSession';
+import {
+  PAUSED_TEXT,
+  START_FAILED_TEXT,
+  audioNow,
+  onSwing,
+  usePlayerSession,
+} from '../ui/hooks/usePlayerSession';
 import { readDeviceInfo, shouldShowSilentSwitchHint } from '../ui/lib/silentSwitch';
 
 // Fixed for the life of the page, so read once.
@@ -74,14 +79,14 @@ export function MainScreen({
   const hero = (
     <Card
       accessibilityLabel="Current session"
-      style={[{ gap: spacing.lg }, laptop && { flex: laptopColumns.hero }]}
+      style={[styles.heroCard, laptop && styles.heroCardLaptop]}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+      <View style={styles.heroHeaderRow}>
         <SectionLabel>Current session</SectionLabel>
         <Badge variant="ratio" text={`${CATEGORY_NAME[category]} · ${CATEGORY_RATIO[category]} : 1`} />
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: spacing.lg }}>
-        <View style={{ flexShrink: 1 }}>
+      <View style={styles.tempoRow}>
+        <View style={styles.tempoBadgeBox}>
           <Badge variant="tempo" back={selected.backFrames} down={selected.downFrames} />
         </View>
         <PlayButton playing={session.playing} onPress={session.toggle} />
@@ -93,21 +98,19 @@ export function MainScreen({
       {showSilentSwitchHint ? (
         <StatusMessage variant="hint" text="No sound? Check your silent switch." />
       ) : null}
-      {/* Slot for the BeatTimeline (later task). Empty on purpose. */}
-      <View
-        style={{
-          flexGrow: 1,
-          minHeight: timelineSlotMinHeight[layout],
-          borderRadius: radius.chip,
-          backgroundColor: colors.surface,
-        }}
+      <BeatTimeline
+        preset={selected}
+        weightShiftPosition={defaultWeightShiftSettings()[category]}
+        playing={session.playing}
+        subscribeSwings={onSwing}
+        audioNow={audioNow}
       />
     </Card>
   );
 
   const controls = (
-    <View style={[{ gap: spacing.xl }, laptop && { flex: laptopColumns.controls }]}>
-      <View style={{ gap: spacing.sm }}>
+    <View style={[styles.controlsColumn, laptop && styles.controlsColumnLaptop]}>
+      <View style={styles.controlGroup}>
         <SectionLabel>Game length</SectionLabel>
         <SegmentedControl
           options={CATEGORY_OPTIONS}
@@ -116,7 +119,7 @@ export function MainScreen({
           accessibilityLabel="Game length"
         />
       </View>
-      <View style={{ gap: spacing.sm }}>
+      <View style={styles.controlGroup}>
         <SectionLabel>Available sessions</SectionLabel>
         <PresetGrid
           items={presets}
@@ -141,20 +144,13 @@ export function MainScreen({
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+    <SafeAreaView style={[styles.screen, { backgroundColor: colors.bg }]}>
       <ScrollView
-        contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View
-          style={{
-            width: '100%',
-            maxWidth: maxContentWidth,
-            flexGrow: 1,
-            paddingHorizontal: spacing.lg,
-            paddingBottom: spacing.xl,
-            gap: spacing.lg,
-          }}
+          style={styles.page}
         >
           <Header
             menu={(close) => (
@@ -166,7 +162,7 @@ export function MainScreen({
             )}
           />
           {laptop ? (
-            <View style={{ flex: 1, flexDirection: 'row', gap: spacing.xxl }}>
+            <View style={styles.laptopColumns}>
               {hero}
               {controls}
             </View>
@@ -181,3 +177,40 @@ export function MainScreen({
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  /** Whole screen, behind everything. backgroundColor is set inline (theme). */
+  screen: { flex: 1 },
+  /** ScrollView content: centres the page column. */
+  scrollContent: { flexGrow: 1, alignItems: 'center' },
+  /** The centred, width-limited column holding header and content. */
+  page: {
+    width: '100%',
+    maxWidth: maxContentWidth,
+    flexGrow: 1,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xl,
+    gap: spacing.lg,
+  },
+  /** Laptop only: hero card and controls side by side. */
+  laptopColumns: { flex: 1, flexDirection: 'row', gap: spacing.xxl },
+  /** "Current session" card. */
+  heroCard: { gap: spacing.lg },
+  heroCardLaptop: { flex: laptopColumns.hero },
+  /** Top row of the hero card: section label left, ratio badge right. */
+  heroHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  /** Row with the tempo numbers and the play button. */
+  tempoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.lg,
+  },
+  /** Takes the free width left of the play button. */
+  tempoBadgeBox: { flex: 1 },
+  /** Right-hand column: game length, sessions, loop switch. */
+  controlsColumn: { gap: spacing.xl },
+  controlsColumnLaptop: { flex: laptopColumns.controls },
+  /** A section label with its control underneath. */
+  controlGroup: { gap: spacing.sm },
+});

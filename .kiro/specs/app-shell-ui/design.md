@@ -46,7 +46,7 @@ Audio Lab move: `src/app/dev/AudioLab.tsx` is deleted and `src/app/dev/` removed
 Install with `npx expo install`, then strip `~`/`^` so versions are exact:
 - `react-native-svg` (grid, logo mark, icons)
 - `expo-font`
-- `@expo-google-fonts/inter`, `@expo-google-fonts/space-grotesk` (bundled font files, no network at runtime)
+- `@expo-google-fonts/inter`, `@expo-google-fonts/space-grotesk`, `@expo-google-fonts/michroma` (bundled font files, no network at runtime)
 - `expo-clipboard` is not needed; the lab uses the web API behind a guard and shows the text for manual copy on native.
 
 Reanimated is not added. The timeline uses RN `Animated` (see below). Vitest config `include` is widened to `src/ui/lib/**/*.test.ts`.
@@ -63,6 +63,8 @@ Reanimated is not added. The timeline uses RN `Animated` (see below). Vitest con
 Storage key: `golf-tempo:theme:v1`, value `"light"` or `"dark"`. `loadThemeChoice` returns `null` for anything else, for a missing key, and on a read error (R1.5, R1.6).
 
 ### Fonts and intro gate
+
+Change: Michroma (`fonts.brand`) is bundled and loaded with the others, used only for the "SWING TEMPO" text in the Wordmark and on the intro screen (via `BrandName`, size role `wordmark`). This overrides the earlier "no Michroma" decision.
 
 `App.tsx` runs one startup effect:
 1. `loadThemeChoice()` and `useFonts({ Inter_..., SpaceGrotesk_... })` start together.
@@ -85,10 +87,10 @@ The intro renders before the provider is ready, so it reads `useColorScheme()` d
 
 | | phone | tablet | laptop |
 |---|---|---|---|
-| Play button | 96 | 120 | 128 |
+| Play button | 75 | 120 | 128 |
 | Card radius | 28 | 40 | 40 |
 
-The play button sizes are above the R4.1 minimums (88 / 112 / 112), and they are checked by eye. In short landscape the session numbers shrink and the button stays 96 so the button and timeline fit without scrolling (R7.3); the exact numbers are tuned on a 568×320 window.
+The tablet and laptop play button sizes are above the R4.1 minimums (112 / 112); the phone size 75 is below the earlier 88 minimum by the user's decision. All are checked by eye. In short landscape the session numbers shrink and the button stays 75 so the button and timeline fit without scrolling (R7.3); the exact numbers are tuned on a 568×320 window.
 
 Layout code only uses tokens: sizes come from a `layoutSizes[layout]` table in `theme/tokens.ts`.
 
@@ -173,19 +175,21 @@ export function timelineGeometry(preset: Preset, weightShiftPosition: number): T
 
 It calls the engine (`beatTimes`, `weightShiftTime`) and computes `x = t / total`. Returns `null` when the engine gives no beat times (R5.14). No ratios appear in the UI (R5.1, R5.11). `x` is in the 0..1 range for the bar; horizontal padding is applied by the component.
 
-Label overlap (R5.6, R7.6): `BeatTimeline` measures its width with `onLayout`, converts marker x to pixels, and lays labels out left to right. If two neighbouring labels would overlap, the weight shift label switches to the short form ("Shift"). If it still overlaps, it moves above the track. This is decided by a small pure helper `labelsOverlap(widths, xs)` in the same lib file, with a test. Labels use `numberOfLines={1}` and are never truncated.
+Label overlap (R5.6, R7.6): `BeatTimeline` measures its width with `onLayout`, converts marker x to pixels, and lays labels out left to right. On phones the weight shift label is always the short form ("Shift"). On tablet and laptop it is "Weight shift" and switches to the short form only if two neighbouring labels would overlap. If it still overlaps, it moves above the track. This is decided by a small pure helper `labelsOverlap(widths, xs)` in the same lib file, with a test. Labels use `numberOfLines={1}` and are never truncated.
 
 Rendering (`react-native-svg` for the grid, bars and markers; plain `Animated`):
 - Container uses the container-background token, with an SVG `Pattern` for the 1px grid every 5 px (R5.5, R5.10).
 - Backswing bar from 0 to `splitX` and downswing bar from `splitX` to 1, labelled `BACKSWING · n` and `DOWN · n`.
 - Markers: weight shift is a diamond, others a circle. Unlit = outline; lit = filled and scaled 1.3× (R5.8).
-- Playhead: one `Animated.Value` in 0..1.
+- Gold fill (`fillBar`, the only use of gold): same height and radius as the bars, drawn above them and below the markers and playhead, from `px(0)` with width `progress * (px(1) - px(0))`. The playhead line uses the same `progress` value (0..1).
+- The weight shift diamond, its lit fill, its pulse ring and its name are white like the other markers (R5.2, R5.12).
 
 Driving it from the audio schedule (no separate timer):
-- On a swing push, for the playhead: `Animated.timing(playhead, { toValue: 1, duration: cycleSeconds*1000 ... })` is not used, because the cycle includes the repeat pause. Instead the playhead runs to 1 over `total` seconds from the delayed start and then holds until the next swing resets it to 0. The delayed start is `msUntil` for beat 1. `useNativeDriver: false` on web for layout-driven values, true where only transform/opacity change.
+- On a swing push, for the playhead: `Animated.timing(playhead, { toValue: 1, duration: cycleSeconds*1000 ... })` is not used, because the cycle includes the repeat pause. Instead a timer at the delayed beat 1 stops the previous animation, sets `progress` to 0, runs it to 1 over `total` seconds, then eases it back to 0 (`Easing.inOut(cubic)`) over `cycleSeconds - total - easeBackMarginMs` (never below `easeBackMinMs`, both in `timelineSizes`), so it finishes just before the next beat 1 (R5.4). The delayed start is `msUntil` for beat 1. `useNativeDriver: false` on web for layout-driven values, true where only transform/opacity change.
 - For each marker, `setTimeout(lightMarker, msUntil)` is scheduled for that beep's delayed time, and the marker is unlit at the end of that swing's window or when the next lights. These timeouts only trigger visual state; the beep times and the delay come from the audio clock, so a late timeout shifts a marker by timer jitter only (a few ms, inside the 50 ms budget R5.4). Pending timeouts are cleared on stop, pause, change and unmount.
+- Marker deactivation: a listener on `progress` (direction check: value falling) unlights a lit marker once the fill edge has passed back over it, in the order Impact, Top, Weight shift, Takeaway. It calls `setLit` only on crossings. Beat 1 still clears all markers as a safety net.
 - Weight shift pulse: a 300 ms `Animated` scale/opacity pulse started at its lit time (R5.12).
-- Reduce motion (R5.7): no playhead sweep and no pulse; the diamond shows solid gold while active.
+- Reduce motion (R5.7): no sweep, playhead, ease-back or pulse; `progress` is set directly to each marker's x as it lights (stepped fill) and to 0 at the next beat 1.
 - Stop or pause: clear timeouts, unlight all, playhead to 0 within 100 ms (R5.13).
 
 This is a prototype choice. If device testing shows jitter above budget, the next step is a `requestAnimationFrame` loop that compares `adapter.now()` with the swing's delayed beep times; it uses the same inputs, so only `BeatTimeline`'s internals change.

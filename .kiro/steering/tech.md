@@ -23,6 +23,7 @@ The project is initialized (Expo, blank TypeScript template). Versions are pinne
 
 ## Conventions
 
+- Styles: named styles in StyleSheet.create at the bottom of each component file; inline only for small dynamic overrides.
 - No DOM, `window`, or React imports inside the timing engine or audio adapter interfaces.
 - Keep dependencies few and pinned to exact versions.
 - Prefer small, plain modules over abstractions. No unnecessary infrastructure.

@@ -10,6 +10,7 @@ import {
   attachWebSession,
   createPlayer,
   createWebAudioAdapter,
+  type AudioAdapter,
   type Player,
   type PlayerState,
   type ScheduledSwing,
@@ -28,6 +29,7 @@ export const PAUSED_TEXT = 'Playback paused. Tap play to resume.';
 type SwingListener = (swing: ScheduledSwing) => void;
 
 let player: Player | null = null;
+let sharedAdapter: AudioAdapter | null = null;
 const swingListeners = new Set<SwingListener>();
 
 /** The shared player, created on first use. Null where there is no audio adapter (not web). */
@@ -35,6 +37,7 @@ export function getSharedPlayer(): Player | null {
   if (player) return player;
   if (Platform.OS !== 'web') return null;
   const adapter = createWebAudioAdapter();
+  sharedAdapter = adapter;
   const created = createPlayer(adapter, {
     onSwing: (swing) => swingListeners.forEach((listener) => listener(swing)),
   });
@@ -52,6 +55,11 @@ export function onSwing(listener: SwingListener): () => void {
   return () => {
     swingListeners.delete(listener);
   };
+}
+
+/** The shared audio clock in seconds, or null before the first press / where there is no audio. */
+export function audioNow(): number | null {
+  return sharedAdapter ? sharedAdapter.now() : null;
 }
 
 export function swingOptionsFor({ preset }: SessionSelection): SwingOptions {

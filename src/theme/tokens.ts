@@ -65,6 +65,13 @@ export const spacing = {
   xxxl: 48,
 } as const;
 
+// Card inner padding per layout. Smaller on phones so the hero timeline gets more width.
+export const cardPadding: Record<Layout, number> = {
+  phone: spacing.md,
+  tablet: spacing.xl,
+  laptop: spacing.xxl,
+};
+
 // Breakpoints on window width: phone < 700, tablet 700 to 1099, laptop >= 1100.
 export const breakpoints = { tablet: 700, laptop: 1100 } as const;
 
@@ -75,7 +82,7 @@ export function layoutForWidth(width: number): Layout {
 }
 
 export const layoutSizes: Record<Layout, { playButton: number; cardRadius: number }> = {
-  phone: { playButton: 96, cardRadius: radius.card },
+  phone: { playButton: 75, cardRadius: radius.card },
   tablet: { playButton: 120, cardRadius: radius.cardTablet },
   laptop: { playButton: 128, cardRadius: radius.cardTablet },
 };
@@ -89,6 +96,7 @@ export const fonts = {
   uiBold: 'Inter_700Bold',
   num: 'SpaceGrotesk_500Medium',
   numBold: 'SpaceGrotesk_700Bold',
+  brand: 'Michroma_400Regular', // wordmark text only
   system: 'System',
 } as const;
 
@@ -103,19 +111,20 @@ export function fontFamily(name: string): string {
   return systemFontOnly ? fonts.system : name;
 }
 export const FONT_FLOOR = 12; // smallest text anywhere
-export const PHASE_LABEL_FLOOR = 13; // timeline phase labels
+export const PHASE_LABEL_FLOOR = 12; // timeline phase labels
 
 // Sizes are a step above the handoff on phones; tablet and laptop go larger.
 export const typeSizes: Record<
-  'caption' | 'phaseLabel' | 'label' | 'body' | 'title' | 'tempo' | 'display',
+  'caption' | 'phaseLabel' | 'label' | 'body' | 'title' | 'tempo' | 'display' | 'wordmark',
   Record<Layout, number>
 > = {
+  wordmark: { phone: 12, tablet: 15, laptop: 15 }, // Michroma; handoff is 11, R7.5 floor is 12
   caption: { phone: 12, tablet: 13, laptop: 13 },
-  phaseLabel: { phone: 13, tablet: 13, laptop: 14 },
+  phaseLabel: { phone: 12, tablet: 13, laptop: 14 },
   label: { phone: 13, tablet: 14, laptop: 14 },
   body: { phone: 16, tablet: 17, laptop: 17 },
   title: { phone: 20, tablet: 22, laptop: 24 },
-  tempo: { phone: 40, tablet: 48, laptop: 56 },
+  tempo: { phone: 60, tablet: 120, laptop: 120 },
   display: { phone: 32, tablet: 40, laptop: 44 },
 };
 
@@ -132,6 +141,36 @@ export const timeline = {
   markerOutline: '#A8B3AB',
   downswingBar: '#8FB78F',
   backswingBar: '#80B38C',
+} as const;
+
+// Timeline measurements (points). Handoff .track/.dot/.diamond/.bar/.names, scaled up a little.
+export const timelineSizes = {
+  gridSize: 5, // 1px lines every 5px (R5.5)
+  gridLineWidth: 1,
+  paddingX: 24, // track inset: marker radius plus room so edge markers are not clipped
+  paddingY: 16,
+  marker: 20, // circle diameter
+  diamond: 18, // side of the square before the 45 degree rotation
+  diamondRadius: 3,
+  markerBorder: 2,
+  barHeight: 4,
+  trackHeight: 28,
+  phaseGap: 8, // between the phase label rows and the track, and between the two phases
+  phaseUnderline: 1,
+  phaseLetterSpacing: 1.2,
+  phaseLetterSpacingMin: 0.2, // tightest phase label spacing before using the short form
+  nameMinGap: 6, // smallest gap between neighbouring marker names
+  nameGap: 8, // between track and the marker names
+  nameBoxWidth: 104, // layout box for a centered marker name
+  nameHeight: 20,
+  phaseHeight: 24,
+  litScale: 1.3, // a lit marker is drawn this much larger (R5.8: at least 1.25)
+  playheadWidth: 2,
+  pulseMs: 300, // weight shift pulse length (R5.12)
+  pulseScale: 2, // the pulse ring grows from 1x to this size while fading out
+  pulseOpacity: 0.8, // ring opacity at the start of the pulse
+  easeBackMarginMs: 80, // the fill finishes easing back this long before the next beat 1 (R5.4)
+  easeBackMinMs: 150, // shortest ease-back, so very short pauses still animate
 } as const;
 
 // For the intro screen, which renders before ThemeProvider is ready.

@@ -177,7 +177,7 @@ Dropdown:
 - Colors, radius and spacing from the theme tokens.
 
 ### Fonts
-The mockup loads Inter, Space Grotesk and Michroma from a web service. In the app they must be bundled through Expo and loaded before the first render. Michroma is used only for the small wordmark. Use the wordmark SVG instead and drop that font.
+The mockup loads Inter, Space Grotesk and Michroma from a web service. In the app they must be bundled through Expo and loaded before the first render. Michroma is used only for the small wordmark. Decision changed: Michroma is bundled and used for the wordmark text (header and intro) until a wordmark SVG exists.
 
 ### Icon files still needed
 Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist.

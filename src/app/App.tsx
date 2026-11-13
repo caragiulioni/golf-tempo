@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import {
@@ -10,6 +10,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { SpaceGrotesk_500Medium, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
+import { Michroma_400Regular } from '@expo-google-fonts/michroma';
 import { loadThemeChoice } from '../storage';
 import type { ThemeChoice } from '../storage';
 import { setSystemFontOnly, ThemeProvider } from '../theme';
@@ -36,6 +37,7 @@ export default function App() {
     Inter_700Bold,
     SpaceGrotesk_500Medium,
     SpaceGrotesk_700Bold,
+    Michroma_400Regular,
   });
   const [themeDone, setThemeDone] = useState(false);
   const [choice, setChoice] = useState<ThemeChoice | null>(null);
@@ -84,11 +86,11 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1 }}>
+      <View style={styles.appRoot}>
         {leaving ? (
           <ThemeProvider initialChoice={choice}>
             {/* Stays mounted but hidden off the main screen so selection survives. */}
-            <View style={{ flex: 1, display: screen === 'main' ? 'flex' : 'none' }}>
+            <View style={[styles.mainScreenWrapper, screen !== 'main' && styles.mainScreenHidden]}>
               <MainScreen
                 category={category}
                 presetByCategory={presetByCategory}
@@ -115,3 +117,12 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  /** Outermost box: main screen, config screen and intro are stacked inside it. */
+  appRoot: { flex: 1 },
+  /** Keeps the main screen mounted. */
+  mainScreenWrapper: { flex: 1 },
+  /** Added to mainScreenWrapper while another screen is open. */
+  mainScreenHidden: { display: 'none' },
+});

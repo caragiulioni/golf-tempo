@@ -183,7 +183,7 @@ Conventions for every task:
     - Fix only layout issues found. Check: 320, 360, 700, 1100, 1920 widths; phone landscape 568x320 to 932x430 shows play button and timeline without vertical scroll; no horizontal scroll; every tap target 44 or more; min text sizes per brief sections 8 and 12.
     - _Requirements: 7.1 to 7.5_
   - [ ] 10.2 Accessibility and motion pass **[MANUAL]**
-    - Fix only issues found. Check: labels and roles, focus order, contrast (labels 4.5:1, markers 3:1), reduce motion on intro and timeline, offline fonts, Michroma not used.
+    - Fix only issues found. Check: labels and roles, focus order, contrast (labels 4.5:1, markers 3:1), reduce motion on intro and timeline, offline fonts, Michroma used only for the wordmark text.
     - _Requirements: 5.5, 8.1, 8.5, 9.8_
   - [ ] 10.3 Porting notes
     - Files: `docs/porting-guide.md` (one entry, existing format).
