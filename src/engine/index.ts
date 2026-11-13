@@ -1,15 +1,20 @@
 export { BEAT3_DELAY_SECONDS, FPS, beatTimes, type BeatTimes } from './beats';
 export {
+  ANCHOR_MIN_BEAT2_SECONDS,
+  BEAT2_STEP,
+  BEAT3_STEP,
+  GHOST_KICK_MAX_STEP_SECONDS,
+  GHOST_KICK_STEPS,
+  HAT_ACCENT_STEPS,
   HAT_MAX_GAP_SECONDS,
-  NORMAL_PATTERN,
-  QUARTERS_PER_BAR,
-  SLOW_PATTERN,
-  SLOW_QUARTER_SECONDS,
+  KICK_STEPS,
+  SNARE_STEPS,
+  STEPS_PER_BAR,
   loopEvents,
+  stepTimes,
   type LoopEvent,
   type LoopOptions,
   type LoopVoice,
-  type PatternTable,
 } from './loop';
 export {
   CATEGORY_RATIO,

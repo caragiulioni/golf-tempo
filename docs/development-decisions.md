@@ -48,3 +48,17 @@ With the screen on, the beats stayed clean for over 7 minutes on the Pixel. A lo
 The real fix is a proper phone app (iPhone and Android) instead of a website. A phone app is allowed to keep playing sound with the screen locked, the way music apps do. That is planned as a possible later step, and the timing parts of the app have been built so they carry over to a phone app.
 
 ---
+
+## 2. The background loop copies Tour Tempo's groove
+
+### What we found
+We measured the audio in the Tour Tempo screen recordings (`_references/tempo-clips/`). Its drum loop is one bar per swing, split into 12 even steps:
+- A hi-hat plays on every step, louder on steps 0, 2, 6 and 10.
+- The kick plays on steps 0, 4 and 8. Quiet extra "ghost" kicks on steps 1, 5 and 9 appear only at the fastest tempo (18/6).
+- The snare plays on steps 2, 6 and 10.
+- Beat 2 lands on step 4 and beat 3 on step 6, so the beeps line up with the drums.
+- The loop keeps playing through the pause between swings.
+- The Short Game clips had no drum loop in them, so Short Game uses the same pattern.
+
+### How the app does it
+The app uses the same pattern. The 12 steps are placed so beat 2 is always on step 4 and beat 3 on step 6, even at the slow tempos Tour Tempo does not have. At slow tempos a step can be over a second long, so extra quiet hi-hats fill it in to keep a steady pulse. The pattern lives in `src/engine/loop.ts` as plain tables, so changing the groove means changing a list. To remove the ghost kicks, set `GHOST_KICK_MAX_STEP_SECONDS` to 0.

@@ -24,7 +24,7 @@ import { addLog } from './sessionLog';
 /** What the screen shows under the play button. */
 export type SessionMessage = 'paused' | 'startFailed' | null;
 
-export type SessionSelection = { preset: Preset };
+export type SessionSelection = { preset: Preset; loop: boolean };
 
 export const START_FAILED_TEXT = 'Audio could not start. Tap play to try again.';
 export const PAUSED_TEXT = 'Playback paused. Tap play to resume.';
@@ -113,15 +113,15 @@ export function audioNow(): number | null {
   return sharedAdapter ? sharedAdapter.now() : null;
 }
 
-export function swingOptionsFor({ preset }: SessionSelection): SwingOptions {
-  return { preset, settings: defaultWeightShiftSettings(), includeWeightShift: true };
+export function swingOptionsFor({ preset, loop }: SessionSelection): SwingOptions {
+  return { preset, settings: defaultWeightShiftSettings(), includeWeightShift: true, loop };
 }
 
 export function usePlayerSession(selection: SessionSelection) {
   // Peek only; the player is created on the first press, inside the tap.
   const [playerState, setPlayerState] = useState<PlayerState>(() => player?.getState() ?? 'stopped');
   const [message, setMessage] = useState<SessionMessage>(null);
-  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset]); // eslint-disable-line react-hooks/exhaustive-deps
+  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop]); // eslint-disable-line react-hooks/exhaustive-deps
   // Latest options for toggle() and for 6.3 (restart on change).
   const optionsRef = useRef(swingOptions);
   optionsRef.current = swingOptions;
@@ -147,16 +147,17 @@ export function usePlayerSession(selection: SessionSelection) {
   // re-render with the same preset all compare equal and do nothing. Only call this hook
   // from MainScreen: it stays mounted under other screens, and a second instance would
   // call change() twice.
-  const lastPresetRef = useRef<Preset | null>(null);
+  // The loop switch restarts the same way.
+  const lastSelectionRef = useRef<{ preset: Preset; loop: boolean } | null>(null);
   useEffect(() => {
-    const previous = lastPresetRef.current;
-    lastPresetRef.current = selection.preset;
-    if (previous === null || previous === selection.preset) return;
+    const previous = lastSelectionRef.current;
+    lastSelectionRef.current = { preset: selection.preset, loop: selection.loop };
+    if (previous === null || (previous.preset === selection.preset && previous.loop === selection.loop)) return;
     if (!player) return;
     const state = player.getState();
     if (state !== 'playing' && state !== 'restarting') return;
     player.change(optionsRef.current);
-  }, [selection.preset]);
+  }, [selection.preset, selection.loop]);
 
   const toggle = useCallback(async () => {
     const current = getSharedPlayer();

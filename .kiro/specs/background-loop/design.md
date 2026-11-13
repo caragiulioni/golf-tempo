@@ -5,16 +5,11 @@ Follows `.kiro/specs/audio-playback/design.md` (adapter, lookahead scheduling) a
 ## Working assumptions (tuned by ear later, all named constants)
 
 - One bar = one swing cycle, so the loop repeats exactly with the swing, including the silent repeat pause. Tour Tempo does the same (3.0 s at 30/10).
-- Bar split into 4 quarters (`cycle / 4`).
-- Pattern table (data, in `src/engine/loop.ts`):
-
-| Table | Kick quarters | Snare quarters |
-|---|---|---|
-| `NORMAL_PATTERN` | 1, 3 | 2, 4 |
-| `SLOW_PATTERN` (quarter > `SLOW_QUARTER_SECONDS` = 2.5) | 1 | 3 |
-
-- Hat: `k = max(1, ceil(quarter / HAT_MAX_GAP_SECONDS))` ticks per quarter, `HAT_MAX_GAP_SECONDS = 0.5`, evenly spaced, first tick on the quarter start, `accent: true` on that first tick.
-- Examples: 30/10 cycle 3.0 s, quarter 0.75 s, 2 ticks per quarter. 168/56 cycle about 16 s, quarter about 4 s, 9 ticks per quarter, slow table (kick and snare once each, hat carries the pulse). 84/28 (quarter about 2.0 s) now stays on the normal table, clear of the 2.5 s switch point; check it by ear. Decided: the loop keeps playing through the silent repeat pause.
+- The pattern is Tour Tempo's, measured from its clips (see `docs/development-decisions.md`, section 2): 12 steps per bar, kick 0/4/8, snare 2/6/10, hat on every step with accents on 0/2/6/10, ghost kicks 1/5/9 only at fast tempos (step at most 0.17 s, so 18/6 and Short 14/7, 16/8).
+- Fast presets (beat 1 to beat 2 at most `ANCHOR_MIN_BEAT2_SECONDS` = 1.0 s, so 18/6 to 30/10 and all Short Game) use an even cycle/12 grid, as Tour Tempo does. In Short Game (2:1) beat 2 falls near step 3, as in its clips, not step 4. Forcing beats onto steps there made the beat 2 to beat 3 part of the loop sound slower (33% at 18/6), found by ear.
+- Slower presets use three even sections so beat 2 is exactly step 4 and beat 3 exactly step 6. A plain cycle/12 grid put beat 3 up to 0.37 s off the loop at 168/56 because beat 3 includes a fixed 0.2 s delay.
+- A step longer than 0.5 s gets extra soft hat ticks (`HAT_MAX_GAP_SECONDS`). Kick and snare are not thinned at slow tempos.
+- Everything is data in `loop.ts` (`KICK_STEPS`, `SNARE_STEPS`, `HAT_ACCENT_STEPS`, `GHOST_KICK_STEPS`, `GHOST_KICK_MAX_STEP_SECONDS`).
 - Sounds (web adapter, synthesized): kick = sine sweep 150 to 45 Hz, decay about 0.35 s. Snare = bandpassed noise burst plus a short 180 Hz tone, about 0.2 s. Closed hat = high-passed noise, about 0.05 s. One shared noise buffer. Levels are named constants. Loop bus gain about 0.5 of the beeps, and it must never mask them.
 
 ## Components
@@ -26,7 +21,7 @@ flowchart LR
   ui[MainScreen / AudioLab loop state] -->|SwingOptions.loop| player
 ```
 
-- `src/engine/loop.ts` (+ `loop.test.ts`, export from `index.ts`): `loopEvents(preset, options?)`, `LoopEvent`, constants. `options` can override `hatMaxGapSeconds` and `slowQuarterSeconds` for tests and tuning. Pure, no audio imports.
+- `src/engine/loop.ts` (+ `loop.test.ts`, export from `index.ts`): `loopEvents(preset, options?)`, `LoopEvent`, constants. `options` can override `hatMaxGapSeconds` for tests and tuning. Pure, no audio imports.
 - `src/audio/types.ts`: `LoopVoice = 'kick' | 'snare' | 'hat'`. `Voice` stays for beeps. `AudioAdapter` gets an optional `playLoopVoice?(voice: LoopVoice, time: number, accent?: boolean)` so other adapters and fakes keep compiling.
 - `src/audio/webAudio.ts`: loop voices connect to a loop bus gain, then to the destination. Loop voices are tracked with the same fader and fade-out as beeps, so `stopAll()` silences scheduled ones.
 - `src/audio/player.ts`: `SwingOptions.loop?: boolean` (default false). `scheduleSwing` also schedules `loopEvents(preset)` at `startTime + time`. `ScheduledSwing.loop` exposes the scheduled events for checks.

@@ -9,6 +9,10 @@ Follows `.kiro/steering/workflow.md`. Stop for review at the end of every wave, 
 
 Stop for review.
 
+## Wave 4.1b: Copy Tour Tempo's loop (after listening and measuring its clips)
+
+- [x] 1. Rewrite `loopEvents` in `src/engine/loop.ts` and its tests: 12 steps, beat 2 on step 4, beat 3 on step 6, Tour Tempo's kick, snare, hat and ghost-kick tables. Check: `npm test` passes for all 16 presets. By ear (Wave 4.4 switch): beats 1, 2 and 3 line up with the loop at 18/6, 30/10, 84/28 and 168/56, and 18/6 sounds like the Tour Tempo clip.
+
 ## Wave 4.2: Loop sounds (audio, no player yet)
 
 - [x] 1. `LoopVoice` type and optional `playLoopVoice` in `src/audio/types.ts`. Check: `npm run typecheck` passes; file imports nothing from the DOM or React.
@@ -19,7 +23,7 @@ Stop for review (audio).
 
 ## Wave 4.3: Loop in the player
 
-- [x] 1. `SwingOptions.loop`, loop scheduling in `scheduleSwing`, `ScheduledSwing.loop` in `src/audio/player.ts`. Check: with a fake adapter or the lab log, 30/10 with loop on logs kick at beat 1 time and hat times at +0.379 s steps; loop off logs no loop events; beep times are unchanged from before.
+- [x] 1. `SwingOptions.loop`, loop scheduling in `scheduleSwing`, `ScheduledSwing.loop` in `src/audio/player.ts`. Check: with a fake adapter or the lab log, 30/10 with loop on logs kick at beat 1 time and hat times at 0, 0.5 and 1.0 s (beat 2), then beat 3 at 1.53 s; loop off logs no loop events; beep times are unchanged from before.
 - [x] 2. Loop on/off option in the Audio lab, passed in the lab's swing options. Check by ear, desktop, 30/10 loop on: kick lands with beat 1; loop sits under the beeps and every beep is clearly audible; loop bar lines up with the swing for 2 minutes with no drift; Stop gives silence with no click; changing preset restarts cleanly once with the new tempo's loop from beat 1; 168/56 hat pulse is steady and kick and snare are sparse.
 
 Stop for review (audio).
@@ -32,7 +36,7 @@ Stop for review.
 
 ## Wave 4.5: Tune and porting notes
 
-- [ ] 1. Tune constants by ear (levels, `SLOW_QUARTER_SECONDS`, hat gap, sounds), on desktop plus iPad Safari and Pixel Chrome. Check: record per device (model, browser version) whether the kick is audible on phone speakers and the beeps stay clear. Only named constants change.
+- [ ] 1. Tune constants by ear (levels, hat gap, sounds), on desktop plus iPad Safari and Pixel Chrome. Check: record per device (model, browser version) whether the kick is audible on phone speakers and the beeps stay clear. Only named constants change.
 - [ ] 2. Porting notes: add an entry to `docs/porting-guide.md` in its format (web-only: Web Audio synthesis in `webAudio.ts`; unchanged: `loop.ts` and the Switch wiring; untested on native). Update `_index.md` spec 4 Built status after review.
 
 Stop for review.

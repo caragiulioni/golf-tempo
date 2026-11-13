@@ -1,7 +1,7 @@
 // Reuse check: Header, Card, Badge, PlayButton, SectionLabel, SegmentedControl, PresetGrid,
 // PresetButton, AppText, useLayout and theme tokens are reused as is. Nothing new is created.
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_RATIO, PRESETS, defaultWeightShiftSettings, presetLabel } from '../engine';
@@ -77,7 +77,9 @@ export function MainScreen({
   const presets = PRESETS[category];
   const selectedIndex = presetByCategory[category];
   const selected = presets[selectedIndex];
-  const session = usePlayerSession({ preset: selected });
+  // Not saved: the loop is off every time the app starts.
+  const [loop, setLoop] = useState(false);
+  const session = usePlayerSession({ preset: selected, loop });
 
   const hero = (
     <Card
@@ -142,8 +144,7 @@ export function MainScreen({
           }}
         />
       </View>
-      {/* Inactive on purpose: spec 4 (808 loop) wires this switch (state, storage, audio). */}
-      <Switch label="Background loop" checked={false} disabled />
+      <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
     </View>
   );
 

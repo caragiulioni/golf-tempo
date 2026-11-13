@@ -18,11 +18,12 @@ Shared decisions are in `product.md`, `tech.md`, `timing-engine.md`. Prototype l
 2. THE Engine SHALL give every bar a length of `cycleSeconds(preset)` for all 16 presets.
 3. THE Engine SHALL place a kick at time 0.
 4. THE Engine SHALL return only events with `0 <= time < cycleSeconds(preset)`.
-5. THE Engine SHALL divide the bar into 4 equal quarters and place kicks and snares on quarter starts from a named pattern table.
-6. WHERE a quarter is longer than `SLOW_QUARTER_SECONDS`, THE Engine SHALL use the thinned pattern table (kick on quarter 1, snare on quarter 3).
-7. THE Engine SHALL place `max(1, ceil(quarterSeconds / HAT_MAX_GAP_SECONDS))` evenly spaced hat ticks in each quarter, the first on the quarter start, so no gap between hat ticks exceeds `HAT_MAX_GAP_SECONDS`.
-8. THE Engine SHALL return identical output for identical input.
-9. THE Engine SHALL use the same rules for Long Game and Short Game.
+5. THE Engine SHALL split the bar into 12 steps. WHERE beat 1 to beat 2 is at most `ANCHOR_MIN_BEAT2_SECONDS`, the steps SHALL be even (cycle / 12). OTHERWISE beat 2 SHALL lie exactly on step 4 and beat 3 exactly on step 6, with steps even inside each of the three sections.
+6. THE Engine SHALL place kicks on steps 0, 4, 8, snares on steps 2, 6, 10, and a hat on every step, louder on steps 0, 2, 6, 10 (named tables, copied from Tour Tempo).
+7. WHERE one step (cycle / 12) is at most `GHOST_KICK_MAX_STEP_SECONDS`, THE Engine SHALL add ghost kicks on steps 1, 5, 9.
+8. WHERE a step is longer than `HAT_MAX_GAP_SECONDS`, THE Engine SHALL add evenly spaced extra hat ticks inside it, so no gap between hat ticks, including the wrap to the next bar, exceeds `HAT_MAX_GAP_SECONDS`.
+9. THE Engine SHALL return identical output for identical input.
+10. THE Engine SHALL use the same rules for Long Game and Short Game.
 
 ### R2 Loop sounds
 
