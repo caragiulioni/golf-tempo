@@ -57,8 +57,10 @@ Stop for review.
 
 ## Wave 5.6: Guide, phone check, porting notes
 
-- [ ] 1. `docs/calibration-guide.md` for the brother (R10.1). First verify the Safari saved-data rule with a source and link it. Check: reads in plain language with exact button names as on screen, and each step can be followed on his phone.
+- [x] 1. `docs/calibration-guide.md` for the brother (R10.1). First verify the Safari saved-data rule with a source and link it. Check: reads in plain language with exact button names as on screen, and each step can be followed on his phone.
 - [ ] 2. Phone check [MANUAL] on Mac Chrome, Pixel 6 and iPad Safari (real devices): slider usable by touch; value survives reload; export copy works or the manual hint appears; playback restart on release sounds right. Record per device (model, browser version) in `docs/porting-guide.md`. The brother's own phone is a later, separate check.
-- [ ] 3. Porting notes: add an entry to `docs/porting-guide.md` in its format (web-only: clipboard and user agent in the export, `onKeyDown` in `Slider`, `Overlay` Escape handling; unchanged: storage wrapper, pure logic, screen; untested on native). Update `_index.md` spec 5 Built, `structure.md` (Mount_Point name, `ConfigPlaceholder` gone), `src/ui/components/README.md` and `src/config-mode/README.md`.
+- [x] 3. (Written, with the phone-check rows left as 'not recorded' until task 2 is done.) Porting notes: add an entry to `docs/porting-guide.md` in its format (web-only: clipboard and user agent in the export, `onKeyDown` in `Slider`, `Overlay` Escape handling; unchanged: storage wrapper, pure logic, screen; untested on native). Update `_index.md` spec 5 Built, `structure.md` (Mount_Point name, `ConfigPlaceholder` gone), `src/ui/components/README.md` and `src/config-mode/README.md`.
+
+Result: `docs/calibration-guide.md` written (Safari rule verified against WebKit's own post, linked in the porting entry and `dev_questions.md`). Porting entry added. Task 2, the phone check, is the developer's, on real devices.
 
 Stop for review.

@@ -114,6 +114,7 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - What happens to audio and timing when the phone locks or the app is backgrounded.
 
 ### 10. Calibration guide for the client
+- Written: `docs/calibration-guide.md` (spec 5, Wave 5.6). The Safari saved-data rule was verified: WebKit deletes script-writable storage after seven days of Safari use without interaction, and Home Screen web apps are exempt (https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/). The outline below is kept as the original brief.
 - Write a short testing doc for Mike as part of the config-mode spec (plain language, step by step). Outline:
   - Pick one device, preferably his phone, and calibrate on that device only. Use the same browser each time.
   - Don't use private/incognito mode, and don't clear browser data while calibrating. Either wipes the saved values.

@@ -10,4 +10,4 @@ Reusable building blocks: segmented controls, preset buttons, section labels, th
 - Each component reads its colors and spacing from `theme/`.
 - If the same element or style shows up twice, it belongs here.
 
-Currently empty. Parts are added as the specs that need them are built.
+Parts are added as the specs that need them are built. Current parts: AppText, Icon, IconButton, Button, Header, Wordmark, BrandName, Menu, MenuItem, Overlay (shared by Menu and ConfirmDialog), ConfirmDialog, SegmentedControl, PresetButton, PresetGrid, SectionLabel, Badge, Card, PlayButton, StatusMessage, Switch, Slider, BeatTimeline.

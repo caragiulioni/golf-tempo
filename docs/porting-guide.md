@@ -196,6 +196,44 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
   - Why no grid does everything: beat 3 has a fixed 0.2 s delay, so beat 2 and beat 3 can only both sit on even steps at one tempo, which is not a preset.
   - Full history, findings and the audit: `docs/background-loop-audit-notes.md`. Plain-language summary for the user: `docs/development-decisions.md`, section 2.
 
+### config-mode
+- What was built: the temporary CONFIG screen the brother uses to find his weight shift position, and the saving behind it. Menu, then Config opens a screen with a slider (plus − and + buttons) that moves the weight shift beep between the takeaway and top beeps, a picture of the swing that moves with it, and a play button to listen. APPLY saves one category (Long game or Short game) on that phone, RESET goes back to the starting value, leaving with unsaved changes asks "Leave without applying?", EXPORT shows the saved values as text with a Copy button, and a short "How to" explains it. The main screen now plays and draws the saved values at every tempo. Plain-language guide for the brother: `docs/calibration-guide.md`.
+- Carries over unchanged (expected, not run on a phone):
+  - `src/config-mode/appliedSettings.ts` and `exportText.ts`: checking, merging and writing the saved values and the export text. Plain TypeScript with automated tests (`npm test`).
+  - `src/config-mode/appliedStorage.ts`: saving goes through `src/storage/`, which uses AsyncStorage (the phone's own storage on iOS and Android).
+  - `src/config-mode/ConfigScreen.tsx`, `HowTo.tsx`, `ExportPanel.tsx`, `howToSteps.ts`, `useAppliedSettings.ts`: built from React Native pieces and the shared components.
+  - `src/ui/components/Button.tsx`, `ConfirmDialog.tsx`, `Overlay.tsx` (the shared overlay moved out of `Menu.tsx`), the `minus` and `plus` icons in `Icon.tsx`.
+  - `src/ui/components/Slider.tsx`: built from View and PanResponder, with no extra library, so it is expected to drag on a phone, but it has only been tried with a mouse and with touch in a browser.
+  - `src/ui/hooks/usePlayerSession.ts`: the new `active` option (only the open screen reacts to changes) is plain logic.
+- Web-only, must be replaced on native:
+  - `src/config-mode/exportDevice.ts`: Copy uses the browser clipboard (`navigator.clipboard`) and the export's `device` line is the browser's user agent text. Both are guarded by `Platform.OS === 'web'`. On a phone, Copy reports failure and the text stays selectable. Replace Copy with `expo-clipboard`, and fill `device` from `expo-device` (model and OS).
+  - `src/ui/components/Slider.tsx`: arrow, Page Up, Page Down, Home and End keys, the focus ring, and `touchAction` (lets the page scroll up and down from the slider) are web-only and guarded. On a phone, screen readers use the "increment" and "decrement" actions instead (written, not tried).
+  - `src/ui/components/Overlay.tsx` (used by Menu and the leave dialog): the Escape key listens on the browser `document`, guarded. Closing by the Android back button uses React Native's `Modal` and should carry over.
+  - `src/ui/components/ConfirmDialog.tsx`: moves keyboard focus to the "No" button on open using browser DOM calls, guarded by `Platform.OS === 'web'`.
+  - `src/ui/hooks/usePlayerSession.ts`: still creates the audio player on web only (see the audio-playback entry), so on a phone the Config play button shows "Audio could not start" until a native audio adapter exists.
+- Needs testing on a real device (all untested on native):
+  - Dragging the slider with a thumb on an Android device and an iOS device: the thumb follows the finger, a tap on the track jumps there, vertical scrolling still works, nothing jumps at the start of a drag (the first touch measures the slider's position before moves count).
+  - Screen readers: TalkBack and VoiceOver announce "Weight shift position" with its percent, and swipe up and down changes it by one step.
+  - The leave dialog: the Android back button closes it as "No". The Android back button on the Config screen itself is not handled (nothing asks "Leave without applying?"), so check what it does.
+  - Saved values survive closing and reopening the app, and Long game and Short game stay separate.
+  - Copy: replace with a native copy, then check on both.
+  - Playback: slider release, − and +, and tempo changes restart the audio once, once there is a native audio adapter.
+- Decisions and reasons:
+  - The slider has two numbers: what it shows (moves during a drag) and what the player plays (changes when you let go, press a key, or press − or +). That way a drag never restarts the sound. See `.kiro/specs/config-mode/design.md`.
+  - Only one screen reacts to changes at a time. The main screen stays mounted under Config, so it is told it is inactive while Config is open. Without that, applying a value would restart the Config run.
+  - Saved values use one versioned key, `golf-tempo:weight-shift:v1`, written as `{"version":1,"long":0.62,"short":0.71}`. A category never applied is simply left out. Each category is checked on its own when loading: a bad or out-of-range value falls back to that category's starting value and leaves the other alone. Tests: `src/config-mode/appliedSettings.test.ts` and `appliedStorage.test.ts`.
+  - EXPORT sends saved values only, never slider positions that were not applied. `applied: false` means the starting value was never chosen. APPLY stays available on a category that was never applied, so "the starting value is right" can be saved as a choice.
+  - Safari on iPhone and iPad can delete a site's saved data after seven days of Safari use without touching the site (WebKit's tracking prevention; see https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/). Web apps added to the Home Screen are exempt. This is why the guide tells the brother to export as soon as he is happy. It does not apply to a native app's storage.
+  - Removing CONFIG (spec 6): delete `src/config-mode/` and `src/app/ConfigMount.tsx`, remove the Config menu item and the config screen state in `src/app/App.tsx` and `src/app/MainScreen.tsx`, replace `useAppliedSettings()` in `App.tsx` with the hard-coded values, and delete the saved key (spec 6 adds `removeItem` to `src/storage/`). The shared Slider, Button, ConfirmDialog and Overlay can stay.
+  - Phone check results (Wave 5.6, task 2): see the table below, filled in when done.
+
+| Device | Browser | Slider by touch | Saved value after reload | Export and Copy | Restart on release | Notes |
+|---|---|---|---|---|---|---|
+| Mac | Chrome 157 | Not recorded | Not recorded | Export text produced with both categories `applied: true` (pasted in review, 2026-11-13). Whether Copy was used was not recorded. | Not recorded | Config screen and How to reviewed in the browser by the developer, no problems reported. |
+| Pixel 6 | Chrome 157 | Not recorded | Not recorded | Not recorded | Not recorded | |
+| iPad | Safari 16.6 | Not recorded | Not recorded | Not recorded | Not recorded | |
+| Developer's device for the slider "good enough" check (Wave 5.3) | Not recorded | Slider tried and judged good enough, with the − and + buttons as a fallback | | | | Device and browser were not written down. |
+
 ## Final guide checklist (written after the last spec)
 
 - [ ] Plain-language overview: what the app is and what porting involves.
