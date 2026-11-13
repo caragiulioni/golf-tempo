@@ -3,6 +3,9 @@
  */
 export type Voice = 'beat1' | 'weightShift' | 'beat2' | 'beat3';
 
+/** Background loop sounds (808 style). Separate from the beeps in `Voice`. */
+export type LoopVoice = 'kick' | 'snare' | 'hat';
+
 /**
  * Everything the app needs from an audio system. Web and native each provide
  * their own version. No DOM or React in this file.
@@ -14,6 +17,11 @@ export interface AudioAdapter {
   now(): number;
   /** Play a tone starting at `time` (audio clock seconds). */
   playTone(voice: Voice, time: number): void;
+  /**
+   * Optional. Play a background loop sound starting at `time` (audio clock seconds).
+   * `accent` makes a hat tick a little louder. Adapters without it play no loop.
+   */
+  playLoopVoice?(voice: LoopVoice, time: number, accent?: boolean): void;
   /** Silence everything, including tones already scheduled for later. */
   stopAll(): void;
   /**

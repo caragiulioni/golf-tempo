@@ -142,6 +142,13 @@ export function AudioLab({ onBack }: Props) {
     adapter.playTone(voiceFor(category, type, toneStyle), adapter.now() + START_DELAY_SECONDS);
   }
 
+  async function playLoopVoice(voice: 'kick' | 'snare' | 'hat') {
+    const adapter = getSharedAdapter() ?? (getSharedPlayer(), getSharedAdapter());
+    if (!adapter?.playLoopVoice) return;
+    await adapter.unlock();
+    adapter.playLoopVoice(voice, adapter.now() + START_DELAY_SECONDS);
+  }
+
   async function playSwing() {
     const adapter = getSharedAdapter() ?? (getSharedPlayer(), getSharedAdapter());
     if (!adapter) return;
@@ -294,6 +301,13 @@ export function AudioLab({ onBack }: Props) {
             ],
             5,
           )}
+
+          <SectionLabel>Loop sounds</SectionLabel>
+          {actionGrid('Loop sounds', [
+            { label: 'Kick', onPress: () => playLoopVoice('kick') },
+            { label: 'Snare', onPress: () => playLoopVoice('snare') },
+            { label: 'Hat', onPress: () => playLoopVoice('hat') },
+          ])}
 
           <SectionLabel>{`Repeating playback: ${playerState}`}</SectionLabel>
           {actionGrid('Repeating playback', [

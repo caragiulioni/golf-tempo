@@ -1,5 +1,5 @@
 import { TONES } from './tones';
-import type { AudioAdapter, Voice } from './types';
+import type { AudioAdapter, LoopVoice, Voice } from './types';
 
 /** Peak volume of one beep (0 to 1). Leaves room so overlapping beeps do not clip. */
 const PEAK_GAIN = 0.4;
@@ -12,11 +12,36 @@ const PEAK_GAIN = 0.4;
 const STOP_FADE_TIME_CONSTANT = 0.004;
 const STOP_FADE_SECONDS = 0.06;
 
-/** One beep that has been scheduled and has not finished yet. */
+/** Loop level relative to the beeps. The loop must never mask them. Tune by ear. */
+const LOOP_BUS_GAIN = 0.5;
+/** Peak level of each loop voice before the bus (0 to 1). Tune by ear. */
+const KICK_GAIN = 0.9;
+const SNARE_GAIN = 0.5;
+const HAT_GAIN = 0.25;
+const HAT_ACCENT_GAIN = 0.35;
+
+/** Loop sound shapes. Tune by ear. */
+const KICK_START_HZ = 150;
+const KICK_END_HZ = 45;
+const KICK_SWEEP_SECONDS = 0.12;
+const KICK_SECONDS = 0.35;
+const SNARE_NOISE_HZ = 1800;
+const SNARE_NOISE_Q = 0.8;
+const SNARE_TONE_HZ = 180;
+const SNARE_SECONDS = 0.2;
+const SNARE_TONE_SECONDS = 0.1;
+const HAT_HIGHPASS_HZ = 7000;
+const HAT_SECONDS = 0.05;
+/** Fast attack for loop voices, so they start sharply without a click. */
+const LOOP_ATTACK_SECONDS = 0.002;
+const NOISE_SECONDS = 1;
+
+/** One sound (beep or loop voice) that has been scheduled and has not finished yet. */
 type ActiveTone = {
-  /** Separate from the beep's own envelope, so fading it never disturbs that envelope. */
+  /** Separate from the sound's own envelope, so fading it never disturbs that envelope. */
   fader: GainNode;
-  oscillators: OscillatorNode[];
+  /** Oscillators and noise sources that make the sound. */
+  sources: Array<OscillatorNode | AudioBufferSourceNode>;
   startTime: number;
 };
 
@@ -77,6 +102,38 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
   let context: AudioContext | null = null;
   const active = new Set<ActiveTone>();
   const suspendedListeners = new Set<() => void>();
+  let loopBus: GainNode | null = null;
+  let noiseBuffer: AudioBuffer | null = null;
+
+  /** Loop voices all go through one quieter bus. */
+  function getLoopBus(ctx: AudioContext): GainNode {
+    if (!loopBus) {
+      loopBus = ctx.createGain();
+      loopBus.gain.value = LOOP_BUS_GAIN;
+      loopBus.connect(ctx.destination);
+    }
+    return loopBus;
+  }
+
+  /** One shared buffer of white noise for snare and hat. */
+  function getNoiseBuffer(ctx: AudioContext): AudioBuffer {
+    if (!noiseBuffer) {
+      const length = Math.floor(ctx.sampleRate * NOISE_SECONDS);
+      noiseBuffer = ctx.createBuffer(1, length, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuffer;
+  }
+
+  /** Envelope: sharp attack to `peak`, then an exponential fade to silence at `end`. */
+  function envelope(ctx: AudioContext, time: number, end: number, peak: number): GainNode {
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(peak, time + LOOP_ATTACK_SECONDS);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end);
+    return gain;
+  }
 
   function getContext(): AudioContext {
     if (!context) {
@@ -119,7 +176,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
       const fader = ctx.createGain();
       gain.connect(fader);
       fader.connect(ctx.destination);
-      const activeTone: ActiveTone = { fader, oscillators: [], startTime: time };
+      const activeTone: ActiveTone = { fader, sources: [], startTime: time };
       active.add(activeTone);
 
       const parts: Array<[number, number]> = [
@@ -136,8 +193,72 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
         partGain.connect(gain);
         osc.start(time);
         osc.stop(end + 0.02);
-        activeTone.oscillators.push(osc);
+        activeTone.sources.push(osc);
         osc.onended = () => active.delete(activeTone);
+      }
+    },
+
+    playLoopVoice(voice: LoopVoice, time: number, accent = false) {
+      const ctx = getContext();
+      const fader = ctx.createGain();
+      fader.connect(getLoopBus(ctx));
+      const activeTone: ActiveTone = { fader, sources: [], startTime: time };
+      active.add(activeTone);
+
+      const addSource = (source: OscillatorNode | AudioBufferSourceNode, end: number) => {
+        source.start(time);
+        source.stop(end + 0.02);
+        activeTone.sources.push(source);
+        source.onended = () => active.delete(activeTone);
+      };
+      const noiseSource = () => {
+        const source = ctx.createBufferSource();
+        source.buffer = getNoiseBuffer(ctx);
+        return source;
+      };
+
+      if (voice === 'kick') {
+        const end = time + KICK_SECONDS;
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(KICK_START_HZ, time);
+        osc.frequency.exponentialRampToValueAtTime(KICK_END_HZ, time + KICK_SWEEP_SECONDS);
+        const gain = envelope(ctx, time, end, KICK_GAIN);
+        osc.connect(gain);
+        gain.connect(fader);
+        addSource(osc, end);
+      } else if (voice === 'snare') {
+        const end = time + SNARE_SECONDS;
+        const noise = noiseSource();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = SNARE_NOISE_HZ;
+        filter.Q.value = SNARE_NOISE_Q;
+        const noiseGain = envelope(ctx, time, end, SNARE_GAIN);
+        noise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(fader);
+        addSource(noise, end);
+
+        const toneEnd = time + SNARE_TONE_SECONDS;
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(SNARE_TONE_HZ, time);
+        const toneGain = envelope(ctx, time, toneEnd, SNARE_GAIN);
+        osc.connect(toneGain);
+        toneGain.connect(fader);
+        addSource(osc, toneEnd);
+      } else {
+        const end = time + HAT_SECONDS;
+        const noise = noiseSource();
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = HAT_HIGHPASS_HZ;
+        const gain = envelope(ctx, time, end, accent ? HAT_ACCENT_GAIN : HAT_GAIN);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(fader);
+        addSource(noise, end);
       }
     },
 
@@ -174,7 +295,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
         // so it makes no sound when its turn comes.
         tone.fader.gain.setTargetAtTime(0, now, STOP_FADE_TIME_CONSTANT);
         if (tone.startTime <= now) {
-          for (const osc of tone.oscillators) {
+          for (const osc of tone.sources) {
             try {
               osc.stop(now + STOP_FADE_SECONDS);
             } catch {
