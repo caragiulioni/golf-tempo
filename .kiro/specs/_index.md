@@ -40,7 +40,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Scope:** One generated 808-style loop (kick, snare, hi-hat), locked to the tempo, with beat 1 on the start of a bar. On/off toggle, off by default. Plays in Long and Short Game. At slow tempos the hi-hat carries a steady pulse that lines up with the beeps.
 - **Depends on:** audio-playback.
 - **Blockers:** none known. Sound and pattern are tuned by ear.
-- **Spec:** not started
+- **Spec:** DONE (`.kiro/specs/background-loop/`)
 - **Built:** not started
 
 ### 5. config-mode
