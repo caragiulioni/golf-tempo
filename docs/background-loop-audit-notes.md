@@ -145,7 +145,7 @@ Where the beats landed against the drums before the fixes (negative means the be
 2. Slow Long presets: tick beat 2 to beat 3 as one span.
 3. Calibration: the brother chooses whether to calibrate with the loop on or off (added to spec 5's scope in `.kiro/specs/_index.md` and to `docs/dev_questions.md`).
 4. Fix the bugs (60/20 rounding, ghost kick threshold).
-5. Long Game weight shift default changes from 0.67 to 0.53.
+5. Long Game weight shift default changes from 0.67 to 0.53. **Later the same day:** 0.53 sat within 1 to 25 ms of the step 2 snare at the fast Long tempos (a flam). Defaults set to Long 0.50 and Short 0.60 as starting points; the brother fine-tunes them in CONFIG.
 
 ### 8.4 What changed (uncommitted, on top of the 4.1b and 4.4 work)
 
@@ -168,5 +168,5 @@ Unchanged: fast Long Game (18/6 to 30/10) keeps Tour Tempo's even grid; kick, sn
 ### 8.5 Costs and what to listen for
 - **Short Game:** anchored version heard and rejected (speed change between TOP and IMPACT). Back on the even grid; steady loop and the beat 2 to kick gap both accepted by ear on desktop.
 - **Slow Long Game:** 84/28, 120/40 and 168/56 should now feel steadier between beat 2 and beat 3. 60/20 should no longer have the quick double hat right after impact.
-- **Weight shift at 0.53:** earlier in the backswing than before (about halfway from beat 1 to beat 2).
+- **Weight shift:** now 0.50 (Long) and 0.60 (Short), starting points for CONFIG.
 - Not checked by ear yet. Wave 4.5 (phones) still applies.

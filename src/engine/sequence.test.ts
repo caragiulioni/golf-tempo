@@ -23,7 +23,7 @@ describe('buildSequence', () => {
     const events = buildSequence({ preset: long(30, 10), settings: defaultWeightShiftSettings() });
     expect(events.map((e) => e.type)).toEqual(['beat1', 'weightShift', 'beat2', 'beat3']);
     expect(events[0].time).toBe(0);
-    expect(events[1].time).toBeCloseTo(0.53, 6);
+    expect(events[1].time).toBeCloseTo(0.5, 6);
     expect(events[2].time).toBeCloseTo(1.0, 6);
     expect(events[3].time).toBeCloseTo(1.5333, 3);
   });
@@ -31,7 +31,7 @@ describe('buildSequence', () => {
   it('uses the Short Game position for a Short Game preset', () => {
     const events = buildSequence({ preset: short(18, 9), settings: defaultWeightShiftSettings() });
     const shift = events.find((e) => e.type === 'weightShift');
-    expect(shift?.time).toBeCloseTo(0.75 * 0.6, 6);
+    expect(shift?.time).toBeCloseTo(0.6 * 0.6, 6);
   });
 
   it('events are always in time order', () => {
@@ -81,7 +81,7 @@ describe('weight shift position', () => {
       const events = buildSequence({ preset, settings });
       const beat2 = events.find((e) => e.type === 'beat2')!.time;
       const shift = events.find((e) => e.type === 'weightShift')!.time;
-      expect(shift / beat2).toBeCloseTo(0.53, 6);
+      expect(shift / beat2).toBeCloseTo(0.5, 6);
     }
   });
 
@@ -90,6 +90,6 @@ describe('weight shift position', () => {
     const longShift = buildSequence({ preset: long(30, 10), settings }).find((e) => e.type === 'weightShift')!;
     const shortShift = buildSequence({ preset: short(18, 9), settings }).find((e) => e.type === 'weightShift')!;
     expect(longShift.time / 1.0).toBeCloseTo(0.4, 6);
-    expect(shortShift.time / 0.6).toBeCloseTo(0.75, 6);
+    expect(shortShift.time / 0.6).toBeCloseTo(0.6, 6);
   });
 });

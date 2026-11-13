@@ -59,8 +59,8 @@ describe('clampPosition', () => {
 });
 
 describe('per-category settings', () => {
-  it('defaults are 0.53 for Long Game and 0.75 for Short Game', () => {
-    expect(defaultWeightShiftSettings()).toEqual({ long: 0.53, short: 0.75 });
+  it('defaults are 0.50 for Long Game and 0.60 for Short Game', () => {
+    expect(defaultWeightShiftSettings()).toEqual({ long: 0.5, short: 0.6 });
   });
 
   it('changing Long Game does not change Short Game', () => {
@@ -80,7 +80,7 @@ describe('per-category settings', () => {
   it('does not modify the settings it was given', () => {
     const before = defaultWeightShiftSettings();
     withPosition(before, 'long', 0.3);
-    expect(before).toEqual({ long: 0.53, short: 0.75 });
+    expect(before).toEqual({ long: 0.5, short: 0.6 });
   });
 
   it('clamps a saved value that is out of range', () => {

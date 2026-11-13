@@ -19,9 +19,9 @@ Terminology: the added beat is called the **weight shift** beat. In time order t
 - The three original beats are correct as they are in Tour Tempo and are copied as-is. Do not "correct" them to the printed numbers. The weight shift beat is one additional data point; everything stays framed around the current tempos.
 - Weight shift placement (confirmed by client): between beat 1 (takeaway) and beat 2 (top of swing). It represents the initial lateral weight transfer, which starts in the hips.
 - Position is stored as a normalized value (0 to 1) between beat 1 and beat 2 and keeps the same relative position at every tempo (confirmed by client).
-- Starting value for Long Game: 0.53 (decided November 2026, by ear). It replaced about 0.67, which came from the client's diagram (the midpoint of the whole swing, 2 of the 3 backswing parts). Still tuned by ear in CONFIG mode.
-- Starting value for Short Game: about 0.75, the midpoint of the whole 2:1 swing. The client's answer was "about 3/4 of the way through" the backswing, but he is not certain and is still evaluating it. Tentative; tuned by ear.
-- The midpoint-of-the-whole-swing rule no longer covers Long Game (0.53 now). Short Game still uses it (0.75).
+- Starting value for Long Game: 0.50 (set by the developer, November 2026, as a starting point for CONFIG). History: about 0.67 from the client's diagram (midpoint of the whole swing), then 0.53 by ear; 0.53 landed within 1 to 25 ms of the step 2 snare at the fast tempos (a flam), so it moved on. Fine-tuned by the client in CONFIG.
+- Starting value for Short Game: 0.60 (set by the developer, November 2026, as a starting point). History: about 0.75, the midpoint of the whole 2:1 swing (the client said "about 3/4 of the way through" but was not certain). Fine-tuned by the client in CONFIG.
+- The midpoint-of-the-whole-swing rule no longer sets the defaults. They are starting points; CONFIG calibration decides.
 - Long Game and Short Game have independent settings (confirmed). The same movement applies in Short Game, but it is more subtle: the golfer focuses on the hands moving around the torso instead of the hips and lower body. This changes what the golfer feels, not the beat.
 - The weight shift beat uses a different sound from beats 1 to 3 so it can be told apart (confirmed). Heard in the browser in the audio lab and liked: short, crisp, higher pitch (800 Hz, 0.07 s), `distinct` is the default. A `same` option exists in `src/audio/tones.ts` for comparison only.
 
