@@ -1,6 +1,6 @@
 # Finding your weight shift position (calibration guide)
 
-For Mike. About 10 minutes per tempo, longer if you want to be thorough. Everything here is also in the app: open the menu, tap **Config**, then tap **How to**.
+For Mike. Take your time, and you can stop and come back later: **APPLY** saves what you have so far. Everything here is also in the app: open the menu, tap **Config**, then tap **How to**.
 
 ## What you are doing
 
