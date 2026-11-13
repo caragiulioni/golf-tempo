@@ -3,7 +3,7 @@ import Svg, { Path } from 'react-native-svg';
 import { iconStrokeWidth, useTheme } from '../../theme';
 import type { Colors } from '../../theme';
 
-export type IconName = 'play' | 'pause' | 'check' | 'menu' | 'back';
+export type IconName = 'play' | 'pause' | 'check' | 'menu' | 'back' | 'minus' | 'plus';
 
 type Props = {
   name: IconName;
@@ -23,6 +23,8 @@ const STROKED: Partial<Record<IconName, string>> = {
   check: 'M4 12.5l5 5L20 6.5',
   menu: 'M4 6.5h16M4 12h16M4 17.5h16',
   back: 'M15 5l-7 7 7 7',
+  minus: 'M5 12h14',
+  plus: 'M12 5v14M5 12h14',
 };
 
 

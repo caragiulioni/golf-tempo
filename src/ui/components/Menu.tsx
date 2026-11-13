@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Modal, Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { ReactNode } from 'react';
 import { borderWidth, radius, spacing, useTheme } from '../../theme';
+import { Overlay } from './Overlay';
 
 // Minimal shape of the DOM nodes we touch on web. Kept local so no DOM types are needed.
 type WebNode = {
@@ -13,45 +14,6 @@ const FOCUSABLE = 'button,[role="button"],[tabindex],a[href]';
 const FIRST_ITEM = '[role="menuitem"]';
 const MENU_MIN_WIDTH = 200;
 const GAP = spacing.xs;
-
-/**
- * Full-screen overlay: transparent backdrop that closes on outside tap,
- * Escape on web, and the Android back button (via onRequestClose).
- * Internal for now; a confirm dialog can reuse it later by exporting it.
- */
-function Overlay({
-  visible,
-  onClose,
-  children,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    if (!IS_WEB || !visible) return;
-    const doc = (globalThis as { document?: { addEventListener: Function; removeEventListener: Function } })
-      .document;
-    if (!doc) return;
-    const onKeyDown = (e: { key?: string }) => {
-      if (e.key === 'Escape') onClose();
-    };
-    doc.addEventListener('keydown', onKeyDown);
-    return () => doc.removeEventListener('keydown', onKeyDown);
-  }, [visible, onClose]);
-
-  return (
-    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        onPress={onClose}
-        accessible={false}
-        importantForAccessibility="no"
-      />
-      {children}
-    </Modal>
-  );
-}
 
 type TriggerArgs = {
   onPress: () => void;

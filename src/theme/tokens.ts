@@ -217,6 +217,11 @@ export const switchSize = {
   rowHeight: 56,
   rowRadius: 16,
 } as const;
+// Dialog: dimmed backdrop (same in both modes) and the card's widest size.
+export const scrim = 'rgba(0, 0, 0, 0.5)';
+export const dialogMaxWidth = 420;
+// Slider: visible track and thumb. The touch area is tapMin tall, taller than the track.
+export const sliderSize = { trackHeight: 6, thumb: 28 } as const;
 // Main screen layout: page max width (handoff .app) and the empty timeline slot height.
 export const maxContentWidth = 1440;
 export const timelineSlotMinHeight: Record<Layout, number> = { phone: 120, tablet: 160, laptop: 200 };

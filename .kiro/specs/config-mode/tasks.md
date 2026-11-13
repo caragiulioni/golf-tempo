@@ -23,11 +23,13 @@ Stop for review (touches playback).
 
 ## Wave 5.3: New shared components
 
-- [ ] 1. `Slider` in `src/ui/components/`, plus theme tokens if needed. Reuse check first. Check [MANUAL], on the placeholder screen temporarily: drag moves the thumb and fires `onChange`; release fires `onChangeEnd` once; arrow keys step by 0.01; screen reader announces the value; thumb touch area at least 44 pt; works in light and dark and at 320 pt wide; clamps at the ends. Temporary demo code is removed afterwards.
-- [ ] 2. `Button` in `src/ui/components/` (primary, secondary, disabled). Reuse check first (look at `PresetButton`, `IconButton`, `PlayButton`; extend one if it fits). Check [MANUAL]: all variants and the disabled state in light and dark; at least 44 pt tall; focus ring; label wraps safely at 320 pt.
-- [ ] 3. Extract `Overlay` from `src/ui/components/Menu.tsx` into `Overlay.tsx` and export it. Check [MANUAL]: the menu opens and closes as before (outside tap, Escape, item press, focus returns to the menu button).
-- [ ] 4. `ConfirmDialog` in `src/ui/components/` on top of `Overlay`. Check [MANUAL]: title, Yes and No; Escape and outside tap act as No; focus moves into the dialog and back; text readable in light and dark. Shown from a temporary trigger, removed afterwards.
-- [ ] 5. (Only if nudge buttons are approved) `minus` and `plus` icons in `Icon.tsx`. Check [MANUAL]: both render in light and dark at the `IconButton` size.
+- [x] 1. `Slider` in `src/ui/components/`, plus theme tokens if needed (built: `Slider.tsx`, token `sliderSize`, pure `src/ui/lib/snapToStep.ts` with tests; demo on the Config placeholder, deleted in Wave 5.4 task 2). Typecheck and 327 tests pass; manual check below still to be done by the user. Reuse check first. Check [MANUAL], on the placeholder screen temporarily: drag moves the thumb and fires `onChange`; release fires `onChangeEnd` once; arrow keys step by 0.01; screen reader announces the value; thumb touch area at least 44 pt; works in light and dark and at 320 pt wide; clamps at the ends. Temporary demo code is removed afterwards.
+- [x] 2. (Built: `Button.tsx`, no new tokens.) `Button` in `src/ui/components/` (primary, secondary, disabled). Reuse check first (look at `PresetButton`, `IconButton`, `PlayButton`; extend one if it fits). Check [MANUAL]: all variants and the disabled state in light and dark; at least 44 pt tall; focus ring; label wraps safely at 320 pt.
+- [x] 3. (Built: `Overlay.tsx`, `Menu.tsx` imports it.) Extract `Overlay` from `src/ui/components/Menu.tsx` into `Overlay.tsx` and export it. Check [MANUAL]: the menu opens and closes as before (outside tap, Escape, item press, focus returns to the menu button).
+- [x] 4. (Built: `ConfirmDialog.tsx`, tokens `scrim` and `dialogMaxWidth`.) `ConfirmDialog` in `src/ui/components/` on top of `Overlay`. Check [MANUAL]: title, Yes and No; Escape and outside tap act as No; focus moves into the dialog and back; text readable in light and dark. Shown from a temporary trigger, removed afterwards.
+- [x] 5. (Built: `minus` and `plus` in `Icon.tsx`.) (Only if nudge buttons are approved) `minus` and `plus` icons in `Icon.tsx`. Check [MANUAL]: both render in light and dark at the `IconButton` size.
+
+All five built and demoed on the Config placeholder (Menu > Config), which is deleted in Wave 5.4. Typecheck, 327 tests and web export pass. Manual checks are for the reviewer.
 
 Stop for review.
 
