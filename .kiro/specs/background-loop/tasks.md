@@ -19,8 +19,8 @@ Stop for review (audio).
 
 ## Wave 4.3: Loop in the player
 
-- [ ] 1. `SwingOptions.loop`, loop scheduling in `scheduleSwing`, `ScheduledSwing.loop` in `src/audio/player.ts`. Check: with a fake adapter or the lab log, 30/10 with loop on logs kick at beat 1 time and hat times at +0.375 s steps; loop off logs no loop events; beep times are unchanged from before.
-- [ ] 2. Loop on/off option in the Audio lab, passed in the lab's swing options. Check by ear, desktop, 30/10 loop on: kick lands with beat 1; loop sits under the beeps and every beep is clearly audible; loop bar lines up with the swing for 2 minutes with no drift; Stop gives silence with no click; changing preset restarts cleanly once with the new tempo's loop from beat 1; 168/56 hat pulse is steady and kick and snare are sparse.
+- [x] 1. `SwingOptions.loop`, loop scheduling in `scheduleSwing`, `ScheduledSwing.loop` in `src/audio/player.ts`. Check: with a fake adapter or the lab log, 30/10 with loop on logs kick at beat 1 time and hat times at +0.379 s steps; loop off logs no loop events; beep times are unchanged from before.
+- [x] 2. Loop on/off option in the Audio lab, passed in the lab's swing options. Check by ear, desktop, 30/10 loop on: kick lands with beat 1; loop sits under the beeps and every beep is clearly audible; loop bar lines up with the swing for 2 minutes with no drift; Stop gives silence with no click; changing preset restarts cleanly once with the new tempo's loop from beat 1; 168/56 hat pulse is steady and kick and snare are sparse.
 
 Stop for review (audio).
 

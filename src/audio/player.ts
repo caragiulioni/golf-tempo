@@ -1,6 +1,8 @@
 import {
   buildSequence,
   cycleSeconds,
+  loopEvents,
+  type LoopVoice,
   type Preset,
   type SequenceEvent,
   type WeightShiftSettings,
@@ -15,12 +17,27 @@ export type ScheduledBeep = {
   time: number;
 };
 
+export type ScheduledLoopEvent = {
+  voice: LoopVoice;
+  accent?: boolean;
+  /** Audio clock time in seconds. */
+  time: number;
+};
+
 export type SwingOptions = {
   preset: Preset;
   settings: WeightShiftSettings;
   includeWeightShift?: boolean;
   toneStyle?: WeightShiftToneStyle;
+  /** Play the background loop. Default false. */
+  loop?: boolean;
 };
+
+/** The loop events of one bar on the audio clock, or none when the loop is off. */
+export function loopSchedule(startTime: number, { preset, loop = false }: SwingOptions): ScheduledLoopEvent[] {
+  if (!loop) return [];
+  return loopEvents(preset).map((event) => ({ ...event, time: startTime + event.time }));
+}
 
 /**
  * Schedule one swing so beat 1 sounds at `startTime` (audio clock seconds).
@@ -29,15 +46,24 @@ export type SwingOptions = {
 export function scheduleSwing(
   adapter: AudioAdapter,
   startTime: number,
-  { preset, settings, includeWeightShift = true, toneStyle }: SwingOptions,
+  options: SwingOptions,
 ): ScheduledBeep[] {
+  const { preset, settings, includeWeightShift = true, toneStyle } = options;
   const events = buildSequence({ preset, settings, includeWeightShift });
-  return events.map((event) => {
+  // Beeps first. Loop events only add sound and never change beep timing.
+  const beeps = events.map((event) => {
     const voice = voiceFor(preset.category, event.type, toneStyle);
     const time = startTime + event.time;
     adapter.playTone(voice, time);
     return { type: event.type, voice, time };
   });
+  // An adapter without playLoopVoice plays no loop.
+  if (adapter.playLoopVoice) {
+    for (const event of loopSchedule(startTime, options)) {
+      adapter.playLoopVoice(event.voice, event.time, event.accent);
+    }
+  }
+  return beeps;
 }
 
 /** How far ahead of the audio clock the next swing is scheduled, in seconds. */
@@ -81,6 +107,8 @@ export type ScheduledSwing = {
   /** When beat 1 of this swing sounds. */
   startTime: number;
   beeps: ScheduledBeep[];
+  /** Loop events scheduled with this swing. Empty when the loop is off. */
+  loop: ScheduledLoopEvent[];
   /** Seconds between scheduling and beat 1. Should stay well above zero. */
   leadSeconds: number;
   /** Seconds from this beat 1 to the next. */
@@ -199,6 +227,7 @@ export function createPlayer(
       notify('onSwing', {
         startTime: swingStart,
         beeps,
+        loop: loopSchedule(swingStart, options),
         leadSeconds: swingStart - adapter.now(),
         cycleSeconds: cycle,
       });
