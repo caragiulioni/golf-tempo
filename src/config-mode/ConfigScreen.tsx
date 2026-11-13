@@ -215,6 +215,8 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onA
 
   const controls = (
     <View style={[styles.controlsColumn, laptop && styles.controlsColumnLaptop]}>
+      {/* First in the column, so it is not a long scroll away while testing (Config only). */}
+      <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
       <View style={styles.controlGroup}>
         <SectionLabel>Game length</SectionLabel>
         <SegmentedControl
@@ -243,7 +245,6 @@ export function ConfigScreen({ initialCategory, initialPresetIndex, applied, onA
           }}
         />
       </View>
-      <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
       <ExportPanel applied={applied} hasUnapplied={anyUnapplied} />
     </View>
   );

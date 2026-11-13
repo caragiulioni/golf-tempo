@@ -24,7 +24,7 @@ These apply whenever working in `src/engine/`.
 - Insert the weight shift beat into the sequence. Never move, shift or recalculate beats 1, 2 or 3 because of it.
 - Clamp the position to a configurable safe range so it never lands on top of beat 1 or beat 2.
 - Long Game and Short Game hold independent positions.
-- Long Game starts at 0.50, Short Game at 0.60 (set by the developer, November 2026; they replaced 0.67 and 0.75, the midpoint of the whole swing). Both are starting values; the brother fine-tunes them in CONFIG.
+- Long Game starts at 0.70, Short Game at 0.60 (set by the developer, November 2026; they replaced 0.67 and 0.75, the midpoint of the whole swing). Both are starting values; the brother fine-tunes them in CONFIG.
 - Support a three-beat mode (no weight shift beat) for baseline comparison.
 
 ## Presets

@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { useColorScheme } from 'react-native';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Platform, useColorScheme } from 'react-native';
 import { saveThemeChoice } from '../storage';
 import type { ThemeChoice } from '../storage';
 import { colors } from './tokens';
@@ -34,6 +34,15 @@ export function ThemeProvider({ initialChoice, children }: Props) {
     // Not awaited. A write failure keeps the new mode for this session.
     saveThemeChoice(next).catch(() => {});
   }, []);
+
+  // Web: paint the page itself in the theme background. Phone browsers grow the page by about
+  // 40 px when the address bar slides away on scroll, and that strip showed the default white.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const bg = colors[mode].bg;
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
+  }, [mode]);
 
   const value = useMemo<Theme>(() => {
     const other: ThemeMode = mode === 'dark' ? 'light' : 'dark';

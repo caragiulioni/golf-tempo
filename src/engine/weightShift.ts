@@ -6,12 +6,12 @@ export const WEIGHT_SHIFT_RANGE = { min: 0.05, max: 0.95 } as const;
 
 /**
  * Starting positions (tentative, tuned by ear in CONFIG mode).
- * Long Game 0.50 and Short Game 0.60, chosen by the developer (November 2026) as starting
- * points; the brother fine-tunes them in CONFIG. They replaced 0.67 and 0.75, the midpoint
- * of the whole swing for 3:1 and 2:1.
+ * Long Game 0.70 and Short Game 0.60, chosen by the developer (November 2026) as starting
+ * points; the brother fine-tunes them in CONFIG. Long Game was 0.50 for a while, and 0.67
+ * (the midpoint of the whole 3:1 swing) before that; Short Game replaced 0.75.
  */
 export const DEFAULT_WEIGHT_SHIFT_POSITIONS: Readonly<Record<Category, number>> = {
-  long: 0.5,
+  long: 0.7,
   short: 0.6,
 };
 

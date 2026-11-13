@@ -15,7 +15,7 @@ Stop for review.
 ## Wave 5.2: Normal mode uses applied values (no CONFIG UI yet)
 
 - [x] 1. `src/config-mode/appliedStorage.ts`, `src/config-mode/useAppliedSettings.ts`, `src/app/ConfigMount.tsx` (hook re-export only for now). Check: `npm run typecheck` passes; with the hook not yet used, nothing changes in the app.
-- [x] 2. Wire it in: `src/app/App.tsx` (call the hook, add to the load gate, pass `settings` down), `src/app/MainScreen.tsx` (prop to the hook and `BeatTimeline`), `src/ui/hooks/usePlayerSession.ts` (`settings` in `SessionSelection` and `swingOptionsFor`). Check in the browser, by writing the Saved_Key in dev tools: `{"version":1,"long":0.8}` then reload. Long game timeline diamond sits near 80 % and the weight shift beep comes late in the backswing at 30/10 and at 168/56; Short game still at 0.60; no saved value, corrupted text, or `{"version":1,"long":5}` all show the defaults (0.50 and 0.60); no console errors; app starts with the intro as before.
+- [x] 2. Wire it in: `src/app/App.tsx` (call the hook, add to the load gate, pass `settings` down), `src/app/MainScreen.tsx` (prop to the hook and `BeatTimeline`), `src/ui/hooks/usePlayerSession.ts` (`settings` in `SessionSelection` and `swingOptionsFor`). Check in the browser, by writing the Saved_Key in dev tools: `{"version":1,"long":0.8}` then reload. Long game timeline diamond sits near 80 % and the weight shift beep comes late in the backswing at 30/10 and at 168/56; Short game still at 0.60; no saved value, corrupted text, or `{"version":1,"long":5}` all show the defaults (0.70 and 0.60); no console errors; app starts with the intro as before.
 
 Result: typecheck, 321 tests and the web export pass. The browser and listening check is for the reviewer (below).
 
@@ -45,7 +45,7 @@ Stop for review (audio).
 
 ## Wave 5.5: APPLY, reset, leave dialog, export
 
-- [x] 1. APPLY, reset and the saved status line. Check [MANUAL]: APPLY saves the chosen category only (check Long, then Short, in dev tools or by reload); disabled when nothing to apply; reload, then main screen plays with the value at several tempos in that category and the other category is unchanged; reset moves the slider to 0.50 (Long) or 0.60 (Short) and shows "Not applied yet" until APPLY; APPLY during playback does not restart it.
+- [x] 1. APPLY, reset and the saved status line. Check [MANUAL]: APPLY saves the chosen category only (check Long, then Short, in dev tools or by reload); disabled when nothing to apply; reload, then main screen plays with the value at several tempos in that category and the other category is unchanged; reset moves the slider to 0.70 (Long) or 0.60 (Short) and shows "Not applied yet" until APPLY; APPLY during playback does not restart it.
 - [x] 2. Leave confirmation. Check [MANUAL]: no dialog when clean; with Long changed, with Short changed, and with both, back shows the dialog; No stays with drafts intact; Yes leaves and the drafts are gone on reopening; Escape acts as No; main screen unchanged after Yes.
 - [x] 3. EXPORT and Copy. Check [MANUAL]: JSON shows both categories with the saved values and `applied` flags; an unapplied draft is not in it and a note is shown; Copy works on desktop Chrome and the pasted text parses; blocked clipboard shows the select-by-hand hint.
 

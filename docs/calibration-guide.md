@@ -26,7 +26,7 @@ The weight shift beep (the short, higher one) sits somewhere between the takeawa
 8. **Check other tempos** for the same game length. The position stays at the same relative spot at every tempo, so it should feel right at each one. If one tempo feels off, change it and press APPLY again, then re-check the others.
 9. Change to the other game length and repeat from step 3.
 
-**RESET** puts the slider back to the starting value (Long game 50 %, Short game 60 %). It does not save by itself. Press APPLY if you want to keep it.
+**RESET** puts the slider back to the starting value (Long game 70 %, Short game 60 %). It does not save by itself. Press APPLY if you want to keep it.
 
 If you try to leave with changes you have not applied, the app asks "Leave without applying?". **No** keeps you here. **Yes** throws the changes away.
 

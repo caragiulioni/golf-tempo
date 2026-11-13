@@ -8,7 +8,7 @@ Shared decisions are in `product.md` (CONFIG mode section), `tech.md` (persisten
 - **Applied_Value**: the weight shift position saved on this device for one category. Normal mode plays with it.
 - **Draft_Value**: the position currently on the slider in Config_Screen, one per category. It may differ from the Applied_Value.
 - **Unapplied**: a category whose Draft_Value differs from its Applied_Value.
-- **Default_Value**: `DEFAULT_WEIGHT_SHIFT_POSITIONS` in the engine (Long 0.50, Short 0.60).
+- **Default_Value**: `DEFAULT_WEIGHT_SHIFT_POSITIONS` in the engine (Long 0.70, Short 0.60).
 - **Saved_Key**: the one versioned storage key holding the Applied_Values.
 - **Mount_Point**: `src/app/ConfigMount.tsx`, the only file outside `src/config-mode/` that imports it.
 - **Export_Text**: the JSON the EXPORT button produces.
