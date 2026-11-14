@@ -18,12 +18,12 @@ Shared decisions are in `product.md`, `tech.md`, `timing-engine.md`. Prototype l
 2. THE Engine SHALL give every bar a length of `cycleSeconds(preset)` for all 16 presets.
 3. THE Engine SHALL place a kick at time 0.
 4. THE Engine SHALL return only events with `0 <= time < cycleSeconds(preset)`.
-5. THE Engine SHALL split the bar into 12 steps. WHERE beat 1 to beat 2 is at most `ANCHOR_MIN_BEAT2_SECONDS` for the category (Long 1.0 s, Short Infinity, so Short Game always uses the even grid), the steps SHALL be even (cycle / 12). OTHERWISE beat 2 and beat 3 SHALL lie exactly on their `ANCHOR_STEPS` (Long: 4 and 6; Short: 3 and 6), with steps even inside each of the three sections.
-6. THE Engine SHALL place kicks on steps 0, 4, 8, snares on steps 2, 6, 10, and a hat on every step, louder on steps 0, 2, 6, 10 (named tables, copied from Tour Tempo).
+5. THE Engine SHALL split the bar into 12 even steps (cycle / 12) for every preset. (Beat-anchored grids were tried and rejected by ear, November 2026; `ANCHOR_MIN_BEAT2_SECONDS` is Infinity for both categories.) In Short Game, beat 2 SHALL land exactly on step 4 and beat 3 exactly on step 6 (follows from the pause factor 1.5).
+6. THE Engine SHALL place kicks on steps 0, 4, 8, snares on steps 2, 6, 10, and a hat on every step, louder on steps 0, 2, 6, 10 (named tables, copied from Tour Tempo). EXCEPT slow Long Game (beat 1 to beat 2 over 1.0 s, 42/14 and slower), which SHALL use the sparse pattern: one kick at time 0, no snare, and one steady hat tick for the whole bar (the downswing split into the fewest even number of parts with a gap of at most `SPARSE_HAT_MAX_GAP_SECONDS`, 0.7 s), so hats land exactly on beat 1, beat 2, beat 3 and the bar end, accented on beats 1, 2 and 3, and the bar counts as 16 or 32 hats (whole measures of 8).
 7. WHERE the preset is listed in `GHOST_KICK_PRESETS` (Long 18/6, Short 14/7 and 16/8), THE Engine SHALL add ghost kicks on steps 1, 5, 9.
-8. WHERE a step is longer than `HAT_MAX_GAP_SECONDS`, THE Engine SHALL add evenly spaced extra hat ticks inside it, so no gap between hat ticks, including the wrap to the next bar, exceeds `HAT_MAX_GAP_SECONDS`. A step of exactly `HAT_MAX_GAP_SECONDS` SHALL get one tick. WHERE the grid is anchored and its steps need extra ticks, beat 2 to beat 3 SHALL be ticked as one span with the tick count closest to the gap in the rest of the bar (its gap may exceed `HAT_MAX_GAP_SECONDS` by up to 5%).
+8. WHERE a step is longer than `HAT_MAX_GAP_SECONDS` (normal pattern), THE Engine SHALL add evenly spaced extra hat ticks inside it, so no gap between hat ticks, including the wrap to the next bar, exceeds `HAT_MAX_GAP_SECONDS`. A step of exactly `HAT_MAX_GAP_SECONDS` SHALL get one tick.
 9. THE Engine SHALL return identical output for identical input.
-10. THE Engine SHALL use the same kick, snare and hat tables for Long Game and Short Game. Grid choice and anchor steps differ per category (requirement 5).
+10. THE Engine SHALL use the same kick, snare and hat tables for Long Game and Short Game (except the slow Long Game sparse pattern, requirement 6).
 
 ### R2 Loop sounds
 

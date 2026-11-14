@@ -30,7 +30,7 @@ Detection is good to a few milliseconds. The first swing in each clip is skipped
 ## Findings
 
 - Beat 1 to beat 2 matches the label (frames / 30) within a few milliseconds in every preset.
-- Beat 2 to beat 3 runs about 0.20 s longer than the label, and the extra is the same at every tempo. It is a fixed delay, not a proportion.
+- Beat 2 to beat 3 runs about 0.20 s longer than the label, and the extra is the same at every tempo. It is a fixed delay, not a proportion. (The app copied this until November 2026, then dropped it on purpose so the heard ratio is the true 3:1 and 2:1. See `.kiro/steering/timing-engine.md`.)
 - Short Game is very steady, 0.199 to 0.205 s. Long Game ranges from 0.178 to 0.212 s. The 30/10 low value is probably detection noise; its earlier measurement in `VID_20261107_135008.mp4` was 0.50 s (extra about 0.17).
 - Full swing cycle (beat 1 to the next beat 1), including the repeat pause: Long Game 24/8 is 2.5 s, 30/10 is 3.0 s, Short Game 18/9 is about 2.29 s.
 - Beat 3 in Short Game uses the same tone as beat 1. In Long Game it is a separate tone.

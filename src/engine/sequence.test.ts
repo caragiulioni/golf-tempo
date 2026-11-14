@@ -25,7 +25,7 @@ describe('buildSequence', () => {
     expect(events[0].time).toBe(0);
     expect(events[1].time).toBeCloseTo(0.7, 6); // default 0.70 of the 1.0 s beat 1 to beat 2 gap
     expect(events[2].time).toBeCloseTo(1.0, 6);
-    expect(events[3].time).toBeCloseTo(1.5333, 3);
+    expect(events[3].time).toBeCloseTo(4 / 3, 6);
   });
 
   it('uses the Short Game position for a Short Game preset', () => {

@@ -9,8 +9,8 @@ A pure TypeScript engine in `src/engine/` that turns a category, a preset and we
 ## Requirements
 
 1. **Presets as data.** All 10 Long Game and 6 Short Game presets are defined in `src/engine/`. Each stores its two frame counts. The ratio comes from the category (Long 3:1, Short 2:1), and a test fails if a preset does not match.
-2. **Three-beat times.** For any preset the engine gives beat 1, 2 and 3 in seconds from the start of the swing. Beat 1 to 2 is frames / 30. Beat 2 to 3 is frames / 30 plus a fixed delay of 0.20 s, held in one named constant. The same rule applies to the slow presets (42/14 and up).
-3. **Matches the measurements.** The beat times for the 11 Tour Tempo presets match `_references/tempo-measurements.md` within 25 ms.
+2. **Three-beat times.** For any preset the engine gives beat 1, 2 and 3 in seconds from the start of the swing. Beat 1 to 2 is frames / 30. Beat 2 to 3 is frames / 30. (Until November 2026 it had a fixed 0.20 s extra, copied from the reference app; removed by the developer, see `timing-engine.md`. The constant `BEAT3_DELAY_SECONDS` stays, set to 0.)
+3. **Matches the measurements.** Beat 1 to 2 for the 11 Tour Tempo presets matches `_references/tempo-measurements.md` within 25 ms. Beat 2 to 3 is the frame count; the reference plays it about 0.2 s longer, and a test documents that difference.
 4. **Weight shift time.** A normalized position (0 to 1) between beat 1 and beat 2 converts to seconds. The same position is the same fraction of the beat 1 to 2 gap at every tempo.
 5. **Safe range.** The position is clamped to 0.05 to 0.95. The range is a named constant.
 6. **Independent categories.** Long Game and Short Game each hold their own position. Defaults: Long 0.70, Short 0.60 (were 0.67 and 0.75 until November 2026; Long was 0.50 for a few days after that).

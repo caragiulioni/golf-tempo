@@ -15,8 +15,9 @@ These apply whenever working in `src/engine/`.
 ## Timing model
 
 - Presets are frame counts at 30 fps. 30/10 means 30 frames from beat 1 to beat 2 (1.0 s) and 10 frames from beat 2 to beat 3.
-- Measured from Tour Tempo, beat 1 to beat 2 matches the frame math exactly. Beat 2 to beat 3 runs about 0.17 to 0.2 s longer than the label implies (for example 18/9 gives 0.50 s, not 0.30 s). The three beats are correct as they are, so copy Tour Tempo's real timing. Do not "fix" it to the printed numbers.
-- Measured across all 11 Tour Tempo presets (`_references/tempo-measurements.md`): the beat 2 to beat 3 extra is a fixed 0.20 s, the same at every tempo. Use that fixed delay for every preset, including the slow Long Game ones Tour Tempo does not have. Keep it in one named constant so measured per-preset values can replace it later.
+- The beats follow the frame counts exactly: beat 2 at backFrames / 30, beat 3 a further downFrames / 30. No extra delay (`BEAT3_DELAY_SECONDS` = 0). So the ratio you hear is the true one: TOP sits at exactly 3/4 of the way to impact in Long Game (3:1) and 2/3 in Short Game (2:1), at every tempo.
+- Tour Tempo's app plays beat 3 about 0.2 s later than its numbers (measured on all 11 presets, `_references/tempo-measurements.md`). We copied that at first, then removed it (developer decision, November 2026): a fixed delay squashed the heard ratio (Short 18/9 sounded 1.2:1) and, because it does not scale with tempo, it made the slow presets sound different from the fast ones.
+- Rule of thumb: everything scales with tempo. A fixed amount of time, or a special case for some presets, makes slow and fast presets stop sounding like the same swing.
 
 ## Weight shift beat
 
@@ -35,4 +36,5 @@ These apply whenever working in `src/engine/`.
 ## Looping
 
 - Beat 1 aligns with the start of a bar in the background loop.
-- The pause between repeats must scale with tempo. A fixed pause is too short at slow tempos.
+- The pause between repeats must scale with tempo. A fixed pause is too short at slow tempos. Pause factor (times beat 1 to beat 2): 1.5 for Long and Short Game; 4/3 for slow Long Game (42/14 and slower), so the bar is a whole number of measures of 8 hi-hats.
+- Loop pattern: Tour Tempo's 12-step groove on an even grid for Long 18/6 to 30/10 and all Short Game (Short: TOP exactly on the step 4 kick, IMPACT on the step 6 snare). Slow Long Game uses a sparse pattern: one kick on beat 1 and a steady, countable hi-hat that lands on TOP and IMPACT. Details and history: `docs/background-loop-audit-notes.md`, section 9.

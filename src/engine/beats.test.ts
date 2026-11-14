@@ -14,27 +14,33 @@ const short = (backFrames: number, downFrames: number): Preset => ({
 });
 
 describe('beatTimes', () => {
-  it('30/10 gives beats at 0, 1.0 and about 1.53 s', () => {
+  it('30/10 gives beats at 0, 1.0 and 1.333 s', () => {
     const t = beatTimes(long(30, 10));
     expect(t.beat1).toBe(0);
     expect(t.beat2).toBeCloseTo(1.0, 6);
-    expect(t.beat3).toBeCloseTo(1.5333, 3);
+    expect(t.beat3).toBeCloseTo(4 / 3, 6);
   });
 
-  it('uses a fixed 0.20 s delay', () => {
-    expect(BEAT3_DELAY_SECONDS).toBe(0.2);
+  it('adds no extra delay to impact', () => {
+    expect(BEAT3_DELAY_SECONDS).toBe(0);
   });
 
-  it('applies the same delay to the slow presets', () => {
-    // 168/56: 5.6 s to beat 2, then 1.8667 s label + 0.2 s delay.
-    const t = beatTimes(long(168, 56));
-    expect(t.beat2).toBeCloseTo(5.6, 6);
-    expect(t.beat3 - t.beat2).toBeCloseTo(56 / 30 + 0.2, 6);
+  it('TOP is at exactly 3/4 of the swing in Long Game and 2/3 in Short Game, at every tempo', () => {
+    for (const p of LONG_GAME_PRESETS) {
+      const t = beatTimes(p);
+      expect(t.beat2 / t.beat3, presetLabel(p)).toBeCloseTo(3 / 4, 9);
+    }
+    for (const p of SHORT_GAME_PRESETS) {
+      const t = beatTimes(p);
+      expect(t.beat2 / t.beat3, presetLabel(p)).toBeCloseTo(2 / 3, 9);
+    }
   });
 });
 
 // Measured gaps from screen recordings of the reference software (_references/tempo-measurements.md).
 // [preset, beat 1 to 2 seconds, beat 2 to 3 seconds]
+// Beat 1 to 2 matches the frame count, and so do we. Beat 2 to 3 in the reference is about
+// 0.2 s longer than the frame count; we no longer copy that (BEAT3_DELAY_SECONDS is 0).
 const MEASURED: ReadonlyArray<[Preset, number, number]> = [
   [long(18, 6), 0.598, 0.412],
   [long(21, 7), 0.702, 0.428],
@@ -51,12 +57,14 @@ const MEASURED: ReadonlyArray<[Preset, number, number]> = [
 const TOLERANCE_SECONDS = 0.025;
 
 describe('beatTimes against reference measurements', () => {
-  it.each(MEASURED)('%o matches within 25 ms', (preset, gap12, gap23) => {
+  it.each(MEASURED)('%o: beat 1 to 2 within 25 ms; beat 2 to 3 is the frame count', (preset, gap12, gap23) => {
     const t = beatTimes(preset);
     expect(Math.abs(t.beat2 - t.beat1 - gap12), `${presetLabel(preset)} beat 1 to 2`).toBeLessThanOrEqual(
       TOLERANCE_SECONDS,
     );
-    expect(Math.abs(t.beat3 - t.beat2 - gap23), `${presetLabel(preset)} beat 2 to 3`).toBeLessThanOrEqual(
+    expect(t.beat3 - t.beat2, `${presetLabel(preset)} beat 2 to 3`).toBeCloseTo(preset.downFrames / 30, 9);
+    // Documents the difference: the reference plays impact about 0.2 s later than we do.
+    expect(Math.abs(gap23 - (t.beat3 - t.beat2) - 0.2), `${presetLabel(preset)} reference extra`).toBeLessThanOrEqual(
       TOLERANCE_SECONDS,
     );
   });

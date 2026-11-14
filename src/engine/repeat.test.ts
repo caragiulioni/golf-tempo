@@ -15,8 +15,8 @@ const short = (backFrames: number, downFrames: number): Preset => ({
 });
 
 describe('repeat pause', () => {
-  it('uses 1.5 for Long Game and 1.9 for Short Game', () => {
-    expect(REPEAT_PAUSE_FACTOR).toEqual({ long: 1.5, short: 1.9 });
+  it('uses 1.5 for Long Game and Short Game', () => {
+    expect(REPEAT_PAUSE_FACTOR).toEqual({ long: 1.5, short: 1.5 });
   });
 
   it('30/10 pauses 1.5 s', () => {
@@ -33,6 +33,15 @@ describe('repeat pause', () => {
 });
 
 describe('cycleSeconds', () => {
+  it('slow Long Game (42/14 and up): rest is 4 downswings, so the bar is exactly 8 downswings', () => {
+    for (const p of LONG_GAME_PRESETS.slice(5)) {
+      const t = beatTimes(p);
+      const downswing = t.beat3 - t.beat2;
+      expect(repeatPauseSeconds(p)).toBeCloseTo(4 * downswing, 9);
+      expect(cycleSeconds(p)).toBeCloseTo(8 * downswing, 9);
+    }
+  });
+
   it('is beat 3 plus the pause', () => {
     const preset = long(30, 10);
     expect(cycleSeconds(preset)).toBeCloseTo(beatTimes(preset).beat3 + repeatPauseSeconds(preset), 6);
@@ -55,11 +64,16 @@ describe('cycleSeconds', () => {
     [short(24, 12), 2.8],
   ];
 
-  it.each(LONG_CLIPS)('Long Game %o is within 60 ms of the clip', (preset, measured) => {
-    expect(Math.abs(cycleSeconds(preset) - measured)).toBeLessThanOrEqual(0.06);
+  // The reference plays impact about 0.2 s late (see beats.ts); we do not, and the pause is
+  // unchanged, so our Long Game cycle is the clip's minus about 0.2 s. Accepted by ear.
+  it.each(LONG_CLIPS)('Long Game %o is the clip minus 0.2 s, within 60 ms', (preset, measured) => {
+    expect(Math.abs(cycleSeconds(preset) - (measured - 0.2))).toBeLessThanOrEqual(0.06);
   });
 
-  it.each(SHORT_CLIPS)('Short Game %o is within 130 ms of the clip', (preset, measured) => {
-    expect(Math.abs(cycleSeconds(preset) - measured)).toBeLessThanOrEqual(0.13);
+  // Short Game rests less than the reference: the bar is exactly 3 x the time to TOP so the
+  // loop's kick and snare land on TOP and IMPACT. Chosen by ear, November 2026.
+  it.each(SHORT_CLIPS)('Short Game %o is exactly 3 x TOP, shorter than the clip', (preset, measured) => {
+    expect(cycleSeconds(preset)).toBeCloseTo(3 * beatTimes(preset).beat2, 9);
+    expect(cycleSeconds(preset)).toBeLessThan(measured);
   });
 });

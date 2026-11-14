@@ -18,7 +18,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 ### 1. timing-engine
 - **Scope:** Preset data for Long Game (10 presets, including the slow practice ones up to 168/56) and Short Game, three-beat sequence, weight shift beat insertion from a normalized position (same relative position at every tempo), independent per-category settings, three-beat baseline mode, automated tests. Pure TypeScript, no UI or audio.
 - **Depends on:** nothing.
-- **Blockers:** none. Beat times were measured (`_references/tempo-measurements.md`): beat 3 is a fixed 0.20 s later than the label, used for all presets including the slow ones. Short Game slow presets wait on the brother's answer (`docs/client_questions.md`, Q1) and are not part of this spec.
+- **Blockers:** none. Beat times were measured (`_references/tempo-measurements.md`). The reference plays beat 3 about 0.20 s later than its label; that was copied at first and removed in November 2026, so beat 3 now follows the label exactly (true 3:1 and 2:1, see `timing-engine.md`). Short Game slow presets wait on the brother's answer (`docs/client_questions.md`, Q1) and are not part of this spec.
 - **Spec:** DONE (`.kiro/specs/timing-engine/`)
 - **Built:** DONE
 

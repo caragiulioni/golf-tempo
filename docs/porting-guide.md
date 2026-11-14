@@ -106,7 +106,7 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
 - Web-only, must be replaced on native: nothing. A search of `src/engine/` found no browser, React or audio references.
 - Needs testing on a real device: nothing on its own. When the audio spec is built, check on both an Android device and an iOS device that the beeps really land at the times this list gives (beat 1 at 0 s, beat 2 at the first number divided by 30, and so on).
 - Decisions and reasons:
-  - Beat 3 comes 0.20 s later than the printed preset numbers imply. This was measured on all 11 Tour Tempo presets (`_references/tempo-measurements.md`), so it is copied on purpose. Do not "fix" it. The value is `BEAT3_DELAY_SECONDS` in `src/engine/beats.ts`.
+  - Beat 3 lands exactly on the printed numbers (`BEAT3_DELAY_SECONDS` = 0 in `src/engine/beats.ts`), so TOP is at 3/4 of the swing in Long Game and 2/3 in Short Game. Tour Tempo's app plays it about 0.20 s later (measured, `_references/tempo-measurements.md`); that was copied until November 2026 and then removed on purpose. Do not add it back.
   - The weight shift position is a fraction between beat 1 and beat 2 (0.05 to 0.95), so it sits in the same relative place at every tempo.
   - Run the engine tests with `npm test` from the project root.
 
@@ -190,10 +190,9 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
   - The kick is audible on the phone speaker (it drops to about 45 Hz, which small speakers barely play) and every beep stays clear over the loop.
   - On the web: Pixel 6 (Chrome 157) and iPad (Safari 16.6) scheduled the loop cleanly through many restarts, with no stalls or pauses. Speaker levels were not formally rated on either; no problems were reported and no levels were changed.
 - Decisions and reasons:
-  - Long Game 18/6 to 30/10 and all Short Game use even steps, exactly like Tour Tempo. Beat 2 and beat 3 then sit slightly off the drums (up to 0.05 s at Long 18/6; Short Game beat 2 comes 0.13 to 0.17 s before the step 4 kick), as in Tour Tempo. Accepted by ear.
-  - Long Game 42/14 and slower (not in Tour Tempo) place the steps so beat 2 is on step 4 and beat 3 on the step 6 snare. Without this, beat 3 drifted up to 0.37 s off the loop at 168/56.
-  - Placing Short Game's steps around its beats was tried and rejected by ear: the loop sped up between the top of the swing and impact, worse at slower presets.
-  - Why no grid does everything: beat 3 has a fixed 0.2 s delay, so beat 2 and beat 3 can only both sit on even steps at one tempo, which is not a preset.
+  - Current rules (November 2026, after removing the 0.2 s impact delay): every preset uses even steps. Long 18/6 to 30/10: Tour Tempo's pattern, with TOP and IMPACT slightly off the kick and snare (the same relative spot at every tempo). Short Game: rest of 1.5 x the backswing, so TOP is exactly on a kick and IMPACT exactly on a snare at every tempo. Long 42/14 and slower: a kick on beat 1 and a steady hi-hat only (no snare), which lands on TOP and IMPACT and counts as 2 or 4 measures of 8; their rest is 4/3 x the backswing.
+  - Tried and rejected by ear: pinning the drums to TOP and IMPACT (the loop sped up or the snare came too soon), and a longer rest for slow Long Game (the bar no longer counted evenly).
+  - Rule of thumb for future changes: everything must scale with tempo. A fixed amount of time, or a special case, makes slow presets stop sounding like the fast ones.
   - Full history, findings and the audit: `docs/background-loop-audit-notes.md`. Plain-language summary for the user: `docs/development-decisions.md`, section 2.
 
 ### config-mode

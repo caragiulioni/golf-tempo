@@ -4,12 +4,15 @@ import type { Preset } from './presets';
 export const FPS = 30;
 
 /**
- * The reference software plays beat 3 this much later than the printed numbers imply.
- * Measured on all 11 of its presets: always about 0.20 s, at every tempo.
- * Used for every preset, including the slow ones. See _references/tempo-measurements.md.
- * To use measured values per preset later, change beat3Time below and nothing else.
+ * Extra time added to beat 3 (impact) beyond the printed numbers. 0: impact lands exactly
+ * on the frame count, so the ratio you hear is the true one (TOP at 3/4 of the swing in
+ * Long Game, 2/3 in Short Game).
+ * History: it was 0.2 s, copied from the reference software, which plays beat 3 about
+ * 0.2 s late on all 11 of its presets (_references/tempo-measurements.md). That squashed
+ * the heard ratio (Short 18/9 sounded 1.2:1, Long 30/10 1.9:1), so it was removed
+ * (November 2026, developer decision).
  */
-export const BEAT3_DELAY_SECONDS = 0.2;
+export const BEAT3_DELAY_SECONDS = 0;
 
 export type BeatTimes = {
   /** Always 0: the start of the swing. */
