@@ -193,9 +193,10 @@ The developer saw that Short Game TOP felt early. Golf sources agree the numbers
 | **Short Game pause factor 1.9 to 1.5** | **Accepted.** Bar = 3 x TOP, so TOP is exactly on the step 4 kick and IMPACT on the step 6 snare at every tempo (the developer's 6-count: TOP on 3, IMPACT on 4). |
 
 ### 9.4 Current rules
-- Long 18/6 to 30/10: even 12-step grid, Tour Tempo's kick/snare/hat tables, pause 1.5. TOP at step 4.24 and IMPACT at 5.65 at every tempo (same relative spot). Ghost kicks at 18/6.
+- Long 18/6 to 30/10: even 12-step grid, Tour Tempo's kick/snare/hat tables, pause 1.5. TOP at step 4.24 and IMPACT at 5.65 at every tempo (same relative spot).
 - Long 42/14 to 168/56 (`isSlowLongPreset`, `usesSparsePattern`): pause 4/3; one kick at 0; one steady hat on the downswing split into 2 or 4 parts (gap at most 0.7 s): 42/14 0.23 s, 60/20 0.33 s, 84/28 0.47 s, 120/40 0.67 s, 168/56 0.47 s; 16 hats per bar except 168/56 (32); accents on beat 1, TOP, IMPACT.
-- Short Game: even 12-step grid, Tour Tempo's tables, pause 1.5. TOP exactly on the step 4 kick, IMPACT exactly on the step 6 snare. Ghost kicks at 14/7 and 16/8.
+- Short Game: even 12-step grid, Tour Tempo's tables, pause 1.5. TOP exactly on the step 4 kick, IMPACT exactly on the step 6 snare.
+- Ghost kicks: none (`GHOST_KICK_PRESETS` empty). Removed later in November 2026; the kick, kick, snare at Long 18/6 and Short 14/7, 16/8 was judged too busy for most users. Mechanism kept so they can be listed again.
 - Anchored grids are no longer used (`ANCHOR_MIN_BEAT2_SECONDS` Infinity for both); the code stays for reference.
 - Cycle lengths are shorter than Tour Tempo's clips (no late impact; Short also rests less). Accepted by ear.
 

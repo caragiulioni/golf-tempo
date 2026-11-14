@@ -35,17 +35,18 @@ export const KICK_STEPS: readonly number[] = [0, 4, 8];
 export const SNARE_STEPS: readonly number[] = [2, 6, 10];
 /** Steps whose hat tick is louder. The hat plays on every step. */
 export const HAT_ACCENT_STEPS: readonly number[] = [0, 2, 6, 10];
-/** Quiet extra kicks, heard only at the fastest tempo in Tour Tempo (18/6). */
+/** Quiet extra kicks right after each main kick, heard only at the fastest tempo in Tour Tempo (18/6). Currently off (see GHOST_KICK_PRESETS). */
 export const GHOST_KICK_STEPS: readonly number[] = [1, 5, 9];
 /**
- * Presets that get ghost kicks, listed by name. Tour Tempo has them at 18/6 only; the two
- * fastest Short Game presets get them too because their steps are as short. Listed
- * explicitly so tuning the repeat pause can never switch them on or off by accident.
- * Empty both lists to remove them.
+ * Presets that get ghost kicks, listed by name. Empty: removed by the developer (November
+ * 2026). The kick, kick, snare they made at Long 18/6 and Short 14/7, 16/8 was judged too
+ * busy for most users, so those presets play the same kick, snare pattern as the rest.
+ * To bring them back, list the presets again (Tour Tempo has them at 18/6), for example
+ * long: ['18/6'], short: ['14/7', '16/8'].
  */
 export const GHOST_KICK_PRESETS: Readonly<Record<Category, readonly string[]>> = {
-  long: ['18/6'],
-  short: ['14/7', '16/8'],
+  long: [],
+  short: [],
 };
 
 /** Largest allowed gap between hat ticks, in seconds. Longer steps get extra soft ticks. Tune by ear. */

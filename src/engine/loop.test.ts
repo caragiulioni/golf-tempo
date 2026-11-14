@@ -139,27 +139,34 @@ describe('ghost kicks', () => {
     return kicks.length - KICK_STEPS.length;
   };
 
-  it('play exactly on the listed presets (Long 18/6, Short 14/7 and 16/8)', () => {
-    expect(GHOST_KICK_PRESETS).toEqual({ long: ['18/6'], short: ['14/7', '16/8'] });
+  it('are off by default: no preset is listed (removed November 2026)', () => {
+    expect(GHOST_KICK_PRESETS).toEqual({ long: [], short: [] });
+  });
+
+  it('play exactly on the listed presets (none by default)', () => {
     for (const p of ALL.filter((x) => !usesSparsePattern(x))) {
       const listed = GHOST_KICK_PRESETS[p.category].includes(presetLabel(p));
       expect(ghostCount(p), `${p.category} ${presetLabel(p)}`).toBe(listed ? GHOST_KICK_STEPS.length : 0);
     }
   });
 
-  it('play at 18/6, where Tour Tempo has them', () => {
-    expect(ghostCount(find(18, 6))).toBe(GHOST_KICK_STEPS.length);
-    const times = stepTimes(find(18, 6));
-    const kicks = loopEvents(find(18, 6)).filter((e) => e.voice === 'kick');
-    expect(kicks.map((k) => stepOf(times, k.time))).toEqual([0, 1, 4, 5, 8, 9]);
+  it('18/6, 14/7 and 16/8 play plain kick, snare (kicks only on steps 0, 4, 8)', () => {
+    for (const p of [find(18, 6), find(14, 7), find(16, 8)]) {
+      const times = stepTimes(p);
+      const kicks = loopEvents(p).filter((e) => e.voice === 'kick');
+      expect(kicks.map((k) => stepOf(times, k.time)), presetLabel(p)).toEqual([...KICK_STEPS]);
+    }
   });
 
-  it('are absent from 21/7 to 30/10, as in Tour Tempo (slower presets use the sparse pattern)', () => {
-    for (const p of [find(21, 7), find(27, 9), find(30, 10)]) expect(ghostCount(p)).toBe(0);
+  it('when forced on, land on steps 1, 5, 9 (the Tour Tempo 18/6 pattern)', () => {
+    const times = stepTimes(find(18, 6));
+    const kicks = loopEvents(find(18, 6), { ghostKicks: true }).filter((e) => e.voice === 'kick');
+    expect(kicks.map((k) => stepOf(times, k.time))).toEqual([0, 1, 4, 5, 8, 9]);
   });
 
   it('can be forced on or off', () => {
     expect(ghostCount(find(30, 10), true)).toBe(GHOST_KICK_STEPS.length);
+    expect(ghostCount(find(18, 6), true)).toBe(GHOST_KICK_STEPS.length);
     expect(ghostCount(find(18, 6), false)).toBe(0);
   });
 });
