@@ -32,7 +32,11 @@ git switch -c v2/03-preset-groups     # v<n>/<ID number>-<short-name>
 ```
 Commit as often as needed on this branch. `git push -u origin v2/03-preset-groups` gives it a Netlify preview link (if branch deploys are on for all branches) for testing on a phone.
 
-**Finish a change (squash-merge)**
+**Review before merge**
+
+Build and check the change on its change branch, then stop. The developer reviews it there (locally or on the branch preview). Do not squash-merge into `dev-V<n>`, commit on `dev-V<n>`, or push `dev-V<n>` until the developer says the change is approved. Never start the next change before then.
+
+**Finish a change (squash-merge)** (only after approval)
 ```
 git switch dev-V2
 git pull
@@ -89,4 +93,4 @@ A normal merge, not a squash, so every `V2-xx` commit stays on `main` and can st
 - **Keep changes independent** where possible, so any one can be reverted alone. When one builds on another, record it in "Depends on".
 - **CONFIG stays and keeps working** in every version, so calibration is never interrupted.
 - **Check every change against the guiding principles** in `product.md` before building it.
-- **Stop for review** after each change lands on `dev-V<n>`.
+- **Stop for review before each change lands on `dev-V<n>`.** The change is built and checked on its change branch. It is squash-merged only after the developer approves it.
