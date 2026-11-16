@@ -30,7 +30,8 @@ Test in desktop browsers plus iOS Safari and Android Chrome on real phones. Also
 | Mac laptop (Apple silicon) | Chrome 156 | Pass | Repeat, stop, restart, background tab and 2 minute drift check all fine. Stop fades out (no click; a very minor blip when hammering Stop, accepted). Stall guard test button pauses as expected, no false pause in a 2 minute run. Stop when hidden: switching tabs pauses at once, Play resumes from beat 1. Output delay 56 ms with the bigger buffer. |
 | Pixel 6 | Chrome 157 (Android version hidden by Chrome's reduced user agent) | Pass with bigger audio buffer | Wake lock kept the screen on. Locking the phone: with the small default buffer, crunches in the middle of a lock (5 across three locks of 15 to 26 s); with the bigger buffer (`latencyHint: 'playback'`) none across three locks. Cost: output delay 280 ms vs 16 ms, so visuals must be shifted. Sound kept playing through every lock. Long lock (about 6 minutes, bigger buffer): clean for roughly the first 3.5 minutes, then crunches that grew more frequent and larger, steady degradation after 5 minutes, and silence at about 6 minutes. Sound came back normally on unlock. Audio clock ended 1.09 s behind the device clock (it stays within about 50 ms in short runs); the player logged no late swings, so the page kept running and the phone slowed or stalled the audio output. Same test with `?keepalive=1` (silent audio element): first pop at about 4:15 after pressing Play, large crunches from about 4:40, audio stopped by itself at about 5:06, missing beats and crunchy again just before unlock at 5:36; works fully after unlock; audio clock 0.66 s behind. No better than without it, so the silent-audio trick does not help on this phone. Both runs fail at a similar point (3.5 to 4 minutes in). One run each, one phone. With the stall guard: run locked from the start, crunches from 4:25 after Play, sound gone at 5:16, guard paused at 5:28. Run with the screen on first (locked at 3:06 after Play, plus a short lock at 0:38 to 1:31): crunches from 4:31 after Play (only 1:25 after the lock), sound gone at about 5:40, guard paused at 5:46. So the trouble lines up with time since Play, not time since locking. The guard fires after the sound has died, not at the first crunch. Screen on, never locked, 7 min 27 s: no crunches or blips, wake lock held throughout, audio clock 12 ms off at the end (this run reused an audio context that was already 10 minutes old, so the age of the audio context is not the trigger). Conclusion for the web build on this phone: steady with the screen on; a locked phone degrades about 4.5 minutes after Play and the stall guard then pauses. Stop when hidden (current behavior): locking pauses at once, about a quarter second of already-queued sound trails (output delay about 256 ms), unlock shows paused, Play resumes from beat 1. Pass. Screen on, 30 minutes 11 seconds (opened in the Chrome app, plugged in): 598 swings, no pauses, wake lock held throughout, nothing odd heard. The audio clock gained about 35 ms on the device clock over the 30 minutes (normal drift between two chips, about 20 parts per million); this does not affect beat spacing, but it led to the stall guard comparing clocks over a rolling 10 s window instead of since Play. |
 | iPad (model not recorded) | Safari 16.6 (iPadOS 16.6; reports itself as a Mac, which is normal for iPad Safari). Chrome also tried earlier, version not recorded | Pass (stops on lock) | Clock drift 0.3 to 4.2 ms in an earlier run, closest swing 97 ms ahead. Wake lock works (held while playing). On lock, Safari reports the audio as 'interrupted' first, so the player pauses with reason 'system'; Play afterwards resumes the audio and starts from beat 1 (checked twice). Safari does not report output delay (`outputLatency`), so the visuals need a fallback. |
-| Brother's Android | | Pending | Tests the real UI after spec 3. If he reports a problem, he opens the Audio lab from the menu and sends a Copy log. Not yet tested. |
+| Brother's Android | Not recorded | Pass (real use) | Used the app over a weekend (November 2026) with no problems reported. Real-world use, not a structured check: no log, no versions. |
+| Brother's iPhone | Not recorded | Pass (real use) | Same weekend, same result. First iPhone use recorded. Silent switch and lock behavior not specifically checked. |
 
 Caveat: some Pixel and iPad runs may have been opened from the Gmail app, which loads the page inside Gmail (an in-app browser tab) instead of the Chrome or Safari app. The logs cannot tell the two apart. This only matters for the locked-phone results; screen-on results are not affected, and the app now stops on lock either way. Later runs are opened in the browser app itself. One check in an in-app tab is still worth doing, since real users will open links from email and texts.
 
@@ -97,6 +98,27 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
 - Fallback values: iOS 3 ms (measured on iPad Safari, every logged delay was 3 ms), Android 280 ms (from the Pixel 6 log: 24, 272, 280 ms), desktop 50 ms (still a placeholder; Mac Chrome reported 56 ms). The iOS constant was 100 ms before the iPad measurement.
 - To tighten later: open the Audio lab on the iPad and on the Pixel, play a few presets, copy the log and read the `Output delay` lines.
 - Not claimed: nothing here was checked on native (Expo) builds.
+
+## Real-world use versus structured checks
+
+Some results in this guide come from people using the app, not from a structured check. Both count, but they prove different things.
+
+- **Structured check:** a list of things to look at, run on a named device, with the browser or OS version and the result written down. Example: the Mac, Pixel 6 and iPad rows in "Web (current build)".
+- **Real-world use:** someone used the app for a while and reported no problems. It shows the app works day to day. It does not show that any specific behavior was checked.
+
+Real-world use so far (web build, November 2026): the brother used the app over a weekend on his iPhone and Android, and is calibrating with it on his phones. Long sessions, no problems reported, UI judged okay. This closed the device test in audio-playback (task 5) and the phone check in config-mode (Wave 5.6, task 2) as good enough for now.
+
+**What real-world use did not cover.** Treat these as untested on those phones until a structured check is done:
+- Device models, OS versions and browser versions (none recorded).
+- The iPhone silent switch: whether sound plays with it on, and whether the hint shows.
+- Locking the phone while playing: audio should stop, and the app should pause.
+- Opening the app from an in-app browser such as Gmail's.
+
+Confirmed working by the developer (November 2026): CONFIG slider by touch, saved value after reload, Export and Copy, and playback restart on slider release. Device and browser versions were not recorded.
+
+Not needed: Audio lab logs. The Audio lab is the developer's own test tool, and its logs are only collected if a problem needs investigating.
+
+**For the native port:** none of this carries over. The native app has a different audio layer, so every audio check runs again on at least one Android device and one iOS device (see "Audio testing requirement"). Use this list as the starting checklist, and record results in the "Native (after the port)" table.
 
 ## Entries
 
@@ -224,13 +246,14 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
   - EXPORT sends saved values only, never slider positions that were not applied. `applied: false` means the starting value was never chosen. APPLY stays available on a category that was never applied, so "the starting value is right" can be saved as a choice.
   - Safari on iPhone and iPad can delete a site's saved data after seven days of Safari use without touching the site (WebKit's tracking prevention; see https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/). Web apps added to the Home Screen are exempt. This is why the guide tells the brother to export as soon as he is happy. It does not apply to a native app's storage.
   - Removing CONFIG (spec 6): delete `src/config-mode/` and `src/app/ConfigMount.tsx`, remove the Config menu item and the config screen state in `src/app/App.tsx` and `src/app/MainScreen.tsx`, replace `useAppliedSettings()` in `App.tsx` with the hard-coded values, and delete the saved key (spec 6 adds `removeItem` to `src/storage/`). The shared Slider, Button, ConfirmDialog and Overlay can stay.
-  - Phone check results (Wave 5.6, task 2): see the table below, filled in when done.
+  - Phone check results (Wave 5.6, task 2): see the table below. Closed as good enough (November 2026): the structured per-device check was not done. The brother is calibrating with the prototype on his own phones, and it runs for long sessions with no problems reported. The "Not recorded" cells stay as they are, so nobody reads them as tested.
 
 | Device | Browser | Slider by touch | Saved value after reload | Export and Copy | Restart on release | Notes |
 |---|---|---|---|---|---|---|
 | Mac | Chrome 157 | Not recorded | Not recorded | Export text produced with both categories `applied: true` (pasted in review, 2026-11-13). Whether Copy was used was not recorded. | Not recorded | Config screen and How to reviewed in the browser by the developer, no problems reported. |
 | Pixel 6 | Chrome 157 | Not recorded | Not recorded | Not recorded | Not recorded | |
 | iPad | Safari 16.6 | Not recorded | Not recorded | Not recorded | Not recorded | |
+| Brother's phones (iPhone, Android) | Not recorded | Works | Works | Works | Works | Confirmed by the developer (November 2026). Calibrating with the prototype, long sessions with no problems, UI judged okay. Browser versions not recorded. |
 | Developer's device for the slider "good enough" check (Wave 5.3) | Not recorded | Slider tried and judged good enough, with the − and + buttons as a fallback | | | | Device and browser were not written down. |
 
 ## Final guide checklist (written after the last spec)
@@ -239,6 +262,6 @@ Date: 2026-11-13. Build: Netlify draft https://6af713c6e4722b88faacdaff--swing-t
 - [ ] Prerequisites and tools to install.
 - [ ] Step-by-step: run on a simulator, run on a real device, build for the stores.
 - [ ] List of web-only parts and their native replacements.
-- [ ] Known risks and untested areas.
+- [ ] Known risks and untested areas, including the "What real-world use did not cover" list in "Real-world use versus structured checks".
 - [ ] Native icon and splash files: Android adaptive icon (foreground, background, monochrome) and a splash image, made by Mike. What is needed: `docs/design-brief.md`, section 12, "Icon files still needed". Then point `app.json` at them (it still uses the Expo template placeholders in `assets/`).
 - [ ] How to open the hidden Audio lab (Diagnostics page) and use it as the first test on a phone: play, lock the phone, tap Copy log, send the log.
