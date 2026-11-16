@@ -81,6 +81,7 @@ A normal merge, not a squash, so every `V2-xx` commit stays on `main` and can st
 ## Change rules
 
 - **The timing engine does not change.** No edits in `src/engine/`, except preset data in `src/engine/presets.ts` (names, descriptions, groups). Existing engine tests must pass unchanged. Any other engine change: stop and ask.
+  - **Approved exception (developer, November 2026): Practice Drill timing** (`docs/ideas.md`, idea 2, "Drill timing"). Drills only: the drill bar (swing, recovery measure, countdown), new countdown events, the drill loop pattern, and removing 120/40 and 168/56. It lands as its own V2 change with its own change-log entry. Engine tests for Full Swings and Short Game must pass unchanged; tests for the drills and the two removed presets change with it.
 - **Workflow rules still apply** (`workflow.md`): the Reuse check before any UI or style, theme tokens only, one concern per change. If a change needs "and" to describe it, it is two changes.
 - **Keep changes independent** where possible, so any one can be reverted alone. When one builds on another, record it in "Depends on".
 - **CONFIG stays and keeps working** in every version, so calibration is never interrupted.
