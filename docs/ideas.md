@@ -33,38 +33,37 @@ Status: recorded here only. Whether to also add them to `.kiro/steering/product.
 
 | Frame count | Label | Archetype | Good for |
 |---|---|---|---|
-| 18/6 | Aggressive | The Ultra-Compact Swing | High-swing-speed players who have a very short, rapid backswing. |
-| 21/7 | Brisk | The Modern Athletic Swing | Fast-tempo players who rely on explosive rotation. |
-| 24/8 | Standard | The Balanced Tour Swing | The traditional benchmark for a rhythmic, well-timed full swing. |
-| 27/9 | Smooth | The Rhythmic Classic Swing | Golfers who prefer a sweeping, elegant, and perfectly paced motion. |
-| 30/10 | Deliberate | The Tempo & Rhythm Drill | Great for full swings with a very lazy, calm pace, or for long-iron control. |
-| 42/14 | Form Focus | The Structural Baseline | Ideal for slow-motion breakdown of your takeaways and shoulder turns. |
+| 18/6 | Aggressive | The Ultra-Compact Swing | Short, explosive backswings with rapid transitions and powerful rotational speed. |
+| 21/7 | Brisk | The Modern Athletic Swing | Dynamic, athletic swings with quick transitions and assertive acceleration. |
+| 24/8 | Standard | The Balanced Tour Swing | Well-sequenced swings with a full backswing, smooth transition, and balanced power. |
+| 27/9 | Smooth | The Rhythmic Classic Swing | Flowing, full-bodied swings with relaxed takeaways and effortless acceleration. |
+| 30/10 | Deliberate | The Measured Swing | Patient backswings, controlled transitions, and gradual acceleration through impact. |
+| 42/14 | Unhurried | The Deliberate Tour Swing | Exceptionally composed swings with extended backswings and measured, fluid transitions. |
 | 60/20 | Slow | The Sequence Drill | Feeling each move happen in order: takeaway, weight shift, top, impact. |
 | 84/28 | Super Slow | The Component Drill | Freezing your position at the top and checking each part of the swing. |
 | 120/40 | Ultra Slow | The Weight Shift Drill | Feeling the lateral weight transfer start in the hips before the club reaches the top. |
 | 168/56 | Slow Motion | The Full Breakdown | The slowest practice swing, about 7.5 seconds, to rehearse every position. |
 
-The 42/14 and 84/28 rows use the original "Form Focus" and "Super Slow" text, moved onto the app's presets. The 60/20, 120/40 and 168/56 rows are new drafts. All slow presets are for practice swings only, as decided for the slow presets.
+All slow presets are for practice swings only, as decided for the slow presets.
 
 **Button layout note:** longer labels on the buttons will mean a different button layout (for example fewer columns, or taller buttons with the name above the numbers). That's fine, and expected. The grid is redesigned when this idea is built. Idea 2 (grouping the presets) changes the grid too, so design the two together.
 
-**Draft table (Short Game), from Mike:**
+**Draft table (Short Game), from Mike (22/11 and 24/12 are Kiro's draft suggestions, kept for now):**
 
-| Frame count | Label | Shot type archetype | Best used for |
+| Frame count | Label | Archetype | Best used for |
 |---|---|---|---|
-| 14/7 | Brisk / Crisp | The Short Game Standard | Crisp greenside chips, pitch shots, and aggressive bunker blasts. |
-| 16/8 | Firm / Confident | The Speed-Control Putt | Standard putting strokes and mid-distance lag putts. |
-| 18/9 | Smooth / Flowing | The Rhythmic Stroke | Long distance putts or players who like a soft, pendulum putting feel. |
-| 20/10 | Deliberate | The Heavy Putter Pace | Players using heavily weighted putters, or a slow-motion chipping drill. |
-| 22/11 | Slow Mechanical | The Takeaway Drill | Practicing a perfectly straight back-and-through putting path. |
-| 24/12 | Super Slow-Mo | The Yips Buster | For players fighting the "yips": forces a completely smooth, un-rushed stroke. |
+| 14/7 | Brisk / Crisp | The Short Game Standard | Decisive strokes with crisp contact for chips, pitches, and bunker shots. |
+| 16/8 | Firm / Confident | The Speed-Control Putt | Balanced, controlled strokes for consistent putting and distance control. |
+| 18/9 | Smooth / Flowing | The Rhythmic Stroke | Soft, pendulum-like strokes for longer putts and delicate distance control. |
+| 20/10 | Deliberate | The Heavy Putter Pace | Heavily weighted putters and players favouring a slow, controlled stroke. Also suited to deliberate chipping practice. |
+| 22/11 | Patient | The Patient Stroke | Slower, softer strokes for long lag putts and delicate chips where feel matters more than speed. |
+| 24/12 | Silky | The Slow Pendulum | The slowest Short Game tempo: relaxed, unhurried strokes to feel the pendulum motion and develop soft touch around the green. |
 
 Short Game notes:
-- **Putting is new to the app.** Until now Short Game meant chips and pitches. Mike's table adds putting (16/8 to 24/12). Question for Mike: does the weight shift beat make sense for a putt? If not, putting is a good fit for "Three beats only" (idea 3), or the description could say so.
 - **Pick one label each.** "Brisk / Crisp", "Firm / Confident" and "Smooth / Flowing" offer two choices; the button needs one.
-- **Repeated names.** "Brisk" and "Deliberate" are also Long Game names (21/7 and 30/10), and "Super Slow-Mo" is close to Long Game's "Super Slow". The category is always shown, so repeats are allowed, but unique names teach better.
-- **"The Yips Buster" is a promise.** The app can't guarantee it fixes the yips. Softer: "The Smooth Stroke Drill", with the description kept.
+- **Repeated names.** "Brisk", "Smooth" and "Deliberate" are also Long Game names (21/7, 27/9 and 30/10). The category is always shown, so repeats are allowed, but unique names teach better.
 - **One section, no groups.** Short Game stays a single group in Available sessions (see idea 2). Mike's descriptions do fall into strokes (14/7 to 18/9) and drills (20/10 to 24/12), which would match the two rows of three, so splitting stays an option if he wants it later.
+- **22/11 and 24/12 are drafts.** Mike's table named 14/7 to 20/10. "Patient" and "Silky" (with their archetypes and descriptions) were suggested for the last two so all six presets have a name. Keep for now, Mike should check them, and "Easy" or "Feather" are alternatives to "Silky". 24/12 is the app's default Short Game preset, so its name is the first one a new user sees.
 
 **Things to resolve before it's built:**
 
@@ -77,7 +76,7 @@ Short Game notes:
 
 ---
 
-## 2. Split the presets into Full Swings and Drills
+## 2. Split the presets into Full Swings and Practice Drills
 
 **Status:** Idea. **From:** the developer. **Related to:** idea 1 (both make the presets easier to understand). Kept separate because it can be built without the names.
 
@@ -156,7 +155,7 @@ Option 1 is simpler and keeps everything one tap away. Option 2 makes more sense
 
 - **Pick the wording.** The long version is complete but long on a phone. The short version leaves out the middle beeps, which the timeline labels already name.
 - **Follows the Beats choice (idea 3).** The line changes with "With weight shift" and "Three beats only". With Beats "Off", it describes following the loop instead, or is hidden.
-- **Putting.** If Mike confirms Short Game includes putts (idea 1), "hit the ball" still works, but "backswing" may read oddly for a putt. "Start back" covers both.
+- **Putting.** Mike's Short Game table (idea 1) includes putts, so "hit the ball" still works, but "backswing" may read oddly for a putt. "Start back" covers both.
 - **Placement and size.** Small enough not to compete with the big tempo numbers, readable outdoors. Likely near the timeline, since the line explains it.
 - **Dismissible or always on?** Always on is simplest. If it starts to feel like clutter for regular users, it could hide after the first few sessions.
 
@@ -195,7 +194,7 @@ Generating the figures from scratch with a design tool was considered and ruled 
 **Things to resolve before it's built:**
 
 - **Rights to the video.** Tracing a frame from someone else's footage can still raise copyright questions (the video) and likeness questions (the golfer), even as a silhouette. Safer sources: stock footage with a license that allows use in an app, or Mike's own swing filmed to the guide in step 1. Check the source before tracing.
-- **Short Game needs its own set.** A chip or putt looks nothing like a full swing, so it needs a second set of four. Putting may not have a weight shift frame (see the putting question in idea 1).
+- **Short Game needs its own set.** A chip or putt looks nothing like a full swing, so it needs a second set of four. Putting may not have a weight shift frame, since Mike's Short Game table (idea 1) includes putts.
 - **Follows the Beats choice (idea 3, decided).** With "Three beats only", the weight shift silhouette is removed from the sequence, so the figure shows takeaway, top, impact. The scale drops its weight shift marker at the same time.
 - **Highlight areas.** Mike decides what each frame highlights, since he knows what matters in each position.
 - **File format.** One SVG per frame, all with the same size and framing, the silhouette and the highlight as separate shapes so their colors come from the theme in light and dark mode.
@@ -218,7 +217,31 @@ Generating the figures from scratch with a design tool was considered and ruled 
 
 ---
 
-## 7. Mike's ideas
+## 7. Explain the tempo ratios
+
+**Status:** Idea. **From:** the developer. **Related to:** ideas 1 and 4 (all three explain what the app is telling you).
+
+**The idea.** Say, in plain words, what the two tempo ratios are and why they differ. The wording the developer wants kept:
+
+- **3:1 Tempo (Full Swing):** A slow, controlled backswing followed by a fast, explosive downswing.
+- **2:1 Tempo (Short Game):** A smooth, pendulum-like stroke with a shorter follow-through, ideal for putting and chipping.
+
+**Why it matters.** The first principle at the top of this file says someone should understand the app on first open. The numbers "30/10" and "3 : 1" mean nothing to a newcomer until they know the backswing takes three times as long as the downswing. These two lines explain the ratio in terms of how the swing feels.
+
+**Where it could go (not decided, the developer is thinking about it).** Candidates:
+- Next to the ratio pill in the Current session card ("Long game · 3 : 1"), as a short line that changes with the game length.
+- On the "How to" page in the header menu (idea 5), with the silhouettes.
+- As a short line under the game length control (Long game / Short game).
+- With the preset names and descriptions from idea 1, as the intro to each table.
+
+**Things to resolve before it's built:**
+- **Where it shows** (see above), and whether it is always on or can be dismissed.
+- **Wording check.** "Fast, explosive downswing" and "shorter follow-through" are golf claims, so Mike should read them once.
+- **Fit on small phones.** One line each, so it should be short enough to read at a glance.
+
+---
+
+## 8. Mike's ideas
 
 **Status:** Waiting for his list.
 

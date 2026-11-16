@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
 import { fontFamily, fonts, introColors, spacing, typeSizes } from '../theme';
-import { BrandName, LogoMark } from '../ui/components';
+import { BrandEmblem, BrandName } from '../ui/components';
 import { TAGLINE } from '../ui/brand';
 import { useLayout } from '../ui/hooks/useLayout';
 
 export const INTRO_FADE_MS = 200;
-const INTRO_LOGO_SIZE = 96;
+const INTRO_LOGO_SIZE = 128;
 
 type Props = {
   /** Tap on the screen. App decides what it means (R9.5, R9.6). */
@@ -46,7 +46,7 @@ export function IntroScreen({ onTap, leaving, onFadeEnd, reduceMotion }: Props) 
       pointerEvents={leaving ? 'none' : 'auto'}
     >
       <Pressable accessible={false} onPress={onTap} style={styles.fill}>
-        <LogoMark mode={scheme === 'light' ? 'light' : 'dark'} size={INTRO_LOGO_SIZE} />
+        <BrandEmblem mode={scheme === 'light' ? 'light' : 'dark'} size={INTRO_LOGO_SIZE} />
         <BrandName
           textColor={colors.text}
           accentColor={colors.accent}

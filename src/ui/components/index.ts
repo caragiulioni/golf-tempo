@@ -24,3 +24,4 @@ export { StatusMessage } from './StatusMessage';
 export { Switch } from './Switch';
 export { LogoMark, Wordmark } from './Wordmark';
 export { BrandName } from './BrandName';
+export { BrandEmblem } from './BrandEmblem';
