@@ -14,8 +14,8 @@ const defaults = defaultWeightShiftSettings();
 const geo = (p: Preset) => timelineGeometry(p, defaults[p.category])!;
 
 describe('timelineGeometry', () => {
-  it('covers all 16 presets', () => {
-    expect(ALL).toHaveLength(16);
+  it('covers all 14 presets', () => {
+    expect(ALL).toHaveLength(14);
   });
 
   it.each(ALL.map((p) => [`${p.category} ${p.backFrames}/${p.downFrames}`, p] as const))(
@@ -54,7 +54,7 @@ describe('timelineGeometry', () => {
 
   it('changes with the preset', () => {
     expect(geo(LONG_GAME_PRESETS[0])).not.toEqual(geo(LONG_GAME_PRESETS[1]));
-    expect(geo(LONG_GAME_PRESETS[0]).total).not.toBe(geo(LONG_GAME_PRESETS[9]).total);
+    expect(geo(LONG_GAME_PRESETS[0]).total).not.toBe(geo(LONG_GAME_PRESETS[LONG_GAME_PRESETS.length - 1]).total);
   });
 
   it('returns null when the engine gives no beat times', () => {

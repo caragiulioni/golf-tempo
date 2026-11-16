@@ -5,14 +5,21 @@ import {
   SHORT_GAME_PRESETS,
   matchesRatio,
   presetLabel,
+  presetsInGroup,
 } from './presets';
 
 describe('preset lists', () => {
-  it('lists the 10 Long Game presets in order', () => {
+  it('lists the 8 Long Game presets in order', () => {
     expect(LONG_GAME_PRESETS.map(presetLabel)).toEqual([
       '18/6', '21/7', '24/8', '27/9', '30/10',
-      '42/14', '60/20', '84/28', '120/40', '168/56',
+      '42/14', '60/20', '84/28',
     ]);
+  });
+
+  it('no longer has 120/40 or 168/56 (removed in V2-04)', () => {
+    const labels = [...PRESETS.long, ...PRESETS.short].map(presetLabel);
+    expect(labels).not.toContain('120/40');
+    expect(labels).not.toContain('168/56');
   });
 
   it('lists the 6 Short Game presets in order', () => {
@@ -27,6 +34,36 @@ describe('preset lists', () => {
         expect(preset.category).toBe(category);
       }
     }
+  });
+});
+
+describe('preset groups', () => {
+  it('Gameplay has the 5 real swing tempos, in order', () => {
+    expect(presetsInGroup('long', 'gameplay').map(presetLabel)).toEqual([
+      '18/6', '21/7', '24/8', '27/9', '30/10',
+    ]);
+  });
+
+  it('Practice Drills has the 3 slow tempos, in order', () => {
+    expect(presetsInGroup('long', 'drills').map(presetLabel)).toEqual(['42/14', '60/20', '84/28']);
+  });
+
+  it('every Long Game preset is in exactly one group, Gameplay first', () => {
+    for (const preset of LONG_GAME_PRESETS) {
+      expect(['gameplay', 'drills'], presetLabel(preset)).toContain(preset.group);
+    }
+    expect([...presetsInGroup('long', 'gameplay'), ...presetsInGroup('long', 'drills')]).toEqual(LONG_GAME_PRESETS);
+  });
+
+  it('Short Game has no groups', () => {
+    for (const preset of SHORT_GAME_PRESETS) expect(preset.group, presetLabel(preset)).toBeUndefined();
+    expect(presetsInGroup('short', 'gameplay')).toEqual([]);
+    expect(presetsInGroup('short', 'drills')).toEqual([]);
+  });
+
+  it('returns the same preset objects as PRESETS, so the UI can compare them directly', () => {
+    for (const preset of presetsInGroup('long', 'drills')) expect(PRESETS.long).toContain(preset);
+    expect(presetsInGroup('long', 'gameplay')[2]).toBe(PRESETS.long[2]);
   });
 });
 

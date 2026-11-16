@@ -30,7 +30,7 @@ These apply whenever working in `src/engine/`.
 
 ## Presets
 
-- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, 42/14, 60/20, 84/28, 120/40, 168/56 (all 3:1).
+- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, 42/14, 60/20, 84/28 (all 3:1). Groups (V2-04): `gameplay` for 18/6 to 30/10, `drills` for 42/14, 60/20, 84/28 (`PresetGroup`, `presetsInGroup` in `src/engine/presets.ts`). 120/40 and 168/56 were removed in V2.
 - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12 (2:1). Slower ones are pending.
 
 ## Looping

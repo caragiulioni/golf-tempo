@@ -33,8 +33,8 @@ const stepOf = (times: number[], time: number) => times.findIndex((t) => Math.ab
 const hatTimes = (events: ReturnType<typeof loopEvents>) => events.filter((e) => e.voice === 'hat').map((e) => e.time);
 
 describe('loopEvents, all presets', () => {
-  it('covers all 16 presets', () => {
-    expect(ALL).toHaveLength(16);
+  it('covers all 14 presets', () => {
+    expect(ALL).toHaveLength(14);
   });
 
   for (const p of ALL) {
@@ -185,23 +185,25 @@ describe('loopEvents, named examples', () => {
     for (let i = 1; i < times.length; i++) expect(times[i] - times[i - 1]).toBeCloseTo(first, 9);
   });
 
-  it('168/56: kick on beat 1 only, hats every quarter downswing (about 0.47 s)', () => {
-    const p = find(168, 56);
+  it('84/28 (slowest drill): kick on beat 1 only, hats every half downswing (about 0.47 s)', () => {
+    const p = find(84, 28);
     const { beat2, beat3 } = beatTimes(p);
-    const hats = hatTimes(loopEvents(p));
-    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 4, 9);
+    const events = loopEvents(p);
+    const hats = hatTimes(events);
+    expect(events.filter((e) => e.voice === 'kick').map((e) => e.time)).toEqual([0]);
+    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 2, 9);
     expect(hats[1] - hats[0]).toBeCloseTo(0.467, 3);
   });
 
   it('the hat gap option overrides the constant', () => {
-    const p = find(168, 56);
+    const p = find(84, 28);
     const { beat2, beat3 } = beatTimes(p);
-    const hats = hatTimes(loopEvents(p, { hatMaxGapSeconds: 100 }));
-    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 2, 9);
+    const hats = hatTimes(loopEvents(p, { hatMaxGapSeconds: 0.3 }));
+    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 4, 9);
   });
 
   it('slow Long Game: the bar counts as whole measures of 8 hats, IMPACT on the first count of a measure', () => {
-    const expected: Record<string, number> = { '42/14': 16, '60/20': 16, '84/28': 16, '120/40': 16, '168/56': 32 };
+    const expected: Record<string, number> = { '42/14': 16, '60/20': 16, '84/28': 16 };
     for (const p of LONG_GAME_PRESETS.filter((x) => usesSparsePattern(x))) {
       const hats = hatTimes(loopEvents(p));
       expect(hats.length, presetLabel(p)).toBe(expected[presetLabel(p)]);

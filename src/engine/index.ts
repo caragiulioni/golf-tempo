@@ -26,8 +26,10 @@ export {
   SHORT_GAME_PRESETS,
   matchesRatio,
   presetLabel,
+  presetsInGroup,
   type Category,
   type Preset,
+  type PresetGroup,
 } from './presets';
 export {
   REPEAT_PAUSE_FACTOR,

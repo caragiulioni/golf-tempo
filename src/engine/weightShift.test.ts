@@ -21,7 +21,7 @@ describe('weightShiftTime', () => {
   });
 
   it('keeps the same fraction of the beat 1 to 2 gap at every tempo', () => {
-    for (const preset of [long(18, 6), long(30, 10), long(168, 56)]) {
+    for (const preset of [long(18, 6), long(30, 10), long(84, 28)]) {
       const t = beatTimes(preset);
       expect(weightShiftTime(preset, 0.67) / (t.beat2 - t.beat1)).toBeCloseTo(0.67, 6);
     }

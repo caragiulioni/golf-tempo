@@ -18,7 +18,7 @@ Full Swings (18/6 to 30/10) and all of Short Game do not change. 120/40 and 168/
 
 | Part | Where | Who |
 |---|---|---|
-| Drill group in the preset data; remove 120/40, 168/56 | `src/engine/presets.ts` | Timing context |
+| Drill group in the preset data; remove 120/40, 168/56 (done in V2-04) | `src/engine/presets.ts` | Timing context |
 | Drill bar: swing, recovery measure, countdown | `src/engine/repeat.ts` | Timing context |
 | Countdown events 4, 3, 2, 1 | `src/engine/sequence.ts` | Timing context |
 | Drill loop pattern on the longer bar | `src/engine/loop.ts` | Timing context |
@@ -55,7 +55,7 @@ A bar is 12 counts = 24 hi-hats = 3 measures of 8: swing, recovery, countdown.
 
 Nothing new to subscribe to. The countdown comes through the same schedule the timeline already follows.
 
-- **Preset group:** each preset gets a `group` field, `'fullSwing'` or `'drill'` *(planned names)*, in `src/engine/presets.ts`. Use it for the labels and the grid. Do not decide in the UI which presets are drills.
+- **Preset group (landed in V2-04):** Long Game presets have `group: 'gameplay' | 'drills'` (type `PresetGroup`); Short Game presets have no `group`. `presetsInGroup(category, group)` returns a group's presets in order (empty for Short Game), as the same objects as `PRESETS`, so `===` comparisons work. All in `src/engine/presets.ts`, exported from `src/engine`. Use it for the toggle and the slider. Do not decide in the UI which presets are drills.
 - **Countdown events:** `buildSequence` returns four extra events for drills, `{ type: 'countdown', time, count: 4 | 3 | 2 | 1 }` *(planned shape)*, at counts 8 to 11 of the bar. Times are seconds from that bar's takeaway, like every other event.
 - **During playback:** the player puts them in `ScheduledSwing.beeps` on the audio clock (`src/audio/player.ts`), next to takeaway, weight shift, TOP and impact. The timeline already receives that through `onSwing` (`src/ui/hooks/usePlayerSession.ts`).
 - **Output delay:** apply it to countdown events exactly as to the other beats (`src/ui/lib/outputDelay.ts`), so the numbers change with the sound.
