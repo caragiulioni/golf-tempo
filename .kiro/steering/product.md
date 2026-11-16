@@ -19,7 +19,7 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 - Long Game presets (3:1), in two groups (V2-04): Gameplay 18/6, 21/7, 24/8, 27/9, 30/10, and Practice Drills 42/14, 60/20, 84/28. Eight in total. 120/40 and 168/56 were removed in V2 (too slow to be useful). The group is part of the preset data (`group` in `src/engine/presets.ts`).
 - Short Game presets (2:1): 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Slower Short Game presets are pending the brother's answer.
 - Slow presets are for slow practice swings, to feel each part of the move. They are not for real swings.
-- Tempo is chosen with preset buttons. No tempo slider and no automatic speed-up.
+- Tempo is chosen with a stepped slider labelled "Tempo" (V2-06). It snaps to each preset and shows every tempo under the track, so there is nothing in between. Each Long Game group (Gameplay, Practice Drills) has its own steps and remembers its last tempo while the app is open. No free tempo slider and no automatic speed-up.
 - One background 808-style loop, generated in code, with an on/off toggle. Off by default; it plays when the user presses play. It plays in both Long Game and Short Game. Beat 1 lands on the start of a bar. At slow tempos a hi-hat carries a steady pulse (see `docs/dev_questions.md`).
 - Play/pause toggle in the Current session header.
 - No sound styles (Voice, String, Bossa Nova). Dropped for now.

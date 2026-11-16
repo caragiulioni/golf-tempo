@@ -20,6 +20,7 @@ export { SectionLabel } from './SectionLabel';
 export { SegmentedControl } from './SegmentedControl';
 export type { SegmentedOption } from './SegmentedControl';
 export { Slider } from './Slider';
+export { StepSlider } from './StepSlider';
 export { StatusMessage } from './StatusMessage';
 export { Switch } from './Switch';
 export { LogoMark, Wordmark } from './Wordmark';

@@ -22,9 +22,9 @@ import { AudioLabMount } from './AudioLabMount';
 import { MainScreen } from './MainScreen';
 import { IntroScreen } from './IntroScreen';
 
-// Defaults: 30/10 (Long) and 24/12 (Short), found by value so a list change cannot break them.
+// Defaults: 24/8 (Long, the middle Gameplay tempo) and 24/12 (Short), found by value so a list change cannot break them.
 const DEFAULT_PRESET_INDEX: Record<Category, number> = {
-  long: LONG_GAME_PRESETS.findIndex((p) => p.backFrames === 30 && p.downFrames === 10),
+  long: LONG_GAME_PRESETS.findIndex((p) => p.backFrames === 24 && p.downFrames === 8),
   short: SHORT_GAME_PRESETS.findIndex((p) => p.backFrames === 24 && p.downFrames === 12),
 };
 const MIN_INTRO_MS = 2000; // R9.2

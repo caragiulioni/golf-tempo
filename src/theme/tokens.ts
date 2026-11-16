@@ -16,6 +16,8 @@ export type Colors = {
   onAccent: string;
   gold: string;
   switchKnob: string;
+  /** The slider's handle: white in both modes. */
+  sliderThumb: string;
 };
 
 export const colors: Record<ThemeMode, Colors> = {
@@ -31,6 +33,7 @@ export const colors: Record<ThemeMode, Colors> = {
     onAccent: '#0A0C0A',
     gold: '#E0B84E',
     switchKnob: '#A8B3AB',
+    sliderThumb: '#FFFFFF',
   },
   light: {
     bg: '#F4F3EE',
@@ -44,6 +47,7 @@ export const colors: Record<ThemeMode, Colors> = {
     onAccent: '#FFFFFF',
     gold: '#8C6A0E',
     switchKnob: '#455548',
+    sliderThumb: '#FFFFFF',
   },
 };
 
@@ -221,7 +225,7 @@ export const switchSize = {
 export const scrim = 'rgba(0, 0, 0, 0.5)';
 export const dialogMaxWidth = 420;
 // Slider: visible track and thumb. The touch area is tapMin tall, taller than the track.
-export const sliderSize = { trackHeight: 6, thumb: 28 } as const;
+export const sliderSize = { trackHeight: 6, thumb: 28, stepLabel: 48 } as const;
 // Main screen layout: page max width (handoff .app) and the empty timeline slot height.
 export const maxContentWidth = 1440;
 export const timelineSlotMinHeight: Record<Layout, number> = { phone: 120, tablet: 160, laptop: 200 };

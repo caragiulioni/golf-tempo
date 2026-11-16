@@ -6,9 +6,11 @@
 // V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
 // BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
 // component or token.
+// V2-06 (Tempo slider): replaces PresetGrid and PresetButton with the new StepSlider (built on
+// Slider); both stay in use on the CONFIG screen. Each group remembers its last tempo.
 // V2-05 (Gameplay / Practice Drills): reuses SegmentedControl (extended with `size`), PresetGrid and
 // PresetButton as they are; presetsInGroup from the engine decides which tempos show.
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_RATIO, PRESETS, presetLabel, presetsInGroup } from '../engine';
@@ -28,13 +30,12 @@ import {
   Header,
   MenuItem,
   PlayButton,
-  PresetButton,
-  PresetGrid,
   SectionLabel,
   SegmentedControl,
   StatusMessage,
+  StepSlider,
 } from '../ui/components';
-import { CATEGORY_NAME, CATEGORY_OPTIONS, PRESET_COLUMNS, presetKey } from '../ui/lib/categoryUi';
+import { CATEGORY_NAME, CATEGORY_OPTIONS } from '../ui/lib/categoryUi';
 import { useLayout } from '../ui/hooks/useLayout';
 import {
   PAUSED_TEXT,
@@ -51,6 +52,8 @@ const SILENT_SWITCH_HINT = 'No sound? Check silent mode, mute in Control Center 
 // Fixed for the life of the page, so read once.
 const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
+/** The middle step of a list (the lower middle when the count is even). */
+const middleOf = (list: readonly Preset[]): Preset => list[Math.floor(list.length / 2)];
 const GROUP_OPTIONS: ReadonlyArray<{ value: PresetGroup; label: string }> = [
   { value: 'gameplay', label: 'GAMEPLAY' },
   { value: 'drills', label: 'PRACTICE DRILLS' },
@@ -88,11 +91,17 @@ export function MainScreen({
   // Long Game only: the selected preset's group decides which tempos show.
   const group: PresetGroup | null = category === 'long' ? (selected.group ?? 'gameplay') : null;
   const visiblePresets = group ? presetsInGroup('long', group) : presets;
-  // Switching group selects that group's middle tempo (24/8 for Gameplay, 60/20 for Practice Drills).
+  // Each group remembers its last tempo while the app is open (not saved). A group starts at
+  // its middle tempo: 24/8 for Gameplay, 60/20 for Practice Drills.
+  const lastInGroup = useRef<Record<PresetGroup, number>>({
+    gameplay: PRESETS.long.indexOf(middleOf(presetsInGroup('long', 'gameplay'))),
+    drills: PRESETS.long.indexOf(middleOf(presetsInGroup('long', 'drills'))),
+  });
   const onGroupChange = (next: PresetGroup) => {
-    const list = presetsInGroup('long', next);
-    onPresetChange('long', presets.indexOf(list[Math.floor(list.length / 2)]));
+    if (group) lastInGroup.current[group] = selectedIndex;
+    onPresetChange('long', lastInGroup.current[next]);
   };
+  const stepIndex = visiblePresets.indexOf(selected);
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
   // Not saved either: the weight shift beat is on every time the app starts.
@@ -167,7 +176,7 @@ export function MainScreen({
         />
       </View>
       <View style={styles.controlGroup}>
-        <SectionLabel>Available sessions</SectionLabel>
+        <SectionLabel>Tempo</SectionLabel>
         {group ? (
           <SegmentedControl
             options={GROUP_OPTIONS}
@@ -177,21 +186,14 @@ export function MainScreen({
             size="label"
           />
         ) : null}
-        <PresetGrid
-          items={visiblePresets}
-          columns={group === 'drills' ? 3 : PRESET_COLUMNS[category]}
-          keyOf={presetKey}
-          accessibilityLabel={`${CATEGORY_NAME[category]} tempos`}
-          renderItem={(p) => {
-            const i = presets.indexOf(p);
-            return (
-              <PresetButton
-                label={presetLabel(p)}
-                selected={i === selectedIndex}
-                onPress={() => onPresetChange(category, i)}
-              />
-            );
-          }}
+        <StepSlider
+          labels={visiblePresets.map(presetLabel)}
+          value={stepIndex}
+          onChange={(i) => onPresetChange(category, presets.indexOf(visiblePresets[i]))}
+          accessibilityLabel="Tempo, from compact to relaxed"
+          spokenSuffix={group === 'drills' ? 'Practice Drills' : group === 'gameplay' ? 'Gameplay' : undefined}
+          startLabel="COMPACT"
+          endLabel="RELAXED"
         />
       </View>
     </View>
