@@ -45,6 +45,41 @@ At least one Android device and at least one iOS device (phone or tablet).
 |---|---|---|---|
 | (none tested yet) | | | |
 
+## Accessibility on a phone
+
+Not tested yet. On a phone, accessibility is mostly screen readers (VoiceOver on iPhone and iPad, TalkBack on Android), plus text size, reduced motion, contrast and tap size. Keyboard use matters less than on the web. React Native uses one set of accessibility settings (`accessibilityLabel`, `accessibilityRole`, `accessibilityState`, `accessibilityValue`) for both platforms, so most of what is built carries over. Nothing below has been checked on a screen reader.
+
+**Carries over (expected to work, untested):**
+- Labels, roles and states on the controls. On the web, React Native Web turns them into ARIA. On a phone, they become what VoiceOver and TalkBack say.
+- Tap targets of at least 44 pt, and "selected" shown by fill, outline and check mark, never color alone (design brief, section 8).
+- Light and dark mode following the device setting.
+
+**Web-only, must be replaced on a phone:**
+- Keyboard handling: the Escape key closing the menu and dialogs (`Overlay`), and the arrow keys on `Slider` (`onKeyDown`). A screen reader user adjusts a slider with a swipe up or down, so `Slider` needs `accessibilityValue` and increment and decrement actions. The V2-06 Tempo slider needs this too.
+- Moving focus into a menu or dialog when it opens and back to the button when it closes. It works differently on native.
+
+**Specific to this app:**
+- **No spoken beats.** A screen reader speaking over the beeps would hurt the timing. Do not announce the countdown numbers or the beat markers as live text. The audio carries them. The screen reader handles the controls only.
+- **Announce the state, not just the control.** The play button says "Play" or "Pause". The Tempo slider says the tempo and group (for example "24/8, Gameplay"), not a bare number. The weight shift and loop toggles say on or off.
+- **The visuals help people who can't hear well.** The timeline lighting up on each beat and the countdown on screen are accessibility features. They must stay in step with the audio, as the audio schedule rule already requires.
+- **Text size.** iOS and Android let users scale text system-wide. The big tempo numbers and the labels must still fit when scaled up, or their scaling is capped.
+- **Reduce motion.** The timeline and countdown animations follow the device's reduce-motion setting.
+- **Voice Control and Switch Control** need a label on every control.
+
+**To test on a real device (native, after the port), on at least one Android and one iOS device:**
+- [ ] VoiceOver (iOS): swipe through the whole main screen. Every control has a sensible spoken label and state.
+- [ ] TalkBack (Android): the same.
+- [ ] Adjust the Tempo slider with the screen reader (swipe up and down). It snaps and says the new tempo.
+- [ ] Open and close the menu and the unapplied-changes dialog. Focus goes in and comes back out.
+- [ ] Play with the screen reader on. It does not speak over the beats.
+- [ ] Largest text size: no text is cut off and the layout still works.
+- [ ] Reduce motion on: animations calm down or stop.
+- [ ] Record each result (device, OS version, result) in a table here.
+
+| Device | OS version | Screen reader | Result | Notes |
+|---|---|---|---|---|
+| (none tested yet) | | | | |
+
 ## Phone check (one-time, app-shell-ui)
 
 Date: 2026-11-13. This is the one-time check that the app opens on a phone. Both devices were real devices (not simulators), started with `npm start` and opened in the Expo Go app.
@@ -263,5 +298,6 @@ Not needed: Audio lab logs. The Audio lab is the developer's own test tool, and 
 - [ ] Step-by-step: run on a simulator, run on a real device, build for the stores.
 - [ ] List of web-only parts and their native replacements.
 - [ ] Known risks and untested areas, including the "What real-world use did not cover" list in "Real-world use versus structured checks".
+- [ ] Accessibility: the "Accessibility on a phone" section, its list of web-only parts to replace, and its VoiceOver and TalkBack test checklist.
 - [ ] Native icon and splash files: Android adaptive icon (foreground, background, monochrome) and a splash image, made by Mike. What is needed: `docs/design-brief.md`, section 12, "Icon files still needed". Then point `app.json` at them (it still uses the Expo template placeholders in `assets/`).
 - [ ] How to open the hidden Audio lab (Diagnostics page) and use it as the first test on a phone: play, lock the phone, tap Copy log, send the log.
