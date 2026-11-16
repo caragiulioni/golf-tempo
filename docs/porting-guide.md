@@ -51,7 +51,7 @@ Not tested yet. On a phone, accessibility is mostly screen readers (VoiceOver on
 
 **Carries over (expected to work, untested):**
 - Labels, roles and states on the controls. On the web, React Native Web turns them into ARIA. On a phone, they become what VoiceOver and TalkBack say.
-- Tap targets of at least 44 pt, and "selected" shown by fill, outline and check mark, never color alone (design brief, section 8).
+- Tap targets of at least 44 pt, and "selected" shown by fill and outline (the check mark was removed in V2-12), not by hue alone (design brief, section 8).
 - Light and dark mode following the device setting.
 
 **Web-only, must be replaced on a phone:**

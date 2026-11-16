@@ -130,7 +130,7 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 
 ### Keep
 - Palette and tokens in `tokens.css` and `logo/palette.json` (supersedes the palette sampled from the first mockups).
-- Selected state = fill, 2px outline and check mark. Color is never the only signal.
+- Selected state = fill and 2px outline (V2-12 removed the check mark). The fill is the main cue; the outline differs in width and contrast, not only hue.
 - Gold was meant only for the weight shift (marker, label) and the ball. Outdated: the diamond and its label are now white, and gold is only the timeline's progress fill (see "Gold" below).
 - Layout by breakpoint: phone single column, tablet single column with larger sizes, laptop two columns.
 - Removed Voice / String / Bossa Nova row.
@@ -145,7 +145,7 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 6. **Silent-switch hint** shows on iPhone only, not always.
 7. **Small text.** Phase labels are 10px and others are 11 to 12px on phones. Raise them, since the app is used outdoors in glare.
 8. **Fit check.** "168/56" in five columns on a 320px-wide phone looks tight. Test at 320 and 360.
-9. **Segmented control check mark** must follow the selected option (it stays on "Long game" in the mockup).
+9. **Segmented control selection** must follow the selected option (it stays on "Long game" in the mockup). The check mark in the mockup was removed from the app in V2-12.
 10. **Landscape on phones** is not designed yet.
 11. **Header menu** replaces the separate theme and CONFIG buttons, so the wordmark does not wrap at 320px (see "Header menu" below). Not built in the HTML mockup; it is specified here and built in the app.
 
