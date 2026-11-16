@@ -31,7 +31,8 @@ src/
                  ConfigMount.tsx (CONFIG mount point), AudioLabMount.tsx (lab mount point).
 _references/     Source material. Do not edit.
 docs/            Working documents: dev_questions.md, client_questions.md, porting-guide.md,
-                 calibration-guide.md (temporary, for the brother).
+                 calibration-guide.md (temporary, for the brother), ideas.md.
+  changes/       One change log per prototype version (V2.md, ...). See prototype-versions.md.
 ```
 
 ## Rules

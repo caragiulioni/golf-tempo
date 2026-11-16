@@ -13,7 +13,9 @@ Every idea here is checked against these two principles. They come from the deve
 1. **Understood on first open.** Someone opening the app for the first time should know what it is telling them to do, without tutorials. The test: with no other context, do they know what to tap, and what the sound is asking them to do? If an idea needs an explanation to work, it isn't ready.
 2. **Stand apart from Tour Tempo.** Tour Tempo assumes you already know its system (bare frame counts like "24/8"). This app teaches the system as you use it, and adds the weight shift beat. Ideas that make the app explain itself are what set it apart.
 
-Status: recorded here only. Whether to also add them to `.kiro/steering/product.md` (where every UI decision would be checked against them) is not decided yet.
+Status: also in `.kiro/steering/product.md` (on `dev-V2`), so every UI decision is checked against them.
+
+**Where ideas get built:** in prototype versions (`dev-V2`, ...). When an idea is picked up, its status here becomes "Scheduled (V2-NN)", and the change is logged in `docs/changes/V2.md`.
 
 ---
 

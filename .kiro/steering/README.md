@@ -14,6 +14,7 @@ Steering files are the standing rules of the project. They apply to everything t
 - `tech.md`: the tools we build with, and the conventions we follow.
 - `structure.md`: how the project's folders are organized, and which parts may depend on which.
 - `timing-engine.md`: the rules for the timing code, the most critical part. Kiro only reads it when working in that code.
+- `prototype-versions.md`: rules for prototype version branches (`dev-V2`, ...): one change, one commit, one change log entry, and the git steps to land or undo a change. Ignored on other branches.
 - `workflow.md`: how work is organized. Small phases, a check for each step, review stops, and notes for the port to phones.
 
 ## Why it matters

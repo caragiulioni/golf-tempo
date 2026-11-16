@@ -54,8 +54,17 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Scope:** Hard-code calibrated weight shift values into the engine, make weight shift playback permanent, remove CONFIG mode and stop reading (and delete) the saved applied values, remove the Audio lab menu item but keep the lab itself as a hidden Diagnostics page (decided), reachable only through a hidden gate such as `?lab=1` or a long-press on the logo, so it can be used to test audio on native phones and to collect logs, final checks, Netlify deploy.
 - **Depends on:** config-mode and the calibration phase.
 - **Blockers:** Calibration results from the brother.
-- **Spec:** not started (written after calibration)
+- **Spec:** not started (written after calibration). Paused while prototype V2 (spec 7) is in progress.
 - **Built:** not started
+
+### 7. prototype-v2 (stand-alone app)
+- **Scope:** UI changes that move the app from a Tour Tempo clone to a stand-alone app that explains itself, drawn from `docs/ideas.md` and checked against the guiding principles in `product.md`. Mostly rearranging and relabeling existing UI. No timing engine changes (preset data only).
+- **Where:** branch `dev-V2`, from `main` at the tag `prototype-v1`.
+- **How:** not a full spec. Each change is one squash-merged commit with one entry in `docs/changes/V2.md`, per `.kiro/steering/prototype-versions.md`.
+- **Depends on:** specs 1 to 5.
+- **Paused meanwhile:** spec 6 (final-weight-shift-release). CONFIG stays and keeps working.
+- **Spec:** see `docs/changes/V2.md`
+- **Built:** in progress
 
 ## Not a spec
 

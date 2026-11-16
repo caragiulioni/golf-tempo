@@ -44,6 +44,13 @@ CONFIG mode lives inside the real app. It is not a separate app or branch, so th
 - The brother uses it to find the right position, then sends the export to the developer.
 - Final values get hard-coded into the engine and CONFIG is removed, including reading the saved values. Build it so removal is easy: keep all CONFIG UI, saving and export code in its own module.
 
+## Guiding principles
+
+Check every UI decision against these. From the developer, November 2026.
+
+1. **Understood on first open.** Someone opening the app for the first time should know what it is telling them to do, without tutorials. The test: with no other context, do they know what to tap, and what the sound is asking them to do? If a change needs an explanation to work, it isn't ready.
+2. **Stand apart from Tour Tempo.** Tour Tempo assumes you already know its system (bare frame counts like "24/8"). This app teaches the system as you use it, and adds the weight shift beat.
+
 ## Principles
 
 - Accurate timing and reliable playback come first.
