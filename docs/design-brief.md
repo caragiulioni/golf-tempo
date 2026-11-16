@@ -57,7 +57,7 @@ c) **Available sessions in two rows.** There are now more presets than fit in on
 - Header: label, large session numbers ("30 / 10"), the category ("Long game"), the play/pause button. Add flair.
 - Game length control: Long game / Short game.
 - Available sessions: the two-row preset grid. The selected preset is clearly marked.
-- Background loop toggle (on or off, off by default).
+- Two sound buttons side by side directly below the Current session card (V2-03): "Background loop" (off by default) and "Weight shift" (on by default). Filled means on, outlined means off. Weight shift off plays the three Tour Tempo beats only and hides the diamond and its label on the scale.
 - Light/dark mode toggle and entry to CONFIG mode, both in the header menu (see section 12).
 - A small hint on iPhone: "No sound? Check your silent switch."
 

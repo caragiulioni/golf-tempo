@@ -25,7 +25,13 @@ import { addLog } from './sessionLog';
 export type SessionMessage = 'paused' | 'startFailed' | null;
 
 /** `settings` are the weight shift positions to play with (plain data, so this file knows nothing about CONFIG). */
-export type SessionSelection = { preset: Preset; loop: boolean; settings: WeightShiftSettings };
+export type SessionSelection = {
+  preset: Preset;
+  loop: boolean;
+  settings: WeightShiftSettings;
+  /** False plays the three Tour Tempo beats only. Default true. */
+  includeWeightShift?: boolean;
+};
 
 export const START_FAILED_TEXT = 'Audio could not start. Tap play to try again.';
 export const PAUSED_TEXT = 'Playback paused. Tap play to resume.';
@@ -119,8 +125,8 @@ export function audioNow(): number | null {
   return sharedAdapter ? sharedAdapter.now() : null;
 }
 
-export function swingOptionsFor({ preset, loop, settings }: SessionSelection): SwingOptions {
-  return { preset, settings, includeWeightShift: true, loop };
+export function swingOptionsFor({ preset, loop, settings, includeWeightShift = true }: SessionSelection): SwingOptions {
+  return { preset, settings, includeWeightShift, loop };
 }
 
 type SessionOptions = {
@@ -135,7 +141,7 @@ export function usePlayerSession(selection: SessionSelection, { active = true }:
   // Peek only; the player is created on the first press, inside the tap.
   const [playerState, setPlayerState] = useState<PlayerState>(() => player?.getState() ?? 'stopped');
   const [message, setMessage] = useState<SessionMessage>(null);
-  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
+  const swingOptions = useMemo(() => swingOptionsFor(selection), [selection.preset, selection.loop, selection.includeWeightShift, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
   // Latest options for toggle() and for 6.3 (restart on change).
   const optionsRef = useRef(swingOptions);
   optionsRef.current = swingOptions;
@@ -175,6 +181,7 @@ export function usePlayerSession(selection: SessionSelection, { active = true }:
       previous === null ||
       (previous.preset === selection.preset &&
         previous.loop === selection.loop &&
+        previous.includeWeightShift === selection.includeWeightShift &&
         previous.settings.long === selection.settings.long &&
         previous.settings.short === selection.settings.short)
     ) {
@@ -184,7 +191,7 @@ export function usePlayerSession(selection: SessionSelection, { active = true }:
     const state = player.getState();
     if (state !== 'playing' && state !== 'restarting') return;
     player.change(optionsRef.current);
-  }, [active, selection.preset, selection.loop, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, selection.preset, selection.loop, selection.includeWeightShift, selection.settings.long, selection.settings.short]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = useCallback(async () => {
     const current = getSharedPlayer();

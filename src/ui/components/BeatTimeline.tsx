@@ -23,6 +23,8 @@ type Props = {
   preset: Preset;
   /** Normalized weight shift position, 0..1 between beat 1 and beat 2. */
   weightShiftPosition: number;
+  /** False hides the weight shift diamond and its label. Default true. */
+  showWeightShift?: boolean;
   /** True while playing or restarting. When it turns false everything resets (R5.13). */
   playing?: boolean;
   /** Register for scheduled swings. Returns an unsubscribe function. */
@@ -76,6 +78,7 @@ function fitSpacing(width: number, chars: number, avail: number): number | null 
 export function BeatTimeline({
   preset,
   weightShiftPosition,
+  showWeightShift = true,
   playing = false,
   subscribeSwings,
   audioNow,
@@ -90,6 +93,11 @@ export function BeatTimeline({
     [preset, weightShiftPosition],
   );
 
+  // The markers drawn: without the weight shift, only the three Tour Tempo beats.
+  const markers = useMemo(
+    () => (geometry ? geometry.markers.filter((m) => showWeightShift || m.type !== 'weightShift') : []),
+    [geometry, showWeightShift],
+  );
   // Playback follow. State is local, so only this component re-renders.
   const [lit, setLit] = useState<Record<TimelineMarkerType, boolean>>(NONE_LIT);
   // Mirror of `lit`, so the progress listener can check it without waiting for a render.
@@ -262,7 +270,7 @@ export function BeatTimeline({
   const trackW = Math.max(0, size.width - 2 * S.paddingX);
   const px = (x: number) => S.paddingX + x * trackW;
   if (geometry && trackW > 0) {
-    for (const m of geometry.markers) {
+    for (const m of markers) {
       unlightAt.current[m.type] = Math.max(0, m.x - S.marker / 2 / trackW);
     }
   }
@@ -282,10 +290,10 @@ export function BeatTimeline({
   let downLeft = 0;
   let backWidth = 0;
   if (ready && geometry) {
-    const types = geometry.markers.map((m) => m.type);
+    const types = markers.map((m) => m.type);
     const namesOverlap = (shiftText: string) => {
       const ws = types.map((t) => widths[t === 'weightShift' ? shiftText : NAMES[t]]);
-      const xs = geometry.markers.map((m, i) => {
+      const xs = markers.map((m, i) => {
         const x = px(m.x);
         if (i === 0) return x - S.marker / 2 + ws[i] / 2;
         if (i === types.length - 1) return x + S.marker / 2 - ws[i] / 2;
@@ -295,7 +303,7 @@ export function BeatTimeline({
     };
     // Phone always uses the short form; tablet and laptop only when the full name overlaps.
     shiftName = weightShiftLabel(layout === 'phone' || namesOverlap(NAMES.weightShift));
-    if (shiftName === SHIFT_SHORT && namesOverlap(SHIFT_SHORT)) {
+    if (showWeightShift && shiftName === SHIFT_SHORT && namesOverlap(SHIFT_SHORT)) {
       shiftAbove = true;
       shiftName = NAMES.weightShift;
     }
@@ -409,7 +417,7 @@ export function BeatTimeline({
           </View>
 
           {/* Weight shift name moved above the track when the names row is too tight. */}
-          {shiftAbove ? (
+          {showWeightShift && shiftAbove ? (
             <View style={styles.nameRow}>
               <View
                 style={[
@@ -417,7 +425,7 @@ export function BeatTimeline({
                   {
                     left: Math.max(
                       S.paddingX - S.marker / 2,
-                      px(geometry.markers[1].x) - widths[shiftName] / 2,
+                      px(geometry.markers.find((m) => m.type === 'weightShift')?.x ?? 0) - widths[shiftName] / 2,
                     ),
                   },
                 ]}
@@ -456,7 +464,7 @@ export function BeatTimeline({
                 ]}
               />
             ) : null}
-            {geometry.markers.map((m) =>
+            {markers.map((m) =>
               m.type === 'weightShift' ? (
                 <React.Fragment key={m.type}>
                   <PulseRing x={px(m.x)} pulse={pulse} />
@@ -481,9 +489,9 @@ export function BeatTimeline({
 
           {/* Names under the markers. */}
           <View style={styles.nameRow}>
-            {geometry.markers.map((m, i) => {
+            {markers.map((m, i) => {
               const first = i === 0;
-              const last = i === geometry.markers.length - 1;
+              const last = i === markers.length - 1;
               const x = px(m.x);
               const place = first
                 ? { left: x - S.marker / 2, alignItems: 'flex-start' as const }

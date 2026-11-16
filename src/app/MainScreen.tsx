@@ -3,6 +3,9 @@
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
 // Loop switch timeline fix: checked src/ui/components and src/theme; extended BeatTimeline with a
 // `restartKey` prop (no new component, no new styles or tokens).
+// V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
+// BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
+// component or token.
 import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,6 +21,7 @@ import {
   AppText,
   Badge,
   BeatTimeline,
+  Button,
   Card,
   Header,
   MenuItem,
@@ -27,7 +31,6 @@ import {
   SectionLabel,
   SegmentedControl,
   StatusMessage,
-  Switch,
 } from '../ui/components';
 import { CATEGORY_NAME, CATEGORY_OPTIONS, PRESET_COLUMNS, presetKey } from '../ui/lib/categoryUi';
 import { useLayout } from '../ui/hooks/useLayout';
@@ -78,7 +81,12 @@ export function MainScreen({
   const selected = presets[selectedIndex];
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
-  const session = usePlayerSession({ preset: selected, loop, settings: weightShiftSettings }, { active });
+  // Not saved either: the weight shift beat is on every time the app starts.
+  const [weightShift, setWeightShift] = useState(true);
+  const session = usePlayerSession(
+    { preset: selected, loop, settings: weightShiftSettings, includeWeightShift: weightShift },
+    { active },
+  );
 
   const hero = (
     <Card
@@ -105,15 +113,34 @@ export function MainScreen({
       <BeatTimeline
         preset={selected}
         weightShiftPosition={weightShiftSettings[category]}
+        showWeightShift={weightShift}
         playing={session.playing}
         subscribeSwings={onSwing}
         audioNow={audioNow}
         outputDelay={outputDelay}
-        restartKey={loop}
+        restartKey={`${loop}-${weightShift}`}
       />
     </Card>
   );
 
+  const soundToggles = (
+    <View style={styles.soundToggles}>
+      <View style={styles.soundToggle}>
+        <Button
+          label="Background loop"
+          checked={loop}
+          onPress={() => setLoop(!loop)}
+        />
+      </View>
+      <View style={styles.soundToggle}>
+        <Button
+          label="Weight shift"
+          checked={weightShift}
+          onPress={() => setWeightShift(!weightShift)}
+        />
+      </View>
+    </View>
+  );
   const controls = (
     <View style={[styles.controlsColumn, laptop && styles.controlsColumnLaptop]}>
       <View style={styles.controlGroup}>
@@ -144,7 +171,6 @@ export function MainScreen({
           }}
         />
       </View>
-      <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
     </View>
   );
 
@@ -168,12 +194,16 @@ export function MainScreen({
           />
           {laptop ? (
             <View style={styles.laptopColumns}>
-              {hero}
+              <View style={styles.heroColumnLaptop}>
+                {hero}
+                {soundToggles}
+              </View>
               {controls}
             </View>
           ) : (
             <>
               {hero}
+              {soundToggles}
               {controls}
             </>
           )}
@@ -201,7 +231,13 @@ const styles = StyleSheet.create({
   laptopColumns: { flex: 1, flexDirection: 'row', gap: spacing.xxl },
   /** "Current session" card. */
   heroCard: { gap: spacing.lg },
-  heroCardLaptop: { flex: laptopColumns.hero },
+  heroCardLaptop: { flex: 1 },
+  /** Laptop only: left column holding the hero card and the sound toggles under it. */
+  heroColumnLaptop: { flex: laptopColumns.hero, gap: spacing.lg },
+  /** The two sound buttons side by side, directly below the hero card. */
+  soundToggles: { flexDirection: 'row', gap: spacing.sm },
+  /** One of the two sound buttons: they share the row width equally. */
+  soundToggle: { flex: 1 },
   /** Top row of the hero card: section label left, ratio badge right. */
   heroHeaderRow: {
     flexDirection: 'row',
@@ -219,7 +255,7 @@ const styles = StyleSheet.create({
   },
   /** Takes the free width left of the play button. */
   tempoBadgeBox: { flex: 1 },
-  /** Right-hand column: game length, sessions, loop switch. */
+  /** Right-hand column: game length, sessions. */
   controlsColumn: { gap: spacing.xl },
   controlsColumnLaptop: { flex: laptopColumns.controls },
   /** A section label with its control underneath. */
