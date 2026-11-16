@@ -82,9 +82,9 @@ export function layoutForWidth(width: number): Layout {
 }
 
 export const layoutSizes: Record<Layout, { playButton: number; cardRadius: number }> = {
-  phone: { playButton: 75, cardRadius: radius.card },
-  tablet: { playButton: 120, cardRadius: radius.cardTablet },
-  laptop: { playButton: 128, cardRadius: radius.cardTablet },
+  phone: { playButton: 55, cardRadius: radius.card },
+  tablet: { playButton: 100, cardRadius: radius.cardTablet },
+  laptop: { playButton: 108, cardRadius: radius.cardTablet },
 };
 
 // Font family names match the keys of @expo-google-fonts/inter and
@@ -124,7 +124,7 @@ export const typeSizes: Record<
   label: { phone: 13, tablet: 14, laptop: 14 },
   body: { phone: 16, tablet: 17, laptop: 17 },
   title: { phone: 20, tablet: 22, laptop: 24 },
-  tempo: { phone: 60, tablet: 120, laptop: 120 },
+  tempo: { phone: 50, tablet: 110, laptop: 110 },
   display: { phone: 32, tablet: 40, laptop: 44 },
 };
 

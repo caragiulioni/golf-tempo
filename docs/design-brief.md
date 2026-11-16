@@ -149,6 +149,12 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 10. **Landscape on phones** is not designed yet.
 11. **Header menu** replaces the separate theme and CONFIG buttons, so the wordmark does not wrap at 320px (see "Header menu" below). Not built in the HTML mockup; it is specified here and built in the app.
 
+### V2 size adjustments (app, not the mockup)
+The sizes above describe the HTML mockup in its working-copy state. The running app takes its sizes from `src/theme/tokens.ts`. V2-01 (`docs/changes/V2.md`) changed them after review:
+- Play button (`layoutSizes.playButton`): phone 75 to 55, tablet 120 to 100, laptop 128 to 108. Phone stays above the 44 pt minimum tap size.
+- Tempo numbers and slash (`typeSizes.tempo`): phone 60 to 50, tablet and laptop 120 to 110. The extra side padding around the slash is removed; the spaces in " / " remain.
+- `docs/design/main-screen.html` is not updated. It stays as the original mockup.
+
 ### Changes already made in the working copy (`docs/design/main-screen.html`)
 - Desktop (1100px and up): `.num` font-size 190px to 155px.
 - Tablet (700 to 1099px): `.play` 112px to 90px.
