@@ -17,7 +17,7 @@ The app works. A prototype version moves it from a Tour Tempo clone toward a sta
 2. Every change is built on its own short branch, then squash-merged into `dev-V<n>`, so it lands as exactly one commit, however many work commits it took.
 3. That one commit contains the whole change: code, styles, tests, and every doc the change affects (see "Docs" below). Nothing about the change lives in another commit.
 4. The commit message starts with the ID: `V2-03: Preset buttons in two groups`.
-5. The change has one entry in `docs/changes/V<n>.md`, added in the same commit. The entry is the change's mini-spec. It links to the commit by ID, not by hash (a commit cannot contain its own hash). Find the commit with `git log --grep "V2-03" --oneline`.
+5. The change has one entry in `docs/changes/V<n>.md`, added in the same commit. The entry is the change's mini-spec, including its "Porting" line (what the change means for the native port). It links to the commit by ID, not by hash (a commit cannot contain its own hash). Find the commit with `git log --grep "V2-03" --oneline`.
 6. History is never rewritten: no force push, no amending pushed commits, no rebasing `dev-V<n>`. Undoing a change is a `git revert`, which adds a new commit.
 
 ## Step by step
@@ -56,6 +56,8 @@ git revert <hash>
 Then mark the entry **Reverted** in the change log, in the same revert commit (`git revert --no-commit <hash>`, edit the log, then commit with the message `Revert V2-03: Preset buttons in two groups`). Revert newest first: if another change depends on this one (see its "Depends on" line), revert that one first.
 
 **Finish the version**
+
+Before merging, write the version's entry in `docs/porting-guide.md` from the "Porting" lines in `docs/changes/V<n>.md`. Include every change still marked Landed and leave out the reverted ones, so everything that reaches `main` is in the porting guide. Commit it on `dev-V<n>` as `V<n> close: porting guide, index and ideas`, together with the other once-per-version docs (see "Docs" below). Then merge:
 ```
 git switch main
 git pull
@@ -82,6 +84,7 @@ A normal merge, not a squash, so every `V2-xx` commit stays on `main` and can st
 
 - **The timing engine does not change.** No edits in `src/engine/`, except preset data in `src/engine/presets.ts` (names, descriptions, groups). Existing engine tests must pass unchanged. Any other engine change: stop and ask.
   - **Approved exception (developer, November 2026): Practice Drill timing** (`docs/ideas.md`, idea 2, "Drill timing"). Drills only: the drill bar (swing, recovery measure, countdown), new countdown events, the drill loop pattern, and removing 120/40 and 168/56. It lands as its own V2 change with its own change-log entry. Engine tests for Full Swings and Short Game must pass unchanged; tests for the drills and the two removed presets change with it.
+  - **Approved exception (developer, November 2026): weight shift default 0.75** (V2-02 in `docs/changes/V2.md`). Only the two default values in `src/engine/weightShift.ts` (Long Game and Short Game, both 0.75) and the tests that check them. Built in the timing engine context window.
 - **Workflow rules still apply** (`workflow.md`): the Reuse check before any UI or style, theme tokens only, one concern per change. If a change needs "and" to describe it, it is two changes.
 - **Keep changes independent** where possible, so any one can be reverted alone. When one builds on another, record it in "Depends on".
 - **CONFIG stays and keeps working** in every version, so calibration is never interrupted.

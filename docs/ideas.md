@@ -21,7 +21,7 @@ Status: also in `.kiro/steering/product.md` (on `dev-V2`), so every UI decision 
 
 ## 1. Friendly preset names that teach tempo
 
-**Status:** Idea. **From:** the developer.
+**Status:** Partly scheduled: the archetype and "Good for" text in the Current session card is V2-10 (`docs/changes/V2.md`). The short labels are not scheduled. **From:** the developer.
 
 **The problem.** The preset buttons show frame counts like "24/8". Golfers who know Tour Tempo understand them. Most people don't, and the app currently doesn't explain them.
 
@@ -80,16 +80,16 @@ Short Game notes:
 
 ## 2. Split the presets into Full Swings and Practice Drills
 
-**Status:** Discussing. Timing planned (November 2026), see "Drill timing" below. **From:** the developer. **Related to:** idea 1 (both make the presets easier to understand). Kept separate because it can be built without the names.
+**Status:** Scheduled (V2-04 to V2-08, see `docs/changes/V2.md`). Timing planned (November 2026), see "Drill timing" below. **From:** the developer. **Related to:** idea 1 (both make the presets easier to understand). Kept separate because it can be built without the names.
 
-**Decided (developer):** two labeled groups, both visible (option 1 below), named **Full Swings** and **Drills**. Long Game only; Short Game stays one group.
+**Decided (developer, V2 plan):** a toggle with two linked buttons, **GAMEPLAY** and **PRACTICE DRILLS** (option 2 below), and a stepped **Tempo** slider in place of the preset buttons (V2-06). Long Game only; Short Game has no toggle. This replaces the earlier decision of two labeled groups both visible, named Full Swings and Drills.
 
 **The problem.** Available sessions shows all ten Long Game presets as one block. Two different kinds of tempo are mixed together: real swing tempos, and slow practice tempos that are not for real swings.
 
 **The idea.** Show the presets as two groups, each with its own label:
 
-- **Full Swings (18/6 to 30/10):** real swing tempos. Alternative label: "Target Tempos".
-- **Drills (42/14, 60/20, 84/28):** slow practice swings for feeling each part of the move. Alternative label: "Form & Mechanics".
+- **Gameplay (18/6 to 30/10):** real swing tempos. Earlier names: "Full Swings", "Target Tempos".
+- **Practice Drills (42/14, 60/20, 84/28):** slow practice swings for feeling each part of the move. Earlier names: "Drills", "Form & Mechanics".
 
 The slow range starts at 42/14, the app's first slow preset. There is no 33/11 in the app. **120/40 and 168/56 are removed** (decided, developer): too slow to be useful, and the drill timing below works cleanly only without them.
 
@@ -102,11 +102,11 @@ Option 1 is simpler and keeps everything one tap away. Option 2 makes more sense
 
 **Things to resolve before it's built:**
 
-- **Group names (decided):** "Full Swings" and "Drills".
-- **Short Game (decided):** a single group, with no group labels. See the Short Game notes in idea 1.
-- **Rename "Available sessions".** The section label should say what the buttons choose: a tempo. Candidates: **"Tempo"** (shortest, and it's what the buttons set), "Choose your tempo", "Swing tempo", "Pace". "Session" is also used in "Current session", which describes what's playing, so the two labels currently compete. Lean: "Tempo", keeping "Current session" for the card. Decide when the grid is redesigned.
+- **Group names (decided, V2 plan):** "Gameplay" and "Practice Drills" (earlier: "Full Swings" and "Drills").
+- **Short Game (decided):** a single group, with no toggle. See the Short Game notes in idea 1.
+- **Rename "Available sessions" (decided, V2-06):** "Tempo", keeping "Current session" for the card. "Session" was used in both labels, so they competed. The wording can change later.
 - **Group data.** Store each preset's group in the preset data in `src/engine/presets.ts`, alongside its name from idea 1, so the UI does not decide which presets are drills.
-- **Design together with idea 1.** Both change the preset grid.
+- **Design together with idea 1.** Both change how tempos are chosen and described (now the Tempo slider, V2-06, and the text in V2-10).
 
 **Drill timing (planned, developer and Kiro, November 2026).** This is a timing engine change, so it is an approved exception to the V2 rule "the timing engine does not change" (see `.kiro/steering/prototype-versions.md`). Drills only: Full Swings and Short Game do not change.
 
@@ -136,7 +136,7 @@ So a bar is 12 counts = 24 hats = 3 measures of 8 (swing, recovery, countdown).
 *Work split.*
 
 - **Timing engine and countdown sound (Kiro, in the timing context):** drill group and the two removed presets in `presets.ts`; the drill bar in `repeat.ts`; new `countdown` events (4, 3, 2, 1) in `sequence.ts`; drill loop pattern in `loop.ts`; tests that lock the rules (below); a countdown voice in `tones.ts`, with candidate sounds in the Audio lab to pick from by ear. Placeholders where other code reads event types, so nothing breaks.
-- **UI (a spec window, from the handoff):** the countdown on screen (numbers, pulse, animation), the Full Swings and Drills labels, and the preset grid layout. Handoff document: `docs/drills-handoff.md`.
+- **UI (from the handoff):** the countdown on screen (numbers, pulse, animation; V2-08), the Gameplay / Practice Drills toggle (V2-05) and the Tempo slider (V2-06). Handoff document: `docs/drills-handoff.md`.
 
 *Rules the tests will lock (so later changes cannot break them):* every drill bar is exactly 24 hats (whole measures of 8); every countdown event lands exactly on a hi-hat, loop on or off; takeaway, weight shift, TOP and impact land where they do now, relative to the backswing; Full Swings and Short Game produce exactly the same events as before; everything scales with tempo (no fixed seconds anywhere in the drill bar).
 
@@ -146,7 +146,7 @@ So a bar is 12 counts = 24 hats = 3 measures of 8 (swing, recovery, countdown).
 
 ## 3. Beats control on the main screen
 
-**Status:** Idea. **From:** the developer.
+**Status:** Replaced by V2-03 (`docs/changes/V2.md`): two toggles below the Current session card, Background loop and Weight shift. Takeaway, top and impact always play, so there is no "Beats off" option and the never-silent rule below is not needed. Weight shift off hides the diamond, as decided below. Kept here for the history. **From:** the developer.
 
 **The idea.** Bring the Audio lab's Beats control into the main app, so users can choose what they hear on top of the loop. Under the Background loop switch, add a "Beats" section label and three buttons in one row, in the same order as the Audio lab:
 
@@ -239,7 +239,7 @@ Generating the figures from scratch with a design tool was considered and ruled 
 
 ## 6. Move the iPhone silent-switch hint above the Background loop switch
 
-**Status:** Idea. **From:** the developer.
+**Status:** Idea, not in the V2 plan. V2-03 moves the Background loop toggle to just below the Current session card, next to the new Weight shift toggle, so "above the Background loop switch" would now put the hint right under the card. Decide its place after V2-03 lands. **From:** the developer.
 
 **Now:** on iPhone, the hint ("No sound? Check silent mode, mute in Control Center and the volume.") sits in the Current session card, between the play button and the scale (`src/app/MainScreen.tsx`).
 

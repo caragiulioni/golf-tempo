@@ -2,6 +2,10 @@
 
 Written in the timing engine context for a UI spec window. Idea: `docs/ideas.md`, idea 2 ("Split the presets into Full Swings and Practice Drills"), section "Drill timing".
 
+**V2 changes:** V2-04 (preset data), V2-07 (drill timing and countdown sound) in the timing context; V2-05 (toggle), V2-06 (Tempo slider), V2-08 (countdown on screen) in the UI. Plan and order: `docs/changes/V2.md`.
+
+**Names:** the two groups are now **Gameplay** (was "Full Swings") and **Practice Drills** (was "Drills"). Older names below mean the same groups.
+
 **Status:** planned. The timing engine part is not built yet. Names below marked *(planned)* may change while it is built; this document is updated when the engine change lands, and that update replaces the *(planned)* marks.
 
 ## 1. What the golfer gets
@@ -22,7 +26,7 @@ Full Swings (18/6 to 30/10) and all of Short Game do not change. 120/40 and 168/
 | Countdown sound, picked by ear in the Audio lab | `src/audio/tones.ts`, `src/audio-lab/AudioLab.tsx` | Timing context |
 | Placeholders where code reads event types, so nothing breaks | `src/audio/tones.ts`, `src/ui/lib/timelineGeometry.ts`, `src/audio-lab/AudioLab.tsx` | Timing context |
 | **Countdown on screen** (numbers, pulse, animation) | UI | **UI spec** |
-| **Full Swings and Drills labels, preset grid layout** | UI | **UI spec** |
+| **Gameplay / Practice Drills toggle and Tempo slider** (V2-05, V2-06) | UI | **UI spec** |
 | **Timeline during the recovery measure and countdown** | `src/ui/components/BeatTimeline.tsx` | **UI spec** |
 
 ## 3. The timing, in counts
@@ -73,8 +77,8 @@ The timing context locks these with tests. The UI must not work around them, for
 
 - How the countdown looks: numbers, where they sit (lean: at TAKEAWAY on the timeline), the pulse, and what shows during the recovery measure before "4".
 - The timeline's ease-back (the gold fill sliding back after impact): today it fills the pause. On drills the pause is much longer and holds the countdown. Decide how they share it.
-- Full Swings and Drills labels, and the grid (decided: two labeled groups, both visible; see idea 2). Long Game drops to 8 presets: 5 Full Swings, 3 Drills.
-- The "Available sessions" rename (idea 2, lean "Tempo").
+- Decided in the V2 plan (replaces the earlier two-group grid): a **GAMEPLAY / PRACTICE DRILLS** toggle (V2-05) and a stepped **Tempo** slider in place of the preset buttons (V2-06). Long Game drops to 8 presets: 5 Gameplay (slider starts at 24/8), 3 Practice Drills (starts at 60/20).
+- The "Available sessions" rename (decided: "Tempo", V2-06).
 - Reuse check before any UI (`.kiro/steering/workflow.md`), and the guiding principles (`.kiro/steering/product.md`).
 
 ## 7. Open questions
