@@ -6,11 +6,13 @@
 // V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
 // BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
 // component or token.
+// V2-05 (Gameplay / Practice Drills): reuses SegmentedControl (extended with `size`), PresetGrid and
+// PresetButton as they are; presetsInGroup from the engine decides which tempos show.
 import React, { useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
-import type { Category, Preset, WeightShiftSettings } from '../engine';
+import { CATEGORY_RATIO, PRESETS, presetLabel, presetsInGroup } from '../engine';
+import type { Category, Preset, PresetGroup, WeightShiftSettings } from '../engine';
 import {
   laptopColumns,
   maxContentWidth,
@@ -49,6 +51,10 @@ const SILENT_SWITCH_HINT = 'No sound? Check silent mode, mute in Control Center 
 // Fixed for the life of the page, so read once.
 const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
+const GROUP_OPTIONS: ReadonlyArray<{ value: PresetGroup; label: string }> = [
+  { value: 'gameplay', label: 'GAMEPLAY' },
+  { value: 'drills', label: 'PRACTICE DRILLS' },
+];
 type Props = {
   category: Category;
   /** Index into PRESETS[category] for each category. */
@@ -79,6 +85,14 @@ export function MainScreen({
   const presets = PRESETS[category];
   const selectedIndex = presetByCategory[category];
   const selected = presets[selectedIndex];
+  // Long Game only: the selected preset's group decides which tempos show.
+  const group: PresetGroup | null = category === 'long' ? (selected.group ?? 'gameplay') : null;
+  const visiblePresets = group ? presetsInGroup('long', group) : presets;
+  // Switching group selects that group's middle tempo (24/8 for Gameplay, 60/20 for Practice Drills).
+  const onGroupChange = (next: PresetGroup) => {
+    const list = presetsInGroup('long', next);
+    onPresetChange('long', presets.indexOf(list[Math.floor(list.length / 2)]));
+  };
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
   // Not saved either: the weight shift beat is on every time the app starts.
@@ -154,9 +168,18 @@ export function MainScreen({
       </View>
       <View style={styles.controlGroup}>
         <SectionLabel>Available sessions</SectionLabel>
+        {group ? (
+          <SegmentedControl
+            options={GROUP_OPTIONS}
+            value={group}
+            onChange={onGroupChange}
+            accessibilityLabel="Tempo group"
+            size="label"
+          />
+        ) : null}
         <PresetGrid
-          items={presets}
-          columns={PRESET_COLUMNS[category]}
+          items={visiblePresets}
+          columns={group === 'drills' ? 3 : PRESET_COLUMNS[category]}
           keyOf={presetKey}
           accessibilityLabel={`${CATEGORY_NAME[category]} tempos`}
           renderItem={(p) => {

@@ -1,5 +1,7 @@
 // Reuse check: reuses AppText and Icon (check mark). Theme tokens only.
 // No existing selector component, so this is new.
+// V2-05: extended with `size` (smaller text for longer labels) and two-line labels, so it is
+// reused for the Gameplay / Practice Drills choice.
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { borderWidth, radius, spacing, useTheme } from '../../theme';
@@ -15,6 +17,8 @@ type Props<T extends string> = {
   onChange: (value: T) => void;
   /** Name for the group, read by screen readers. */
   accessibilityLabel?: string;
+  /** Label text size. 'label' fits longer labels. Default 'body'. */
+  size?: 'body' | 'label';
 };
 
 const CHECK_SIZE = spacing.lg;
@@ -24,6 +28,7 @@ export function SegmentedControl<T extends string>({
   value,
   onChange,
   accessibilityLabel,
+  size = 'body',
 }: Props<T>) {
   const { colors } = useTheme();
   return (
@@ -37,6 +42,7 @@ export function SegmentedControl<T extends string>({
           key={option.value}
           label={option.label}
           selected={option.value === value}
+          size={size}
           onPress={() => onChange(option.value)}
         />
       ))}
@@ -44,7 +50,17 @@ export function SegmentedControl<T extends string>({
   );
 }
 
-function Option({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+function Option({
+  label,
+  selected,
+  onPress,
+  size,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  size: 'body' | 'label';
+}) {
   const { colors } = useTheme();
   const { onFocus, onBlur, ringStyle } = useFocusRing();
   return (
@@ -64,7 +80,13 @@ function Option({ label, selected, onPress }: { label: string; selected: boolean
       ]}
     >
       {selected ? <Icon name="check" size={CHECK_SIZE} color="onAccent" /> : null}
-      <AppText variant="label" size="body" color={selected ? 'onAccent' : 'text'} numberOfLines={1}>
+      <AppText
+        variant="label"
+        size={size}
+        color={selected ? 'onAccent' : 'text'}
+        numberOfLines={2}
+        style={styles.optionLabel}
+      >
         {label}
       </AppText>
     </Pressable>
@@ -88,4 +110,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderRadius: radius.chip - spacing.xs,
   },
+  /** A long label wraps to two centred lines instead of being cut off. */
+  optionLabel: { flexShrink: 1, textAlign: 'center' },
 });

@@ -48,7 +48,7 @@ a) **Add flair to the header ("Current session").** Right now it is just small t
 b) **Remove the Voice / String / Bossa Nova row.** Sound styles are dropped.
 
 c) **Available sessions in two rows.** There are now more presets than fit in one row:
-- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, then slower practice presets 42/14, 60/20, 84/28. Eight in total (V2-04 removed 120/40 and 168/56), so a row of five and a row of three until V2-06 replaces the buttons with a slider.
+- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, then slower practice presets 42/14, 60/20, 84/28. Eight in total (V2-04 removed 120/40 and 168/56), shown in two groups by a GAMEPLAY / PRACTICE DRILLS toggle above the buttons (V2-05): five Gameplay buttons in a row, or three Practice Drills buttons in a row, until V2-06 replaces the buttons with a slider.
 - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Six now, possibly more later. Design the grid so six, ten and a few more all look good.
 
 ## 6. Screens and components to design
