@@ -46,6 +46,9 @@ type LeadInListener = (leadIn: ScheduledLeadIn) => void;
 const leadInListeners = new Set<LeadInListener>();
 // Output delay resolved at the latest swing. Null until the first swing.
 let lastDelay: OutputDelay | null = null;
+// The last delay the browser reported at the second swing or later of a run (V2-13). The first swing
+// of the next run starts with it, so a restart does not time its lights with the platform guess.
+let rememberedDelay: number | null = null;
 // Swings scheduled since the player last became 'playing'. 0 means the next one is the first of the run.
 let swingsInRun = 0;
 
@@ -67,8 +70,14 @@ export function getSharedPlayer(): Player | null {
   const created = createPlayer(adapter, {
     onLeadIn: (leadIn) => {
       // The countdown comes before the run's first swing, so resolve the first-swing delay here
-      // (the platform constant), or listeners would read the previous run's value.
-      lastDelay = resolveOutputDelayForSwing(sharedAdapter?.info() ?? null, currentPlatformKey(Platform.OS), 0);
+      // (the remembered value, or the platform constant on the first run), or listeners would read
+      // the previous run's value.
+      lastDelay = resolveOutputDelayForSwing(
+        sharedAdapter?.info() ?? null,
+        currentPlatformKey(Platform.OS),
+        0,
+        rememberedDelay,
+      );
       leadInListeners.forEach((listener) => listener(leadIn));
     },
     onSwing: (swing) => {
@@ -77,9 +86,16 @@ export function getSharedPlayer(): Player | null {
         sharedAdapter?.info() ?? null,
         currentPlatformKey(Platform.OS),
         swingsInRun,
+        rememberedDelay,
       );
+      if (swingsInRun > 0 && lastDelay.source === 'reported') rememberedDelay = lastDelay.seconds;
+      const browserSaid = sharedAdapter?.info()?.outputLatencySeconds;
       addLog(
-        `Output delay ${Math.round(lastDelay.seconds * 1000)} ms (${lastDelay.source})${swingsInRun === 0 ? ' first swing' : ''}`,
+        `Output delay ${Math.round(lastDelay.seconds * 1000)} ms (${lastDelay.source})${
+          swingsInRun === 0
+            ? ` first swing${typeof browserSaid === 'number' ? `, browser said ${Math.round(browserSaid * 1000)} ms` : ''}`
+            : ''
+        }`,
       );
       swingListeners.forEach((listener) => listener(swing));
       swingsInRun += 1;
