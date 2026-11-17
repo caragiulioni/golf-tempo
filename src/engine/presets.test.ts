@@ -88,3 +88,22 @@ describe('category ratios', () => {
     expect(matchesRatio({ category: 'short', backFrames: 30, downFrames: 10 })).toBe(false);
   });
 });
+
+describe('preset names and descriptions (V2-10)', () => {
+  const all = [...LONG_GAME_PRESETS, ...SHORT_GAME_PRESETS];
+  it('every preset has an archetype and a "Good for" sentence', () => {
+    for (const preset of all) {
+      expect(preset.archetype?.trim(), presetLabel(preset)).toBeTruthy();
+      expect(preset.goodFor?.trim(), presetLabel(preset)).toBeTruthy();
+    }
+  });
+  it('archetypes are unique inside a game, so two tempos never share a name', () => {
+    for (const list of [LONG_GAME_PRESETS, SHORT_GAME_PRESETS]) {
+      const names = list.map((p) => p.archetype);
+      expect(new Set(names).size).toBe(names.length);
+    }
+  });
+  it('no archetype names "Tour" (the app is modeled on Tour Tempo)', () => {
+    for (const preset of all) expect(preset.archetype).not.toMatch(/\btour\b/i);
+  });
+});

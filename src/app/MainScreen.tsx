@@ -6,6 +6,7 @@
 // V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
 // BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
 // component or token.
+// V2-10 (archetype and Good for): reuses AppText; the words come from the preset data.
 // V2-08 (countdown on screen): no new component; BeatTimeline shows the 4, 3, 2, 1 itself, fed by
 // the new onLeadIn listener from usePlayerSession.
 // V2-06 (Tempo slider): replaces PresetGrid and PresetButton with the new StepSlider (built on
@@ -153,6 +154,11 @@ export function MainScreen({
       <View style={styles.tempoRow}>
         <View style={styles.tempoBadgeBox}>
           <Badge variant="tempo" back={selected.backFrames} down={selected.downFrames} />
+          {selected.archetype ? (
+            <AppText variant="label" size="label" accessibilityLabel={`Tempo name: ${selected.archetype}`}>
+              {selected.archetype}
+            </AppText>
+          ) : null}
         </View>
         <PlayButton playing={session.playing} onPress={session.toggle} />
       </View>
@@ -225,6 +231,7 @@ export function MainScreen({
           spokenSuffix={group === 'drills' ? 'Practice Drills' : group === 'gameplay' ? 'Gameplay' : undefined}
           startLabel="RAPID"
           endLabel="SMOOTH"
+          caption={selected.goodFor}
         />
       </View>
       {/* Very last on the screen, closed to start with, so an open panel is out of the way (V2-09). */}
@@ -318,7 +325,7 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   /** Takes the free width left of the play button. */
-  tempoBadgeBox: { flex: 1 },
+  tempoBadgeBox: { flex: 1, gap: spacing.xs },
   /** Right-hand column: game length, sessions. */
   controlsColumn: { gap: spacing.xl },
   controlsColumnLaptop: { flex: laptopColumns.controls },

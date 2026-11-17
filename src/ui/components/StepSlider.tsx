@@ -23,13 +23,15 @@ type Props = {
   /** Optional words above the left and right ends of the slider. */
   startLabel?: string;
   endLabel?: string;
+  /** A sentence under the tempos, inside the box (V2-10: what the selected tempo is good for). */
+  caption?: string;
   /** Added to the spoken value, for example "Gameplay" makes it "24/8, Gameplay". */
   spokenSuffix?: string;
 };
 // Room each side so the first and last labels, centred under the thumb, are not cut off.
 const SIDE_INSET = Math.max(0, (sliderSize.stepLabel - sliderSize.thumb) / 2);
 /** A slider that snaps to named steps, with every step's label under the track. */
-export function StepSlider({ labels, value, onChange, accessibilityLabel, startLabel, endLabel, spokenSuffix }: Props) {
+export function StepSlider({ labels, value, onChange, accessibilityLabel, startLabel, endLabel, spokenSuffix, caption }: Props) {
   const { mode, colors } = useTheme();
   const [width, setWidth] = useState(0);
   const [boxSize, setBoxSize] = useState({ width: 0, height: 0 });
@@ -95,6 +97,7 @@ export function StepSlider({ labels, value, onChange, accessibilityLabel, startL
           ))}
         </View>
       </View>
+      {caption ? <AppText size="label" style={styles.caption}>{caption}</AppText> : null}
     </View>
   );
 }
@@ -108,6 +111,8 @@ const styles = StyleSheet.create({
   },
   /** Grey words above the ends and for the tempos not selected; the selected tempo is the light text color, bold. */
   endLabel: { color: timeline.labelMuted },
+  /** The sentence under the tempos: grey, like the other words in the box. */
+  caption: { color: timeline.labelMuted, marginTop: spacing.xs },
   stepLabel: { color: timeline.label },
   unselected: { color: timeline.labelMuted },
   /** Words above the slider ends: first left-aligned, second right-aligned. */

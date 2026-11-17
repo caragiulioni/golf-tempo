@@ -15,6 +15,10 @@ export type Preset = {
   downFrames: number;
   /** Long Game only. Short Game presets leave it out. */
   group?: PresetGroup;
+  /** A plain name for the tempo, for example "The Balanced Benchmark Swing" (V2-10, `docs/ideas.md`, idea 1). */
+  archetype?: string;
+  /** One sentence on what the tempo suits. Shown under the swing scale. */
+  goodFor?: string;
 };
 
 /** Backswing is this many times the downswing. */
@@ -23,17 +27,27 @@ export const CATEGORY_RATIO: Record<Category, number> = {
   short: 2,
 };
 
-const longGame = (backFrames: number, downFrames: number, group: PresetGroup): Preset => ({
+const longGame = (
+  backFrames: number,
+  downFrames: number,
+  group: PresetGroup,
+  archetype: string,
+  goodFor: string,
+): Preset => ({
   category: 'long',
   backFrames,
   downFrames,
   group,
+  archetype,
+  goodFor,
 });
 
-const shortGame = (backFrames: number, downFrames: number): Preset => ({
+const shortGame = (backFrames: number, downFrames: number, archetype: string, goodFor: string): Preset => ({
   category: 'short',
   backFrames,
   downFrames,
+  archetype,
+  goodFor,
 });
 
 /**
@@ -41,24 +55,26 @@ const shortGame = (backFrames: number, downFrames: number): Preset => ({
  * and the drill timing (idea 2 in `docs/ideas.md`) works cleanly only without them.
  */
 export const LONG_GAME_PRESETS: readonly Preset[] = [
-  longGame(18, 6, 'gameplay'),
-  longGame(21, 7, 'gameplay'),
-  longGame(24, 8, 'gameplay'),
-  longGame(27, 9, 'gameplay'),
-  longGame(30, 10, 'gameplay'),
+  longGame(18, 6, 'gameplay', 'The Ultra-Compact Swing', 'Short, explosive backswings with rapid transitions and powerful rotational speed.'),
+  longGame(21, 7, 'gameplay', 'The Modern Athletic Swing', 'Dynamic, athletic swings with quick transitions and assertive acceleration.'),
+  // "Tour" left out of the name (idea 1: the app is modeled on Tour Tempo).
+  longGame(24, 8, 'gameplay', 'The Balanced Benchmark Swing', 'Well-sequenced swings with a full backswing, smooth transition, and balanced power.'),
+  longGame(27, 9, 'gameplay', 'The Rhythmic Classic Swing', 'Flowing, full-bodied swings with relaxed takeaways and effortless acceleration.'),
+  longGame(30, 10, 'gameplay', 'The Measured Swing', 'Patient backswings, controlled transitions, and gradual acceleration through impact.'),
   // Slow practice presets (not in the reference software).
-  longGame(42, 14, 'drills'),
-  longGame(60, 20, 'drills'),
-  longGame(84, 28, 'drills'),
+  longGame(42, 14, 'drills', 'The Composed Swing', 'Exceptionally composed swings with extended backswings and measured, fluid transitions.'),
+  longGame(60, 20, 'drills', 'The Sequence Drill', 'Feeling each move happen in order: takeaway, weight shift, top, impact.'),
+  longGame(84, 28, 'drills', 'The Component Drill', 'Freezing your position at the top and checking each part of the swing.'),
 ];
 
 export const SHORT_GAME_PRESETS: readonly Preset[] = [
-  shortGame(14, 7),
-  shortGame(16, 8),
-  shortGame(18, 9),
-  shortGame(20, 10),
-  shortGame(22, 11),
-  shortGame(24, 12),
+  shortGame(14, 7, 'The Short Game Standard', 'Crisp, decisive contact for chips, pitches and bunker shots.'),
+  shortGame(16, 8, 'The Speed-Control Putt', 'A steady, balanced stroke for consistent putting and pace.'),
+  shortGame(18, 9, 'The Rhythmic Stroke', 'A soft, flowing motion for longer putts and fine distance control.'),
+  shortGame(20, 10, 'The Heavy Putter Pace', 'For heavier putters and anyone who likes a slow, deliberate stroke. Also good for chipping practice.'),
+  // 22/11 and 24/12 are draft suggestions, for Mike to check (idea 1).
+  shortGame(22, 11, 'The Patient Stroke', 'Slower and softer, for long lag putts and delicate chips where feel matters more than speed.'),
+  shortGame(24, 12, 'The Slow Pendulum', 'The slowest tempo: unhurried and relaxed, to feel the pendulum and build soft touch around the green.'),
 ];
 
 export const PRESETS: Record<Category, readonly Preset[]> = {

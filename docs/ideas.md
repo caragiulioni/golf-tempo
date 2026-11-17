@@ -21,7 +21,7 @@ Status: also in `.kiro/steering/product.md` (on `dev-V2`), so every UI decision 
 
 ## 1. Friendly preset names that teach tempo
 
-**Status:** Partly scheduled: the archetype and "Good for" text in the Current session card is V2-10 (`docs/changes/V2.md`). The short labels are not scheduled. **From:** the developer.
+**Status:** Partly built: the archetype (under the tempo numbers) and the "Good for" sentence (in the Tempo box) are V2-10 (`docs/changes/V2.md`, landed). The short labels (Aggressive, Brisk, ...) are not scheduled. The short labels are not scheduled. **From:** the developer.
 
 **The problem.** The preset buttons show frame counts like "24/8". Golfers who know Tour Tempo understand them. Most people don't, and the app currently doesn't explain them.
 
