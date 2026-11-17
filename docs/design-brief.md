@@ -179,7 +179,7 @@ Menu button:
 Dropdown:
 - Opens below the button, aligned to its right edge, on top of the page content.
 - Items, in order:
-  1. **Config.** Opens CONFIG mode. Temporary: removed in the final release, possibly replaced by a "How to" item.
+  1. **How it works.** Opens a screen that explains the app (V2-20; text in `docs/how-it-works.md`). The Config item that used to be first was removed in V2-09.
   2. **Light mode / Dark mode.** The label names the mode it switches to. Switching saves the choice (see `.kiro/steering/tech.md`).
 - Each item is a full-width row at least 44 points tall.
 - Closes when an item is chosen, when tapping outside it, and on Escape (web).

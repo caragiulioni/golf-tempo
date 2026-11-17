@@ -31,8 +31,6 @@ import {
   BeatTimeline,
   Button,
   Card,
-  Header,
-  MenuItem,
   PlayButton,
   SectionLabel,
   SegmentedControl,
@@ -40,6 +38,7 @@ import {
   StepSlider,
 } from '../ui/components';
 import { CATEGORY_NAME, CATEGORY_OPTIONS } from '../ui/lib/categoryUi';
+import { AppHeader } from './AppHeader';
 import { useConfigPanel } from './ConfigMount';
 import type { AppliedSettingsApi } from './ConfigMount';
 import { useLayout } from '../ui/hooks/useLayout';
@@ -76,6 +75,7 @@ type Props = {
   /** False while Config or the Audio lab is open: this screen then ignores changes and never restarts playback. */
   active: boolean;
   onOpenLab: () => void;
+  onOpenHowItWorks: () => void;
 };
 
 export function MainScreen({
@@ -86,8 +86,9 @@ export function MainScreen({
   applied,
   active,
   onOpenLab,
+  onOpenHowItWorks,
 }: Props) {
-  const { colors, toggle, toggleLabel } = useTheme();
+  const { colors } = useTheme();
   const { layout } = useLayout();
   const laptop = layout === 'laptop';
   const presets = PRESETS[category];
@@ -255,14 +256,7 @@ export function MainScreen({
         <View
           style={styles.page}
         >
-          <Header
-            menu={(close) => (
-              <>
-                <MenuItem label={toggleLabel} onPress={() => { close(); toggle(); }} />
-                <MenuItem label="Audio lab (testing)" onPress={() => { close(); onOpenLab(); }} />
-              </>
-            )}
-          />
+          <AppHeader onOpenHowItWorks={onOpenHowItWorks} onOpenLab={onOpenLab} />
           {laptop ? (
             <View style={styles.laptopColumns}>
               <View style={styles.heroColumnLaptop}>

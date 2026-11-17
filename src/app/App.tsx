@@ -17,6 +17,7 @@ import { setSystemFontOnly, ThemeProvider } from '../theme';
 import { useReduceMotion } from '../ui/hooks/useReduceMotion';
 import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS } from '../engine';
 import type { Category } from '../engine';
+import { HowItWorksScreen } from './HowItWorksScreen';
 import { useAppliedSettings } from './ConfigMount';
 import { AudioLabMount } from './AudioLabMount';
 import { MainScreen } from './MainScreen';
@@ -47,7 +48,7 @@ export default function App() {
   const [timeoutDone, setTimeoutDone] = useState(false);
   const [tapped, setTapped] = useState(false);
   const [introGone, setIntroGone] = useState(false);
-  const [screen, setScreen] = useState<'main' | 'lab'>('main');
+  const [screen, setScreen] = useState<'main' | 'lab' | 'howItWorks'>('main');
   const reduceMotion = useReduceMotion();
   // Selection lives here so it survives layout changes and later screens (design: Navigation).
   const [category, setCategory] = useState<Category>('long');
@@ -102,9 +103,15 @@ export default function App() {
                 applied={applied}
                 active={screen === 'main'}
                 onOpenLab={() => setScreen('lab')}
+                onOpenHowItWorks={() => setScreen('howItWorks')}
               />
             </View>
             {screen === 'lab' ? <AudioLabMount onBack={() => setScreen('main')} /> : null}
+            {screen === 'howItWorks' ? <HowItWorksScreen
+                onBack={() => setScreen('main')}
+                onOpenHowItWorks={() => setScreen('howItWorks')}
+                onOpenLab={() => setScreen('lab')}
+              /> : null}
             <StatusBar style="auto" />
           </ThemeProvider>
         ) : null}

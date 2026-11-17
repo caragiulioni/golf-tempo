@@ -234,6 +234,8 @@ export const dialogMaxWidth = 420;
 export const sliderSize = { trackHeight: 6, thumb: 28, stepLabel: 48 } as const;
 // Main screen layout: page max width (handoff .app) and the empty timeline slot height.
 export const maxContentWidth = 1440;
+// Widest a column of reading text gets (the How it works screen), so lines stay a comfortable length.
+export const readingMaxWidth = 720;
 // Phone intro screen: the name on two lines. Sizes in px, and the letter spacing in em (tighter than the
 // header's 0.26em, or SEQUENCE would be wider than a phone screen).
 // lineHeightEm: Michroma's own line height is 1.42 em, which leaves a tall gap between the two lines;
