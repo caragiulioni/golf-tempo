@@ -11,4 +11,4 @@ export const HOW_TO_STEPS: readonly string[] = [
 ];
 /** Under the Configure weight shift label, before How to. */
 export const DEFAULT_BLURB =
-  'The weight shift typically occurs around 75% of the backswing but every golfer is different. Fine-tune this position to match your swing and natural movement.';
+  'The weight shift typically occurs around 75% of the way through the backswing, but every golfer is different. Fine-tune the position to match your swing and natural movement.';

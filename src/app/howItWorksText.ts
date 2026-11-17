@@ -18,7 +18,7 @@ export const HOW_IT_WORKS_SECTIONS: ReadonlyArray<HowItWorksSection> = [
       // Its own paragraph, so it stands out.
       [{ text: 'Repetition builds rhythm. Rhythm builds consistency.', bold: true }],
       [
-        'The first cue marks your takeaway and the last marks impact, with your weight shift and the top of your backswing in between. Turn on the background loop to help settle into the rhythm of your selected tempo.',
+        'The first cue marks your takeaway and the last marks impact. In between, you\'ll hear your weight shift, then the top of your backswing. Turn on the background loop to help you settle into the rhythm of your tempo.',
       ],
     ],
   },
