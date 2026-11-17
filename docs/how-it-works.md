@@ -10,7 +10,7 @@ Every swing has a sequence and a rhythm. Whether you're playing Long Game or Sho
 
 **Repetition builds rhythm. Rhythm builds consistency.**
 
-The first cue marks your takeaway and the last marks impact. In between, you'll hear your weight shift, then the top of your backswing. Turn on the background loop to help you settle into the rhythm of your tempo.
+The first cue marks your takeaway and the last marks impact. In between, you'll hear your weight shift, then the top of your backswing. Turn on the background loop to help you settle into the rhythm of your tempo or toggle off the weight shift or top to focus solely on motion.
 
 ## Long game
 

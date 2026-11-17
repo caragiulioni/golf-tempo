@@ -26,6 +26,8 @@ type Props = {
   weightShiftPosition: number;
   /** False hides the weight shift diamond and its label. Default true. */
   showWeightShift?: boolean;
+  /** False hides the top marker and its label (V2-22). The bars and phase labels stay. Default true. */
+  showTop?: boolean;
   /** True while playing or restarting. When it turns false everything resets (R5.13). */
   playing?: boolean;
   /** Register for scheduled swings. Returns an unsubscribe function. */
@@ -85,6 +87,7 @@ export function BeatTimeline({
   preset,
   weightShiftPosition,
   showWeightShift = true,
+  showTop = true,
   playing = false,
   subscribeSwings,
   subscribeLeadIns,
@@ -100,10 +103,15 @@ export function BeatTimeline({
     [preset, weightShiftPosition],
   );
 
-  // The markers drawn: without the weight shift, only the three Tour Tempo beats.
+  // The markers drawn: leaves out the weight shift and the top when they are turned off.
   const markers = useMemo(
-    () => (geometry ? geometry.markers.filter((m) => showWeightShift || m.type !== 'weightShift') : []),
-    [geometry, showWeightShift],
+    () =>
+      geometry
+        ? geometry.markers.filter(
+            (m) => (showWeightShift || m.type !== 'weightShift') && (showTop || m.type !== 'beat2'),
+          )
+        : [],
+    [geometry, showWeightShift, showTop],
   );
   // Playback follow. State is local, so only this component re-renders.
   const [lit, setLit] = useState<Record<TimelineMarkerType, boolean>>(NONE_LIT);

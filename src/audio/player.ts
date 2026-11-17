@@ -40,6 +40,8 @@ export type SwingOptions = {
   preset: Preset;
   settings: WeightShiftSettings;
   includeWeightShift?: boolean;
+  /** False leaves out the cue at the top of the backswing (V2-22). Default true. */
+  includeTop?: boolean;
   toneStyle?: WeightShiftToneStyle;
   /** How the drill countdown sounds. Default: DEFAULT_COUNTDOWN_TONE_STYLE. */
   countdownStyle?: CountdownToneStyle;
@@ -68,8 +70,11 @@ export function scheduleSwing(
   startTime: number,
   options: SwingOptions,
 ): ScheduledBeep[] {
-  const { preset, settings, includeWeightShift = true } = options;
-  const events = buildSequence({ preset, settings, includeWeightShift });
+  const { preset, settings, includeWeightShift = true, includeTop = true } = options;
+  // Leaving out the top cue is done here, not in the engine, so the engine's events and timing are untouched.
+  const events = buildSequence({ preset, settings, includeWeightShift }).filter(
+    (event) => includeTop || event.type !== 'beat2',
+  );
   // Beeps first. Loop events only add sound and never change beep timing.
   const beeps = playBeeps(adapter, startTime, events, options);
   // An adapter without playLoopVoice plays no loop.

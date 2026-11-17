@@ -17,7 +17,7 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 
 ## Core behavior
 
-- Three beeps per swing, as in Tour Tempo: beat 1 (takeaway), beat 2 (top of backswing), beat 3 (impact).
+- Three beeps per swing, as in Tour Tempo: beat 1 (takeaway), beat 2 (top of backswing), beat 3 (impact). A Top button under the Current session card (V2-22) turns the beat 2 cue off or on; it is on by default and kept separately for Long Game and Short Game. Takeaway and impact always play, so the app is never silent.
 - Practice Drills (V2-07): each swing is followed by a recovery measure and a countdown 4, 3, 2, 1 into the next takeaway, with its own softer sound. Play starts with the countdown too.
 - Long Game presets (3:1), in two groups (V2-04): Gameplay 18/6, 21/7, 24/8, 27/9, 30/10, and Practice Drills 42/14, 60/20, 84/28. Eight in total. 120/40 and 168/56 were removed in V2 (too slow to be useful). The group is part of the preset data (`group` in `src/engine/presets.ts`).
 - Short Game presets (2:1): 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Slower Short Game presets are pending the brother's answer.

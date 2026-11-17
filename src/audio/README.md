@@ -4,6 +4,7 @@
 
 Turns the engine's list of timed events into sound. It makes the beeps and the background loop in code (no sound files), and schedules them against the audio clock so the timing stays exact.
 
+Tests: `player.test.ts` checks which cues `scheduleSwing` plays, with a recording stand-in for the audio.
 ## Rules
 
 - All sound goes through one adapter interface. The web version uses the browser's Web Audio. A phone version will be written later behind the same interface.

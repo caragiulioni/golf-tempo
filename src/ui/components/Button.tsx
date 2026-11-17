@@ -22,11 +22,13 @@ type Props = {
    * state from the `switch` role.
    */
   checked?: boolean;
+  /** Less side padding and a one-line label, so a row of buttons fits on a small phone. */
+  compact?: boolean;
   /** Only when the spoken name should differ from the label. */
   accessibilityLabel?: string;
 };
 
-export function Button({ label, onPress, variant = 'secondary', disabled, checked, accessibilityLabel }: Props) {
+export function Button({ label, onPress, variant = 'secondary', disabled, checked, compact, accessibilityLabel }: Props) {
   const { colors } = useTheme();
   const { onFocus, onBlur, ringStyle } = useFocusRing();
   const primary = checked === undefined ? variant === 'primary' : checked;
@@ -45,12 +47,18 @@ export function Button({ label, onPress, variant = 'secondary', disabled, checke
           backgroundColor: primary ? colors.accent : colors.surface,
           borderColor: primary ? colors.accent : colors.border,
         },
+        compact && styles.compact,
         pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
         ringStyle(colors.accent),
       ]}
     >
-      <AppText variant="label" color={primary ? 'onAccent' : 'text'} style={styles.label}>
+      <AppText
+        variant="label"
+        color={primary ? 'onAccent' : 'text'}
+        style={styles.label}
+        numberOfLines={compact ? 1 : undefined}
+      >
         {label}
       </AppText>
     </Pressable>
@@ -66,6 +74,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  /** Side padding of one small step, for a row of buttons. */
+  compact: { paddingHorizontal: spacing.sm },
   label: { textAlign: 'center' },
   pressed: { opacity: opacity.pressed },
   disabled: { opacity: opacity.disabled },

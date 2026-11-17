@@ -118,6 +118,10 @@ export function MainScreen({
   // Each game keeps its own on or off (V2-14): turn it off in Short Game and Long Game is still on.
   const weightShift = weightShiftByCategory[category];
   const setWeightShift = (on: boolean) => setWeightShiftByCategory((prev) => ({ ...prev, [category]: on }));
+  // The same for the cue at the top of the backswing (V2-22): on by default, kept per game, not saved.
+  const [topByCategory, setTopByCategory] = useState<Record<Category, boolean>>({ long: true, short: true });
+  const top = topByCategory[category];
+  const setTop = (on: boolean) => setTopByCategory((prev) => ({ ...prev, [category]: on }));
   // The Configure weight shift panel (temporary, see ConfigMount): what to play and draw, and its panel.
   // When the panel opens, scroll so its label is near the top of the screen. The panel is the last
   // thing on the page, so it can open below the fold.
@@ -139,7 +143,7 @@ export function MainScreen({
   };
   const config = useConfigPanel({ category, selected, applied, onOpened: scrollPanelIntoView });
   const session = usePlayerSession(
-    { preset: selected, loop, settings: config.playSettings, includeWeightShift: weightShift },
+    { preset: selected, loop, settings: config.playSettings, includeWeightShift: weightShift, includeTop: top },
     { active },
   );
 
@@ -174,12 +178,13 @@ export function MainScreen({
         preset={selected}
         weightShiftPosition={config.drawSettings[category]}
         showWeightShift={weightShift}
+        showTop={top}
         playing={session.playing}
         subscribeSwings={onSwing}
         subscribeLeadIns={onLeadIn}
         audioNow={audioNow}
         outputDelay={outputDelay}
-        restartKey={`${loop}-${weightShift}`}
+        restartKey={`${loop}-${weightShift}-${top}`}
       />
     </Card>
   );
@@ -189,6 +194,7 @@ export function MainScreen({
       <View style={styles.soundToggle}>
         <Button
           label="Background loop"
+          compact
           checked={loop}
           onPress={() => setLoop(!loop)}
         />
@@ -196,8 +202,18 @@ export function MainScreen({
       <View style={styles.soundToggle}>
         <Button
           label="Weight shift"
+          compact
           checked={weightShift}
           onPress={() => setWeightShift(!weightShift)}
+        />
+      </View>
+      <View style={styles.soundToggleNarrow}>
+        <Button
+          label="Top"
+          accessibilityLabel="Top of backswing cue"
+          compact
+          checked={top}
+          onPress={() => setTop(!top)}
         />
       </View>
     </View>
@@ -302,7 +318,10 @@ const styles = StyleSheet.create({
   /** The two sound buttons side by side, directly below the hero card. */
   soundToggles: { flexDirection: 'row', gap: spacing.sm },
   /** One of the two sound buttons: they share the row width equally. */
-  soundToggle: { flex: 1 },
+  /** Never narrower than its label (so the label never wraps); shares any spare room with the other wide button. */
+  soundToggle: { flexGrow: 1, flexShrink: 0 },
+  /** The Top test button: only as wide as its label, so the other two keep the room. */
+  soundToggleNarrow: { flexGrow: 0, flexShrink: 0 },
   /** Top row of the hero card: section label left, ratio badge right. */
   heroHeaderRow: {
     flexDirection: 'row',
