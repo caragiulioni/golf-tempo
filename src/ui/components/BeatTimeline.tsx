@@ -335,7 +335,7 @@ export function BeatTimeline({
     }
   }
 
-  const backShort = `BACK · ${preset.backFrames}`;
+  const backShort = 'BACK';
   const measureKeys = geometry
     ? [...Object.values(NAMES), SHIFT_SHORT, geometry.backLabel, backShort, geometry.downLabel]
     : [];

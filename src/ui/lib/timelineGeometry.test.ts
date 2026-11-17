@@ -45,11 +45,11 @@ describe('timelineGeometry', () => {
     expect(timelineGeometry(p, 0.8)!.markers[1].x).toBeGreaterThan(shift.x);
   });
 
-  it('labels use the preset frame counts', () => {
+  it('phase labels are words only, with no frame counts (V2-15)', () => {
     const g = geo(LONG_GAME_PRESETS[4]);
-    expect(g.backLabel).toBe('BACKSWING · 30');
-    expect(g.downLabel).toBe('DOWN · 10');
-    expect(geo(SHORT_GAME_PRESETS[0]).backLabel).toBe('BACKSWING · 14');
+    expect(g.backLabel).toBe('BACKSWING');
+    expect(g.downLabel).toBe('DOWN');
+    expect(geo(SHORT_GAME_PRESETS[0]).backLabel).toBe('BACKSWING');
   });
 
   it('changes with the preset', () => {
