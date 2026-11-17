@@ -282,3 +282,20 @@ Generating the figures from scratch with a design tool was considered and ruled 
 **Status:** Waiting for his list.
 
 (Add each one as its own numbered section, in the same format as idea 1.)
+
+---
+
+## 9. Redesign the countdown sound
+
+**Status:** Idea. **From:** the developer (V2-07 review, November 2026).
+
+**The problem.** The Practice Drills countdown (V2-07) uses the "Falling" pattern, picked by ear: the pitch steps down from 4 to 1. The pattern is right, but the sound itself (a plain synthesized beep) should be redesigned.
+
+**What stays.** The timing: four counts on the hi-hat, "1" one count before the takeaway, and the lead-in when Play is pressed. Only the sound changes.
+
+**Where it lives.** `src/audio/tones.ts`: the `countFall4` to `countFall1` voices (pitch, length, harmonic, attack, level) and `DEFAULT_COUNTDOWN_TONE_STYLE`. The other candidates (Tick, Last high) are still there and can be switched in the Audio lab. A different kind of sound (for example a woodblock, a click or a soft voice) would need a new sound shape in `src/audio/webAudio.ts`, like the loop's kick and snare.
+
+**Things to resolve:**
+- What it should sound like, by ear, against the beats and the loop on a phone speaker.
+- Whether "1" should stand out from 4, 3 and 2.
+- Whether the countdown hats in the loop should be accented (still open from V2-07).
