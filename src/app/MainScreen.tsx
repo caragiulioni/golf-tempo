@@ -221,10 +221,10 @@ export function MainScreen({
           labels={visiblePresets.map(presetLabel)}
           value={stepIndex}
           onChange={(i) => onPresetChange(category, presets.indexOf(visiblePresets[i]))}
-          accessibilityLabel="Tempo, from compact to relaxed"
+          accessibilityLabel="Tempo, from rapid to smooth"
           spokenSuffix={group === 'drills' ? 'Practice Drills' : group === 'gameplay' ? 'Gameplay' : undefined}
-          startLabel="COMPACT"
-          endLabel="RELAXED"
+          startLabel="RAPID"
+          endLabel="SMOOTH"
         />
       </View>
       {/* Very last on the screen, closed to start with, so an open panel is out of the way (V2-09). */}
