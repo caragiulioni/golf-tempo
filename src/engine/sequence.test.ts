@@ -23,7 +23,7 @@ describe('buildSequence', () => {
     const events = buildSequence({ preset: long(30, 10), settings: defaultWeightShiftSettings() });
     expect(events.map((e) => e.type)).toEqual(['beat1', 'weightShift', 'beat2', 'beat3']);
     expect(events[0].time).toBe(0);
-    expect(events[1].time).toBeCloseTo(0.7, 6); // default 0.70 of the 1.0 s beat 1 to beat 2 gap
+    expect(events[1].time).toBeCloseTo(0.75, 6); // default 0.75 of the 1.0 s beat 1 to beat 2 gap
     expect(events[2].time).toBeCloseTo(1.0, 6);
     expect(events[3].time).toBeCloseTo(4 / 3, 6);
   });
@@ -31,7 +31,10 @@ describe('buildSequence', () => {
   it('uses the Short Game position for a Short Game preset', () => {
     const events = buildSequence({ preset: short(18, 9), settings: defaultWeightShiftSettings() });
     const shift = events.find((e) => e.type === 'weightShift');
-    expect(shift?.time).toBeCloseTo(0.6 * 0.6, 6);
+    expect(shift?.time).toBeCloseTo(0.75 * 0.6, 6);
+    // Both defaults are 0.75, so also check with different values that Short Game reads its own.
+    const distinct = buildSequence({ preset: short(18, 9), settings: { long: 0.3, short: 0.6 } });
+    expect(distinct.find((e) => e.type === 'weightShift')?.time).toBeCloseTo(0.6 * 0.6, 6);
   });
 
   it('events are always in time order', () => {
@@ -81,7 +84,7 @@ describe('weight shift position', () => {
       const events = buildSequence({ preset, settings });
       const beat2 = events.find((e) => e.type === 'beat2')!.time;
       const shift = events.find((e) => e.type === 'weightShift')!.time;
-      expect(shift / beat2).toBeCloseTo(0.7, 6);
+      expect(shift / beat2).toBeCloseTo(0.75, 6);
     }
   });
 
@@ -90,6 +93,6 @@ describe('weight shift position', () => {
     const longShift = buildSequence({ preset: long(30, 10), settings }).find((e) => e.type === 'weightShift')!;
     const shortShift = buildSequence({ preset: short(18, 9), settings }).find((e) => e.type === 'weightShift')!;
     expect(longShift.time / 1.0).toBeCloseTo(0.4, 6);
-    expect(shortShift.time / 0.6).toBeCloseTo(0.6, 6);
+    expect(shortShift.time / 0.6).toBeCloseTo(0.75, 6);
   });
 });
