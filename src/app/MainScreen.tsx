@@ -14,9 +14,10 @@
 // PresetButton as they are; presetsInGroup from the engine decides which tempos show.
 import React, { useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CATEGORY_RATIO, PRESETS, presetLabel, presetsInGroup } from '../engine';
-import type { Category, Preset, PresetGroup, WeightShiftSettings } from '../engine';
+import type { Category, Preset, PresetGroup } from '../engine';
 import {
   laptopColumns,
   maxContentWidth,
@@ -38,6 +39,8 @@ import {
   StepSlider,
 } from '../ui/components';
 import { CATEGORY_NAME, CATEGORY_OPTIONS } from '../ui/lib/categoryUi';
+import { useConfigPanel } from './ConfigMount';
+import type { AppliedSettingsApi } from './ConfigMount';
 import { useLayout } from '../ui/hooks/useLayout';
 import {
   PAUSED_TEXT,
@@ -68,10 +71,9 @@ type Props = {
   onCategoryChange: (category: Category) => void;
   onPresetChange: (category: Category, index: number) => void;
   /** Weight shift positions to play and draw with. */
-  weightShiftSettings: WeightShiftSettings;
+  applied: AppliedSettingsApi;
   /** False while Config or the Audio lab is open: this screen then ignores changes and never restarts playback. */
   active: boolean;
-  onOpenConfig: () => void;
   onOpenLab: () => void;
 };
 
@@ -80,9 +82,8 @@ export function MainScreen({
   presetByCategory,
   onCategoryChange,
   onPresetChange,
-  weightShiftSettings,
+  applied,
   active,
-  onOpenConfig,
   onOpenLab,
 }: Props) {
   const { colors, toggle, toggleLabel } = useTheme();
@@ -115,8 +116,28 @@ export function MainScreen({
   // Each game keeps its own on or off (V2-14): turn it off in Short Game and Long Game is still on.
   const weightShift = weightShiftByCategory[category];
   const setWeightShift = (on: boolean) => setWeightShiftByCategory((prev) => ({ ...prev, [category]: on }));
+  // The Configure weight shift panel (temporary, see ConfigMount): what to play and draw, and its panel.
+  // When the panel opens, scroll so its label is near the top of the screen. The panel is the last
+  // thing on the page, so it can open below the fold.
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const panelRef = useRef<React.ComponentRef<typeof View>>(null);
+  const scrollY = useRef(0);
+  const scrollPanelIntoView = () => {
+    // Wait a moment, so the opened panel has been laid out and the page is long enough to scroll.
+    setTimeout(() => {
+      const scroller = scrollRef.current;
+      const panel = panelRef.current;
+      if (!scroller || !panel) return;
+      scroller.measureInWindow((_x, scrollerTop) => {
+        panel.measureInWindow((_px, panelTop) => {
+          scroller.scrollTo({ y: Math.max(0, scrollY.current + panelTop - scrollerTop - spacing.lg), animated: true });
+        });
+      });
+    }, 80);
+  };
+  const config = useConfigPanel({ category, selected, applied, onOpened: scrollPanelIntoView });
   const session = usePlayerSession(
-    { preset: selected, loop, settings: weightShiftSettings, includeWeightShift: weightShift },
+    { preset: selected, loop, settings: config.playSettings, includeWeightShift: weightShift },
     { active },
   );
 
@@ -144,7 +165,7 @@ export function MainScreen({
       ) : null}
       <BeatTimeline
         preset={selected}
-        weightShiftPosition={weightShiftSettings[category]}
+        weightShiftPosition={config.drawSettings[category]}
         showWeightShift={weightShift}
         playing={session.playing}
         subscribeSwings={onSwing}
@@ -181,7 +202,7 @@ export function MainScreen({
         <SegmentedControl
           options={CATEGORY_OPTIONS}
           value={category}
-          onChange={onCategoryChange}
+          onChange={(next) => config.requestCategoryChange(next, () => onCategoryChange(next))}
           accessibilityLabel="Game length"
         />
       </View>
@@ -206,12 +227,21 @@ export function MainScreen({
           endLabel="RELAXED"
         />
       </View>
+      {/* Very last on the screen, closed to start with, so an open panel is out of the way (V2-09). */}
+      <View ref={panelRef} collapsable={false}>
+        {config.panel}
+      </View>
     </View>
   );
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.bg }]}>
       <ScrollView
+        ref={scrollRef}
+        onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+          scrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
@@ -221,7 +251,6 @@ export function MainScreen({
           <Header
             menu={(close) => (
               <>
-                <MenuItem label="Config" onPress={() => { close(); onOpenConfig(); }} />
                 <MenuItem label={toggleLabel} onPress={() => { close(); toggle(); }} />
                 <MenuItem label="Audio lab (testing)" onPress={() => { close(); onOpenLab(); }} />
               </>

@@ -11,7 +11,7 @@ import { copyToClipboard, deviceUserAgent } from './exportDevice';
 const COPIED_TEXT = 'Copied. Paste it into a message to send it.';
 const COPY_FAILED_TEXT = 'Could not copy automatically. Press and hold the text above, select it and copy it.';
 const UNAPPLIED_NOTE =
-  'EXPORT sends your saved values only. Slider changes you have not applied are not included.';
+  'DUMP sends your saved values only. Slider changes you have not applied are not included.';
 
 type Props = {
   /** The saved values. Never the slider positions. */
@@ -49,25 +49,25 @@ export function ExportPanel({ applied, hasUnapplied, onRevealed }: Props) {
   };
 
   return (
-    <Card accessibilityLabel="Export" style={styles.card}>
-      <SectionLabel>Export</SectionLabel>
+    <Card accessibilityLabel="Dump" style={styles.card}>
+      <SectionLabel>Dump</SectionLabel>
       <Button
-        label="EXPORT"
+        label="DUMP"
         onPress={() => {
           setExportedAt(new Date());
           setCopyStatus('none');
         }}
-        accessibilityLabel="Export saved values"
+        accessibilityLabel="Dump saved values"
       />
       {hasUnapplied ? <AppText size="caption" color="text2">{UNAPPLIED_NOTE}</AppText> : null}
       {text ? (
         <>
           <View style={[styles.textBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <AppText size="caption" selectable accessibilityLabel="Export text">
+            <AppText size="caption" selectable accessibilityLabel="Dump text">
               {text}
             </AppText>
           </View>
-          <Button label="Copy" variant="primary" onPress={copy} accessibilityLabel="Copy export text" />
+          <Button label="Copy" variant="primary" onPress={copy} accessibilityLabel="Copy dump text" />
           {copyStatus === 'copied' ? <StatusMessage variant="hint" text={COPIED_TEXT} /> : null}
           {copyStatus === 'failed' ? <StatusMessage variant="info" text={COPY_FAILED_TEXT} /> : null}
         </>

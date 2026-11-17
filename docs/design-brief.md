@@ -72,6 +72,7 @@ On Practice Drills (V2-08) the timeline also shows the countdown 4, 3, 2, 1: the
 Large and easy to hit with a thumb. Clear states: stopped, playing. It restarts from the beginning each time.
 
 ### CONFIG mode (temporary)
+Since V2-09 this is the "Configure weight shift" label with an arrow in its own card at the very bottom of the main screen, below the Tempo slider (in the controls column on a laptop). It opens a panel, in this order: a note about the 75% starting value, How to, the readout and slider with − and +, the saved status, and APPLY and RESET. It has no play button or scale of its own, since the main ones are right above, and no export button (removed in V2-09).
 The brother uses this to find the right weight shift position. It should feel like a natural part of the app, not a developer tool. Contains:
 - A slider for the weight shift position, with visual feedback showing where it falls between takeaway and top of swing.
 - **APPLY** (saves the setting for the selected category, Long Game or Short Game, one at a time).

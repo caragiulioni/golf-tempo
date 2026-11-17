@@ -17,7 +17,7 @@ import { setSystemFontOnly, ThemeProvider } from '../theme';
 import { useReduceMotion } from '../ui/hooks/useReduceMotion';
 import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS } from '../engine';
 import type { Category } from '../engine';
-import { ConfigMount, useAppliedSettings } from './ConfigMount';
+import { useAppliedSettings } from './ConfigMount';
 import { AudioLabMount } from './AudioLabMount';
 import { MainScreen } from './MainScreen';
 import { IntroScreen } from './IntroScreen';
@@ -47,7 +47,7 @@ export default function App() {
   const [timeoutDone, setTimeoutDone] = useState(false);
   const [tapped, setTapped] = useState(false);
   const [introGone, setIntroGone] = useState(false);
-  const [screen, setScreen] = useState<'main' | 'config' | 'lab'>('main');
+  const [screen, setScreen] = useState<'main' | 'lab'>('main');
   const reduceMotion = useReduceMotion();
   // Selection lives here so it survives layout changes and later screens (design: Navigation).
   const [category, setCategory] = useState<Category>('long');
@@ -99,20 +99,11 @@ export default function App() {
                 presetByCategory={presetByCategory}
                 onCategoryChange={setCategory}
                 onPresetChange={onPresetChange}
-                weightShiftSettings={applied.state.settings}
+                applied={applied}
                 active={screen === 'main'}
-                onOpenConfig={() => setScreen('config')}
                 onOpenLab={() => setScreen('lab')}
               />
             </View>
-            {screen === 'config' ? (
-              <ConfigMount
-                category={category}
-                presetByCategory={presetByCategory}
-                applied={applied}
-                onBack={() => setScreen('main')}
-              />
-            ) : null}
             {screen === 'lab' ? <AudioLabMount onBack={() => setScreen('main')} /> : null}
             <StatusBar style="auto" />
           </ThemeProvider>
@@ -131,7 +122,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  /** Outermost box: main screen, config screen and intro are stacked inside it. */
+  /** Outermost box: main screen, audio lab and intro are stacked inside it. */
   appRoot: { flex: 1 },
   /** Keeps the main screen mounted. */
   mainScreenWrapper: { flex: 1 },

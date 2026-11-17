@@ -40,11 +40,10 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 
 CONFIG mode lives inside the real app. It is not a separate app or branch, so the brother tests his settings in the actual app at every tempo.
 
-- A CONFIG item in the header menu reveals a slider for the weight shift position, an APPLY button, a reset-to-default button and an EXPORT button that produces JSON.
+- A "Configure weight shift" label with an arrow, at the very bottom of the main screen, below the Tempo slider (V2-09; it was inside the Current session card for a while, but an open panel there got in the way of the controls), opens a panel: a short note about the 75% starting value, a How to button, a slider for the weight shift position, an APPLY button, and a reset-to-default button. There is no export or dump button in the panel (removed in V2-09, decided by the developer; the brother reports the saved percentages the panel shows). The export code (`exportText.ts`, `ExportPanel.tsx`) is still in `src/config-mode/` but unused. The panel configures the game and tempo chosen on the main screen, and the main play button plays and draws the slider's position while it is open.
 - APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then plays with the applied value at every tempo.
-- If there are unapplied slider changes and the user leaves CONFIG, show a yes/no confirmation dialog before discarding them. Yes discards the changes and leaves. No stays in CONFIG.
-- EXPORT exports the applied values.
-- The brother uses it to find the right position, then sends the export to the developer.
+- If there are unapplied slider changes and the user closes the panel, or switches between Long Game and Short Game, show a confirmation dialog before discarding them: "You have changes you haven't applied. Close without applying?" (or "Switch to Short game without applying?"). Discard throws the changes away and goes ahead. Keep editing stays.
+- The brother uses it to find the right position, then tells the developer the saved percentages (Long Game and Short Game) shown in the panel.
 - Final values get hard-coded into the engine and CONFIG is removed, including reading the saved values. Build it so removal is easy: keep all CONFIG UI, saving and export code in its own module.
 
 ## Guiding principles
@@ -59,5 +58,5 @@ Check every UI decision against these. From the developer, November 2026.
 - Accurate timing and reliable playback come first.
 - Keep it lightweight. No backend, accounts, database or analytics.
 - Light and dark mode, both designed (see `_references/DESIGN/` and `docs/design/`). A toggle in the header menu switches between them, and the choice is remembered between visits.
-- Header: logo and wordmark on the left, a menu button on the right. The menu holds CONFIG (temporary; later replaced by a "How to" item or removed) and the light/dark toggle. See `docs/design-brief.md`, section 12.
+- Header: logo and wordmark on the left, a menu button on the right. The menu holds the light/dark toggle (the Config item was removed in V2-09, because the Configure weight shift panel replaced the screen). See `docs/design-brief.md`, section 12.
 - Polished, responsive UI with its own identity. Tour Tempo is a functional reference, not a visual template.

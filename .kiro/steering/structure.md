@@ -22,13 +22,13 @@ src/
     hooks/       React hooks (usePlayerSession, useLayout, useReduceMotion, useFocusRing).
     lib/         Pure helpers with tests (timeline geometry, output delay, silent switch,
                  snapToStep) and shared category data (categoryUi).
-  config-mode/   Temporary CONFIG screen, saved values, How to and JSON export. Self-contained
+  config-mode/   Temporary Configure weight shift panel, saved values, How to (the JSON export code is kept but unused since V2-09). Self-contained
                  so it can be deleted in Phase 4.
   storage/       Thin wrapper over AsyncStorage. Used for the saved theme choice.
   theme/         Design tokens: colors (light and dark), typography, spacing, radius.
                  Check here first before adding any new style value.
   app/           Screens and wiring: App.tsx (root), MainScreen.tsx, IntroScreen.tsx,
-                 ConfigMount.tsx (CONFIG mount point), AudioLabMount.tsx (lab mount point).
+                 ConfigMount.tsx (CONFIG panel mount point), AudioLabMount.tsx (lab mount point).
 _references/     Source material. Do not edit.
 docs/            Working documents: dev_questions.md, client_questions.md, porting-guide.md,
                  calibration-guide.md (temporary, for the brother), ideas.md.
