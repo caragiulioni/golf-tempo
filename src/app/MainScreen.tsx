@@ -108,7 +108,13 @@ export function MainScreen({
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
   // Not saved either: the weight shift beat is on every time the app starts.
-  const [weightShift, setWeightShift] = useState(true);
+  const [weightShiftByCategory, setWeightShiftByCategory] = useState<Record<Category, boolean>>({
+    long: true,
+    short: true,
+  });
+  // Each game keeps its own on or off (V2-14): turn it off in Short Game and Long Game is still on.
+  const weightShift = weightShiftByCategory[category];
+  const setWeightShift = (on: boolean) => setWeightShiftByCategory((prev) => ({ ...prev, [category]: on }));
   const session = usePlayerSession(
     { preset: selected, loop, settings: weightShiftSettings, includeWeightShift: weightShift },
     { active },
