@@ -438,9 +438,14 @@ export function BeatTimeline({
 
       {ready && geometry ? (
         <View style={styles.timelineContent}>
-          {/* Phase labels, split at beat 2. */}
+          {/* Phase labels, split at beat 2. Without the top marker the line under them is one line, left to right. */}
           <View style={styles.phaseRow}>
-            <View style={[styles.phaseRowBack, { width: Math.max(0, backWidth) }]}>
+            <View
+              style={[
+                styles.phaseRowBack,
+                { width: Math.max(0, showTop ? backWidth : size.width - 2 * S.paddingX) },
+              ]}
+            >
               <AppText
                 variant="label"
                 size="phaseLabel"
@@ -451,7 +456,13 @@ export function BeatTimeline({
                 {backText}
               </AppText>
             </View>
-            <View style={[styles.phaseRowDown, { left: downLeft }]}>
+            <View
+              style={[
+                styles.phaseRowDown,
+                { left: downLeft },
+                !showTop && styles.phaseUnderlineHidden,
+              ]}
+            >
               <AppText
                 variant="label"
                 size="phaseLabel"
@@ -487,8 +498,16 @@ export function BeatTimeline({
 
           {/* Bars and markers. */}
           <View style={styles.track} testID="track">
-            <Bar left={px(0)} right={px(geometry.splitX)} color={timeline.backswingBar} />
-            <Bar left={px(geometry.splitX)} right={px(1)} color={timeline.downswingBar} />
+            {showTop ? (
+              <>
+                <Bar left={px(0)} right={px(geometry.splitX)} color={timeline.backswingBar} />
+                <Bar left={px(geometry.splitX)} right={px(1)} color={timeline.downswingBar} />
+              </>
+            ) : (
+              // Without the top marker the two bars would show a seam where it was (rounded ends meeting),
+              // so the track is one bar, like with the weight shift off (V2-23).
+              <Bar left={px(0)} right={px(1)} color={timeline.backswingBar} />
+            )}
             {/* Gold fill: grows with the playhead over both bars, shrinks on the ease-back. */}
             <Animated.View
               pointerEvents="none"
@@ -693,6 +712,8 @@ const styles = StyleSheet.create({
     borderBottomColor: timeline.downswingBar,
     paddingBottom: spacing.xs,
   },
+  /** The DOWN label's own underline, hidden when the BACKSWING underline runs the whole width (top off). */
+  phaseUnderlineHidden: { borderBottomColor: 'transparent' },
   /** Phase label text. letterSpacing is overridden inline. */
   phaseText: { color: timeline.label, letterSpacing: S.phaseLetterSpacing },
   /** Right-aligned DOWNSWING text. */

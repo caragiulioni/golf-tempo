@@ -199,7 +199,7 @@ export function MainScreen({
           onPress={() => setLoop(!loop)}
         />
       </View>
-      <View style={styles.soundToggle}>
+      <View style={styles.soundToggleMiddle}>
         <Button
           label="Weight shift"
           compact
@@ -315,13 +315,14 @@ const styles = StyleSheet.create({
   heroCardLaptop: { flex: 1 },
   /** Laptop only: left column holding the hero card and the sound toggles under it. */
   heroColumnLaptop: { flex: laptopColumns.hero, gap: spacing.lg },
-  /** The two sound buttons side by side, directly below the hero card. */
+  /** The three sound buttons side by side, directly below the hero card. */
   soundToggles: { flexDirection: 'row', gap: spacing.sm },
-  /** One of the two sound buttons: they share the row width equally. */
-  /** Never narrower than its label (so the label never wraps); shares any spare room with the other wide button. */
+  /** Background loop: never narrower than its label (so the label never wraps); takes the biggest share of any spare room. */
   soundToggle: { flexGrow: 1, flexShrink: 0 },
-  /** The Top test button: only as wide as its label, so the other two keep the room. */
-  soundToggleNarrow: { flexGrow: 0, flexShrink: 0 },
+  /** Weight shift: a little narrower than Background loop, so Top gets more room. */
+  soundToggleMiddle: { flexGrow: 0.6, flexShrink: 0 },
+  /** Top: its label plus a small share of the spare room. */
+  soundToggleNarrow: { flexGrow: 0.4, flexShrink: 0 },
   /** Top row of the hero card: section label left, ratio badge right. */
   heroHeaderRow: {
     flexDirection: 'row',
