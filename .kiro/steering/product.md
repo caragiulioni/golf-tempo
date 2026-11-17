@@ -58,5 +58,5 @@ Check every UI decision against these. From the developer, November 2026.
 - Accurate timing and reliable playback come first.
 - Keep it lightweight. No backend, accounts, database or analytics.
 - Light and dark mode, both designed (see `_references/DESIGN/` and `docs/design/`). A toggle in the header menu switches between them, and the choice is remembered between visits.
-- Header: logo and wordmark on the left, a menu button on the right. The menu holds, in order, How it works (a screen explaining the app, V2-20; text in `docs/how-it-works.md`), the light/dark toggle, and for now the Audio lab (testing). The Config item was removed in V2-09, because the Configure weight shift panel replaced the screen. See `docs/design-brief.md`, section 12.
+- Header: logo and wordmark on the left, a menu button on the right. The menu holds, in order, How it works (a screen explaining the app, V2-20; text in `docs/how-it-works.md`), the light/dark toggle. The Audio lab (testing) item is hidden (V2-17; one switch, `SHOW_AUDIO_LAB` in `src/app/AppHeader.tsx`, brings it back for development). The Config item was removed in V2-09, because the Configure weight shift panel replaced the screen. See `docs/design-brief.md`, section 12.
 - Polished, responsive UI with its own identity. Tour Tempo is a functional reference, not a visual template.
