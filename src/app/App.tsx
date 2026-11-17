@@ -27,8 +27,8 @@ const DEFAULT_PRESET_INDEX: Record<Category, number> = {
   long: LONG_GAME_PRESETS.findIndex((p) => p.backFrames === 24 && p.downFrames === 8),
   short: SHORT_GAME_PRESETS.findIndex((p) => p.backFrames === 24 && p.downFrames === 12),
 };
-const MIN_INTRO_MS = 2000; // R9.2
-const MAX_INTRO_MS = 3000; // R8.4, R9.7
+const MIN_INTRO_MS = 3000; // R9.2 (was 2000; one second longer in V2-18, so the tagline can be read)
+const MAX_INTRO_MS = 4000; // R8.4, R9.7 (was 3000)
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({

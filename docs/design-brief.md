@@ -231,9 +231,9 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 
 ### Tagline and intro screen
 - Tagline (decided): **"Train Your Tempo. Transform Your Game."** Two lines, two beats.
-- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
+- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. On phones (V2-18) the name is stacked, SWING on one line and SEQUENCE on the next, with SWING at 45 px and SEQUENCE at 30 px, and tighter letter spacing than the header. Tablet and laptop keep one line. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
 - Rules:
-  - Shown only as long as loading takes, with a short minimum (about 1 second) so it does not flash.
+  - Shown at least 3 seconds (it was 2, raised in V2-18 so the screen feels more dramatic and the tagline can be read), and at most 4 seconds if loading is slow (was 3).
   - A tap skips it.
   - Minimal motion; respect the device's reduce-motion setting.
   - Optional: a "Tap to begin" prompt that also unlocks browser audio. The play button already does this, so it is not required.

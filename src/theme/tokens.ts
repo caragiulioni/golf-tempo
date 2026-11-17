@@ -231,6 +231,17 @@ export const dialogMaxWidth = 420;
 export const sliderSize = { trackHeight: 6, thumb: 28, stepLabel: 48 } as const;
 // Main screen layout: page max width (handoff .app) and the empty timeline slot height.
 export const maxContentWidth = 1440;
+// Phone intro screen: the name on two lines. Sizes in px, and the letter spacing in em (tighter than the
+// header's 0.26em, or SEQUENCE would be wider than a phone screen).
+// lineHeightEm: Michroma's own line height is 1.42 em, which leaves a tall gap between the two lines;
+// 1.25 em takes about 6 px off it. taglineSize: the phone intro tagline.
+export const introNameStacked = {
+  firstSize: 45,
+  restSize: 30,
+  letterSpacingEm: 0.05,
+  lineHeightEm: 1.25,
+  taglineSize: 14,
+} as const;
 export const timelineSlotMinHeight: Record<Layout, number> = { phone: 120, tablet: 160, laptop: 200 };
 // Laptop column weights (handoff grid-template-columns: 1.45fr 1fr).
 export const laptopColumns = { hero: 1.45, controls: 1 } as const;
