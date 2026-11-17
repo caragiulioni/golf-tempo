@@ -140,7 +140,7 @@ So a bar is 12 counts = 24 hats = 3 measures of 8 (swing, recovery, countdown).
 
 *Rules the tests will lock (so later changes cannot break them):* every drill bar is exactly 24 hats (whole measures of 8); every countdown event lands exactly on a hi-hat, loop on or off; takeaway, weight shift, TOP and impact land where they do now, relative to the backswing; Full Swings and Short Game produce exactly the same events as before; everything scales with tempo (no fixed seconds anywhere in the drill bar).
 
-*Open (decide while building):* whether pressing Play (and restart after a change) starts with a countdown before the first takeaway, or straight on takeaway as now.
+*Decided (V2-07):* pressing Play, and the restart after a change, start with a countdown before the first takeaway.
 
 ---
 

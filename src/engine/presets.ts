@@ -66,6 +66,11 @@ export const PRESETS: Record<Category, readonly Preset[]> = {
   short: SHORT_GAME_PRESETS,
 };
 
+/** True for the Practice Drills presets (42/14, 60/20, 84/28). They get the drill bar (V2-07). */
+export function isDrillPreset(preset: Preset): boolean {
+  return preset.group === 'drills';
+}
+
 /** The presets of one group, in order. Empty for Short Game, which has no groups. */
 export function presetsInGroup(category: Category, group: PresetGroup): readonly Preset[] {
   return PRESETS[category].filter((p) => p.group === group);

@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { beatTimes } from './beats';
-import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS, type Preset } from './presets';
-import { REPEAT_PAUSE_FACTOR, cycleSeconds, repeatPauseSeconds } from './repeat';
+import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS, isDrillPreset, presetLabel, presetsInGroup, type Preset } from './presets';
+import {
+  DRILL_BAR_COUNTS,
+  DRILL_COUNTDOWN_COUNTS,
+  DRILL_RECOVERY_COUNTS,
+  DRILL_SWING_COUNTS,
+  REPEAT_PAUSE_FACTOR,
+  cycleSeconds,
+  drillCountSeconds,
+  repeatPauseSeconds,
+} from './repeat';
 
 const long = (backFrames: number, downFrames: number): Preset => ({
   category: 'long',
@@ -33,12 +42,28 @@ describe('repeat pause', () => {
 });
 
 describe('cycleSeconds', () => {
-  it('slow Long Game (42/14 and up): rest is 4 downswings, so the bar is exactly 8 downswings', () => {
-    for (const p of LONG_GAME_PRESETS.slice(5)) {
+  it('drill bar is 12 counts: swing 4, recovery 4, countdown 4 (one count = one downswing)', () => {
+    expect([DRILL_SWING_COUNTS, DRILL_RECOVERY_COUNTS, DRILL_COUNTDOWN_COUNTS, DRILL_BAR_COUNTS]).toEqual([4, 4, 4, 12]);
+    const drills = presetsInGroup('long', 'drills');
+    expect(drills.map(presetLabel)).toEqual(['42/14', '60/20', '84/28']);
+    for (const p of drills) {
       const t = beatTimes(p);
-      const downswing = t.beat3 - t.beat2;
-      expect(repeatPauseSeconds(p)).toBeCloseTo(4 * downswing, 9);
-      expect(cycleSeconds(p)).toBeCloseTo(8 * downswing, 9);
+      const count = drillCountSeconds(p);
+      expect(count, presetLabel(p)).toBeCloseTo(t.beat3 - t.beat2, 9);
+      expect(t.beat3, presetLabel(p)).toBeCloseTo(DRILL_SWING_COUNTS * count, 9);
+      expect(repeatPauseSeconds(p), presetLabel(p)).toBeCloseTo((DRILL_RECOVERY_COUNTS + DRILL_COUNTDOWN_COUNTS) * count, 9);
+      expect(cycleSeconds(p), presetLabel(p)).toBeCloseTo(DRILL_BAR_COUNTS * count, 9);
+    }
+  });
+
+  it('drill bar lengths: 42/14 5.6 s, 60/20 8.0 s, 84/28 11.2 s', () => {
+    const [a, b, c] = presetsInGroup('long', 'drills');
+    expect([cycleSeconds(a), cycleSeconds(b), cycleSeconds(c)].map((x) => Number(x.toFixed(3)))).toEqual([5.6, 8, 11.2]);
+  });
+
+  it('Gameplay and Short Game keep the 1.5 pause (unchanged by the drill bar)', () => {
+    for (const p of [...LONG_GAME_PRESETS, ...SHORT_GAME_PRESETS].filter((x) => !isDrillPreset(x))) {
+      expect(repeatPauseSeconds(p), presetLabel(p)).toBeCloseTo(1.5 * beatTimes(p).beat2, 9);
     }
   });
 

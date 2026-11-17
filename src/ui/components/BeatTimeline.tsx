@@ -208,6 +208,8 @@ export function BeatTimeline({
 
       for (const beep of swing.beeps) {
         const type = beep.type;
+        // Drill countdown (V2-07): not a marker on the scale. Shown on screen in V2-08.
+        if (type === 'countdown') continue;
         const timer = setTimeout(() => {
           timers.current.delete(timer);
           // Reduce motion: the fill steps to this marker (and back to 0 at beat 1).

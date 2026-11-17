@@ -1,13 +1,14 @@
 import {
   buildSequence,
   cycleSeconds,
+  leadInEvents,
   loopEvents,
   type LoopVoice,
   type Preset,
   type SequenceEvent,
   type WeightShiftSettings,
 } from '../engine';
-import { voiceFor, type WeightShiftToneStyle } from './tones';
+import { voiceFor, type CountdownToneStyle, type WeightShiftToneStyle } from './tones';
 import type { AudioAdapter, Voice } from './types';
 
 export type ScheduledBeep = {
@@ -15,6 +16,17 @@ export type ScheduledBeep = {
   voice: Voice;
   /** Audio clock time in seconds. */
   time: number;
+  /** Countdown only (Practice Drills): 4, 3, 2 or 1. */
+  count?: number;
+};
+
+/**
+ * The countdown played before the first swing of a run on a drill (V2-07). `startTime` is
+ * that first swing's takeaway on the audio clock; every beep is before it.
+ */
+export type ScheduledLeadIn = {
+  startTime: number;
+  beeps: ScheduledBeep[];
 };
 
 export type ScheduledLoopEvent = {
@@ -29,6 +41,8 @@ export type SwingOptions = {
   settings: WeightShiftSettings;
   includeWeightShift?: boolean;
   toneStyle?: WeightShiftToneStyle;
+  /** How the drill countdown sounds. Default: DEFAULT_COUNTDOWN_TONE_STYLE. */
+  countdownStyle?: CountdownToneStyle;
   /** Play the background loop. Default false. */
   loop?: boolean;
   /**
@@ -54,15 +68,10 @@ export function scheduleSwing(
   startTime: number,
   options: SwingOptions,
 ): ScheduledBeep[] {
-  const { preset, settings, includeWeightShift = true, toneStyle, beeps: soundBeeps = true } = options;
+  const { preset, settings, includeWeightShift = true } = options;
   const events = buildSequence({ preset, settings, includeWeightShift });
   // Beeps first. Loop events only add sound and never change beep timing.
-  const beeps = events.map((event) => {
-    const voice = voiceFor(preset.category, event.type, toneStyle);
-    const time = startTime + event.time;
-    if (soundBeeps) adapter.playTone(voice, time);
-    return { type: event.type, voice, time };
-  });
+  const beeps = playBeeps(adapter, startTime, events, options);
   // An adapter without playLoopVoice plays no loop.
   if (adapter.playLoopVoice) {
     for (const event of loopSchedule(startTime, options)) {
@@ -70,6 +79,37 @@ export function scheduleSwing(
     }
   }
   return beeps;
+}
+
+/** Plays engine events from `startTime` (audio clock) and returns what was scheduled. */
+function playBeeps(
+  adapter: AudioAdapter,
+  startTime: number,
+  events: SequenceEvent[],
+  { preset, toneStyle, countdownStyle, beeps: soundBeeps = true }: SwingOptions,
+): ScheduledBeep[] {
+  return events.map((event) => {
+    const voice = voiceFor(preset.category, event.type, toneStyle, { count: event.count, style: countdownStyle });
+    const time = startTime + event.time;
+    if (soundBeeps) adapter.playTone(voice, time);
+    const beep: ScheduledBeep = { type: event.type, voice, time };
+    if (event.count !== undefined) beep.count = event.count;
+    return beep;
+  });
+}
+
+/**
+ * Schedule the lead-in countdown so the first takeaway is at `startTime` (audio clock).
+ * Empty for presets without one (everything except Practice Drills).
+ */
+export function scheduleLeadIn(adapter: AudioAdapter, startTime: number, options: SwingOptions): ScheduledBeep[] {
+  return playBeeps(adapter, startTime, leadInEvents(options.preset), options);
+}
+
+/** Seconds the lead-in countdown adds before the first takeaway (0 if there is none). */
+export function leadInSeconds(options: SwingOptions): number {
+  const events = leadInEvents(options.preset);
+  return events.length ? -events[0].time : 0;
 }
 
 /** How far ahead of the audio clock the next swing is scheduled, in seconds. */
@@ -128,6 +168,11 @@ export type PlayerListeners = {
   onResync?: () => void;
   /** Playback paused. For 'stalled', `behindSeconds` is how far the audio clock had fallen behind. */
   onPaused?: (reason: PauseReason, behindSeconds?: number) => void;
+  /**
+   * A run on a drill starts with a countdown before its first takeaway (V2-07). Called once
+   * per run, as soon as the countdown is scheduled, before the first `onSwing`.
+   */
+  onLeadIn?: (leadIn: ScheduledLeadIn) => void;
 };
 
 export type PlayerConfig = {
@@ -245,7 +290,14 @@ export function createPlayer(
     windowAudio = adapter.now();
     windowWallMs = wallClockMs();
     nextStart = windowAudio + START_DELAY_SECONDS;
+    // Drills: count 4, 3, 2, 1 first, then the first takeaway (decided in V2-07).
+    let leadIn: ScheduledLeadIn | null = null;
+    if (options && leadInSeconds(options) > 0) {
+      nextStart += leadInSeconds(options);
+      leadIn = { startTime: nextStart, beeps: scheduleLeadIn(adapter, nextStart, options) };
+    }
     setState('playing');
+    if (leadIn) notify('onLeadIn', leadIn);
     scheduleDueSwings();
     tick = setInterval(scheduleDueSwings, TIMER_INTERVAL_MS);
   }

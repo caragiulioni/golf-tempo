@@ -6,7 +6,7 @@ Written in the timing engine context for a UI spec window. Idea: `docs/ideas.md`
 
 **Names:** the two groups are now **Gameplay** (was "Full Swings") and **Practice Drills** (was "Drills"). Older names below mean the same groups.
 
-**Status:** planned. The timing engine part is not built yet. Names below marked *(planned)* may change while it is built; this document is updated when the engine change lands, and that update replaces the *(planned)* marks.
+**Status:** the timing engine part is built (V2-04 preset groups, V2-07 drill timing and countdown sound, see `docs/changes/V2.md`). The names below are final. The UI part (V2-08) is next.
 
 ## 1. What the golfer gets
 
@@ -56,11 +56,13 @@ A bar is 12 counts = 24 hi-hats = 3 measures of 8: swing, recovery, countdown.
 Nothing new to subscribe to. The countdown comes through the same schedule the timeline already follows.
 
 - **Preset group (landed in V2-04):** Long Game presets have `group: 'gameplay' | 'drills'` (type `PresetGroup`); Short Game presets have no `group`. `presetsInGroup(category, group)` returns a group's presets in order (empty for Short Game), as the same objects as `PRESETS`, so `===` comparisons work. All in `src/engine/presets.ts`, exported from `src/engine`. Use it for the toggle and the slider. Do not decide in the UI which presets are drills.
-- **Countdown events:** `buildSequence` returns four extra events for drills, `{ type: 'countdown', time, count: 4 | 3 | 2 | 1 }` *(planned shape)*, at counts 8 to 11 of the bar. Times are seconds from that bar's takeaway, like every other event.
-- **During playback:** the player puts them in `ScheduledSwing.beeps` on the audio clock (`src/audio/player.ts`), next to takeaway, weight shift, TOP and impact. The timeline already receives that through `onSwing` (`src/ui/hooks/usePlayerSession.ts`).
+- **Countdown events:** `buildSequence` returns four extra events for drills, `{ type: 'countdown', time, count }` with `count` 4, 3, 2, 1 (`EventType` now includes `'countdown'`; `SequenceEvent.count` is set only on these), at counts 8 to 11 of the bar. Times are seconds from that bar's takeaway, like every other event. Helpers from `src/engine`: `isDrillPreset(preset)`, `drillCountSeconds(preset)` (one count = one downswing), `DRILL_BAR_COUNTS` (12).
+- **During playback:** the player puts them in `ScheduledSwing.beeps` on the audio clock (`src/audio/player.ts`), next to takeaway, weight shift, TOP and impact, with `ScheduledBeep.count` set. The timeline already receives that through `onSwing` (`src/ui/hooks/usePlayerSession.ts`). Today `BeatTimeline` skips countdown beeps (a placeholder, so they light no marker).
+- **The lead-in (Play and restart):** on a drill every run starts with a countdown before the first takeaway (decided in V2-07). It is not part of any swing: the player announces it once per run through a new listener, `onLeadIn({ startTime, beeps })` on `PlayerListeners` (`ScheduledLeadIn` in `src/audio/player.ts`), right after the state becomes playing and before the first `onSwing`. `startTime` is the first takeaway; the four beeps (counts 4 to 1) are before it. `usePlayerSession` does not forward `onLeadIn` yet; V2-08 needs to, the same way it forwards `onSwing`. The engine side is `leadInEvents(preset)`.
 - **Output delay:** apply it to countdown events exactly as to the other beats (`src/ui/lib/outputDelay.ts`), so the numbers change with the sound.
 - **The countdown leads into the next bar's takeaway.** "1" is one count before the takeaway of the next scheduled swing.
-- **Three-beat mode** (no weight shift) still has the countdown on drills *(planned)*.
+- **Three-beat mode** (no weight shift) still has the countdown on drills.
+- **The scale's ease-back:** on drills the pause after impact is now 8 counts (recovery plus countdown), so the gold fill's ease-back is much longer. `BeatTimeline` was not changed for this; V2-08 decides how the ease-back and the countdown share that time (section 6).
 
 ## 5. Rules not to break
 
@@ -83,8 +85,8 @@ The timing context locks these with tests. The UI must not work around them, for
 
 ## 7. Open questions
 
-- Pressing Play (and the restart after a change): start with a countdown before the first takeaway, or straight on takeaway as now? Affects the player and the timeline. To be decided while the engine part is built; this document records the answer.
-- Countdown sound: chosen by ear in the Audio lab (timing context). Recorded here when picked.
+- Pressing Play (and the restart after a change): **decided, countdown first** (V2-07). See "The lead-in" in section 4.
+- Countdown sound: **decided, Falling** (pitch steps down from 4 to 1), picked by ear in V2-07. The sound itself is to be redesigned later (`src/audio/tones.ts`).
 - Whether the countdown hats are accented in the loop: decided by ear (timing context).
 
 ## 8. Where to read more

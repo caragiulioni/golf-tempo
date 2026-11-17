@@ -1,5 +1,5 @@
-import { beat2Time, beatTimes } from './beats';
-import type { Category, Preset } from './presets';
+import { FPS, beat2Time, beatTimes } from './beats';
+import { isDrillPreset, type Category, type Preset } from './presets';
 
 /**
  * The silent gap between beat 3 and the next beat 1, as a multiple of the
@@ -8,7 +8,7 @@ import type { Category, Preset } from './presets';
  * is a little looser). Tune by ear.
  * One factor per category at every tempo, so with the beats also exactly proportional
  * (no fixed impact delay) every preset is the same swing, only faster or slower.
- * Exception: slow Long Game (see SLOW_LONG_PAUSE_FACTOR).
+ * Exception: Practice Drills use the drill bar instead (see DRILL_BAR_COUNTS).
  */
 export const REPEAT_PAUSE_FACTOR: Readonly<Record<Category, number>> = {
   long: 1.5,
@@ -19,29 +19,26 @@ export const REPEAT_PAUSE_FACTOR: Readonly<Record<Category, number>> = {
 };
 
 /**
- * Long Game presets with beat 1 to beat 2 longer than this (42/14 and slower) are slow
- * practice presets. They use SLOW_LONG_PAUSE_FACTOR and their own loop pattern (a kick on
- * beat 1 and a steady hi-hat, see usesSparsePattern in loop.ts).
+ * The drill bar (Practice Drills, V2-07), counted in downswings. One count is one downswing
+ * (downFrames / 30). With the true 3:1 a drill swing is exactly 4 counts (takeaway to TOP 3,
+ * TOP to impact 1). After impact comes a recovery measure, then a countdown 4, 3, 2, 1 that
+ * leads into the next takeaway, so the bar is 12 counts. The hi-hat ticks every half count,
+ * so the bar is 24 hats, 3 measures of 8: swing, recovery, countdown (docs/ideas.md, idea 2).
  */
-export const SLOW_LONG_MIN_BEAT2_SECONDS = 1.0;
-/**
- * 4/3 makes the rest exactly 4 downswings, so the whole bar is 8 downswings and the steady
- * hi-hat counts as whole measures of 8: 2 measures at 42/14, 60/20, 84/28 and 4 at 120/40,
- * 168/56, with IMPACT on the first count of a measure. With 1.5 the bar counted
- * 4 x 8 + 2 at 168/56 (heard, November 2026). A longer pause (5/3) was tried earlier and
- * rejected by ear.
- */
-export const SLOW_LONG_PAUSE_FACTOR = 4 / 3;
+export const DRILL_SWING_COUNTS = 4;
+export const DRILL_RECOVERY_COUNTS = 4;
+export const DRILL_COUNTDOWN_COUNTS = 4;
+export const DRILL_BAR_COUNTS = DRILL_SWING_COUNTS + DRILL_RECOVERY_COUNTS + DRILL_COUNTDOWN_COUNTS;
 
-/** True for the slow practice presets in Long Game (42/14 and slower). */
-export function isSlowLongPreset(preset: Preset): boolean {
-  return preset.category === 'long' && beat2Time(preset) > SLOW_LONG_MIN_BEAT2_SECONDS;
+/** Seconds in one drill count: one downswing. */
+export function drillCountSeconds(preset: Preset): number {
+  return preset.downFrames / FPS;
 }
 
 /** Seconds of silence between beat 3 and the next beat 1. */
 export function repeatPauseSeconds(preset: Preset): number {
-  const factor = isSlowLongPreset(preset) ? SLOW_LONG_PAUSE_FACTOR : REPEAT_PAUSE_FACTOR[preset.category];
-  return factor * beat2Time(preset);
+  if (isDrillPreset(preset)) return (DRILL_RECOVERY_COUNTS + DRILL_COUNTDOWN_COUNTS) * drillCountSeconds(preset);
+  return REPEAT_PAUSE_FACTOR[preset.category] * beat2Time(preset);
 }
 
 /** Seconds from one beat 1 to the next when a swing repeats. */

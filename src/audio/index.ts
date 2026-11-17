@@ -1,14 +1,18 @@
 export type { AudioAdapter, Voice } from './types';
 export {
+  DEFAULT_COUNTDOWN_TONE_STYLE,
   DEFAULT_WEIGHT_SHIFT_TONE_STYLE,
   TONES,
   voiceFor,
+  type CountdownToneStyle,
   type ToneSpec,
   type WeightShiftToneStyle,
 } from './tones';
 export {
   STALL_THRESHOLD_SECONDS,
   createPlayer,
+  leadInSeconds,
+  scheduleLeadIn,
   scheduleSwing,
   type PauseReason,
   type Player,
@@ -16,6 +20,7 @@ export {
   type PlayerListeners,
   type PlayerState,
   type ScheduledBeep,
+  type ScheduledLeadIn,
   type ScheduledSwing,
   type SwingOptions,
 } from './player';

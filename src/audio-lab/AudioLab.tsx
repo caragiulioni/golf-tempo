@@ -12,6 +12,8 @@ import {
   voiceFor,
   type PlayerState,
   type ScheduledBeep,
+  DEFAULT_COUNTDOWN_TONE_STYLE,
+  type CountdownToneStyle,
   type WakeLockStatus,
   type WeightShiftToneStyle,
 } from '../audio';
@@ -35,7 +37,7 @@ import {
   SectionLabel,
   StatusMessage,
 } from '../ui/components';
-import { getLog, subscribe as subscribeLog } from '../ui/hooks/sessionLog';
+import { addLog, getLog, subscribe as subscribeLog } from '../ui/hooks/sessionLog';
 import { getSharedAdapter, getSharedPlayer } from '../ui/hooks/usePlayerSession';
 
 /** How far ahead of "now" a test sound is scheduled, in seconds. */
@@ -69,6 +71,8 @@ export function AudioLab({ onBack }: Props) {
   const [preset, setPreset] = useState<Preset>(PRESETS.long[4]);
   const [settings, setSettings] = useState(defaultWeightShiftSettings());
   const [toneStyle, setToneStyle] = useState<WeightShiftToneStyle>('distinct');
+  // Drill countdown sound candidates (V2-07), picked by ear.
+  const [countdownStyle, setCountdownStyle] = useState<CountdownToneStyle>(DEFAULT_COUNTDOWN_TONE_STYLE);
   const [includeWeightShift, setIncludeWeightShift] = useState(true);
   const [loop, setLoop] = useState(false);
   // Beats Off: the loop plays on its own, so the groove can be heard without the beeps.
@@ -78,7 +82,7 @@ export function AudioLab({ onBack }: Props) {
   const [copyFailed, setCopyFailed] = useState(false);
   const [fallbackText, setFallbackText] = useState('');
 
-  const swingOptions = { preset, settings, includeWeightShift, toneStyle, loop, beeps: beepsOn };
+  const swingOptions = { preset, settings, includeWeightShift, toneStyle, countdownStyle, loop, beeps: beepsOn };
 
   // On entering: stop the main screen's run. Follow the player's state and swings.
   // On leaving: stop any lab audio.
@@ -98,6 +102,11 @@ export function AudioLab({ onBack }: Props) {
           }
         }
         if (next === 'stopped' || next === 'paused') clockStartRef.current = null;
+      },
+      onLeadIn: (leadIn) => {
+        const adapter = getSharedAdapter();
+        const wait = adapter ? leadIn.startTime - adapter.now() : 0;
+        addLog(`Lead-in countdown ${leadIn.beeps.map((b) => b.count).join(' ')}, first takeaway in ${wait.toFixed(2)} s`);
       },
       onSwing: (swing) =>
         setStats((s) => ({
@@ -123,7 +132,7 @@ export function AudioLab({ onBack }: Props) {
   useEffect(() => {
     player?.change(swingOptions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, settings, includeWeightShift, toneStyle, loop, beepsOn]);
+  }, [preset, settings, includeWeightShift, toneStyle, countdownStyle, loop, beepsOn]);
 
   // Once a second: run time, and how far the audio clock has drifted from the device clock.
   useEffect(() => {
@@ -177,7 +186,7 @@ export function AudioLab({ onBack }: Props) {
       `Page: ${web && typeof location !== 'undefined' ? location.href : 'unknown'}`,
       `Browser: ${web && typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'}`,
       `Audio context: ${info ? `${info.state}, ${info.sampleRate} Hz, base latency ${ms(info.baseLatencySeconds)}, output latency ${ms(info.outputLatencySeconds)}` : 'not created yet (nothing played)'}`,
-      `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, ${includeWeightShift ? 'with' : 'without'} weight shift, beeps ${beepsOn ? 'on' : 'off'}, loop ${loop ? 'on' : 'off'}`,
+      `Selected: ${category} game, preset ${presetLabel(preset)}, weight shift ${settings[category].toFixed(2)}, ${toneStyle} tone, countdown ${countdownStyle}, ${includeWeightShift ? 'with' : 'without'} weight shift, beeps ${beepsOn ? 'on' : 'off'}, loop ${loop ? 'on' : 'off'}`,
       `Player: ${playerState}. Wake lock: ${wakeLock}`,
       `Run time: ${clock.seconds.toFixed(0)} s. Audio clock vs device clock: ${clock.driftMs.toFixed(1)} ms`,
       `Swings scheduled: ${stats.swings}. Closest a swing came to being late: ${Number.isFinite(stats.minLeadMs) ? `${stats.minLeadMs.toFixed(0)} ms ahead` : 'none yet'}`,
@@ -282,6 +291,12 @@ export function AudioLab({ onBack }: Props) {
           {optionGrid('Weight shift sound', [
             { key: 'distinct', label: 'Distinct', selected: toneStyle === 'distinct', onPress: () => setToneStyle('distinct') },
             { key: 'same', label: 'Same as beat 2', selected: toneStyle === 'same', onPress: () => setToneStyle('same') },
+          ])}
+          <SectionLabel>Countdown sound (Practice Drills)</SectionLabel>
+          {optionGrid('Countdown sound', [
+            { key: 'tick', label: 'Tick', selected: countdownStyle === 'tick', onPress: () => setCountdownStyle('tick') },
+            { key: 'falling', label: 'Falling', selected: countdownStyle === 'falling', onPress: () => setCountdownStyle('falling') },
+            { key: 'lastHigh', label: 'Last high', selected: countdownStyle === 'lastHigh', onPress: () => setCountdownStyle('lastHigh') },
           ])}
 
           <SectionLabel>Beats</SectionLabel>
