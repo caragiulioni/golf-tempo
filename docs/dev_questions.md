@@ -105,7 +105,7 @@ Measured from the audio track of a Tour Tempo screen recording (Tones style).
 - Missing icon files: Android adaptive foreground and monochrome, and a splash image.
 - Not yet designed: CONFIG screen (to be made in this project), phone landscape, playing state.
 - Gold (weight shift color): resolved. The weight shift diamond is white like the other markers, not gold. The only gold is the timeline's progress fill, one color in both modes (`timeline.gold`, #EEC967). History and contrast findings: `docs/design-brief.md`, section 12, "Gold".
-- Product name: undecided. "Swing Sync" is taken by another app. "Swing Tempo" is the current candidate, not final. Keep the name in one place in the build. See `docs/design-brief.md`, section 12.
+- Product name: **Swing Sequence** (decided, V2-11; was "Swing Tempo"). "Swing Sync" is taken by another app. Keep the name in one place in the build (`src/ui/brand.ts`). See `docs/design-brief.md`, section 12.
 - Tagline (decided): "Train Your Tempo. Transform Your Game." Shown on a short, skippable intro screen at startup. See `docs/design-brief.md`, section 12.
 
 ### 9. Phone behavior to verify on real devices

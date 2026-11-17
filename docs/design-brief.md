@@ -188,7 +188,7 @@ Dropdown:
 The mockup loads Inter, Space Grotesk and Michroma from a web service. In the app they must be bundled through Expo and loaded before the first render. Michroma is used only for the small wordmark. Decision changed: Michroma is bundled and used for the wordmark text (header and intro) until a wordmark SVG exists.
 
 ### Icon files still needed
-Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist.
+Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist. (V2-11 changed the web favicon and the iPhone home screen icon to the embossed emblem; the native icon, splash and Android icons are still the Expo placeholders.)
 
 Owner: Mike (Photoshop, Illustrator or AI-assisted). Needed only for the native app, not the web build. Rough guide, to be checked against Expo's documentation at the time:
 - Adaptive icon foreground: 1024 by 1024 PNG, transparent background, logo kept inside the middle area (about the central two thirds), because Android crops the edges into different shapes.
@@ -241,9 +241,9 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 - Not designed yet. Design it with the final name and wordmark.
 
 ### Product name
-The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided.
+The handoff uses the name "Swing Sync". The app is called **Swing Sequence** (decided by the developer, November 2026, V2-11). It was "Golf Tempo" in `app.json` and "Swing Tempo" for a while.
 - "Swing Sync" is already used by another app, so it is out.
-- "Swing Tempo" is the developer's current candidate (no existing app found by the developer). Not final; it may not go to the app stores, and the client may rename it later.
+- "Swing Tempo" was the earlier candidate. "Swing Sequence" replaced it. It may not go to the app stores, and the client may rename it later.
 - Goal for now: something unique. Store-level checks only matter if it is published.
 - Whatever the name, keep it in one place in the build (one constant for the name and tagline, plus `app.json`, plus one wordmark SVG), so a later rename is a small edit.
 - The handoff's wordmark SVGs spell "SWING SYNC" and need redoing for the final name.
