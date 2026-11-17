@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
 import Svg, { Defs, Path, Pattern, Rect } from 'react-native-svg';
-import type { ScheduledSwing } from '../../audio';
+import type { ScheduledBeep, ScheduledLeadIn, ScheduledSwing } from '../../audio';
+import { DRILL_RECOVERY_COUNTS, drillCountSeconds, isDrillPreset } from '../../engine';
 import type { Preset } from '../../engine';
 import {
   radius,
@@ -29,6 +30,11 @@ type Props = {
   playing?: boolean;
   /** Register for scheduled swings. Returns an unsubscribe function. */
   subscribeSwings?: (listener: (swing: ScheduledSwing) => void) => () => void;
+  /**
+   * Register for the countdown that starts a run on a drill. Returns an unsubscribe function.
+   * Optional: without it only the countdowns inside swings show.
+   */
+  subscribeLeadIns?: (listener: (leadIn: ScheduledLeadIn) => void) => () => void;
   /** The audio clock in seconds, or null when there is none. */
   audioNow?: () => number | null;
   /**
@@ -81,6 +87,7 @@ export function BeatTimeline({
   showWeightShift = true,
   playing = false,
   subscribeSwings,
+  subscribeLeadIns,
   audioNow,
   outputDelay = NO_DELAY,
   restartKey,
@@ -125,6 +132,10 @@ export function BeatTimeline({
   const pulse = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef<Animated.CompositeAnimation | null>(null);
 
+  // Drill countdown (V2-08): the number on screen (null = none) and its grow-in animation.
+  const [count, setCount] = useState<number | null>(null);
+  const countScale = useRef(new Animated.Value(1)).current;
+  const countAnim = useRef<Animated.CompositeAnimation | null>(null);
   const reset = useRef(() => {});
   reset.current = () => {
     timers.current.forEach(clearTimeout);
@@ -134,6 +145,9 @@ export function BeatTimeline({
     pulseAnim.current?.stop();
     pulseAnim.current = null;
     pulse.setValue(0);
+    countAnim.current?.stop();
+    countAnim.current = null;
+    setCount(null);
     progress.setValue(0);
     updateLit(() => NONE_LIT);
     setHeadVisible(false);
@@ -167,6 +181,42 @@ export function BeatTimeline({
       TimelineMarkerType,
       number
     >;
+    // One count is one downswing. Each number starts a little smaller and eases up to full size
+    // over that count (reduce motion: it just changes).
+    const countSeconds = isDrillPreset(preset) ? drillCountSeconds(preset) : 0;
+    const clearCount = () => {
+      countAnim.current?.stop();
+      countAnim.current = null;
+      setCount(null);
+    };
+    const scheduleCount = (beep: ScheduledBeep, msUntil: (time: number) => number) => {
+      const timer = setTimeout(() => {
+        timers.current.delete(timer);
+        setCount(beep.count ?? null);
+        countAnim.current?.stop();
+        if (reduceRef.current) {
+          countScale.setValue(1);
+          return;
+        }
+        countScale.setValue(S.countdownStartScale);
+        const anim = Animated.timing(countScale, {
+          toValue: 1,
+          duration: countSeconds * 1000,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        });
+        countAnim.current = anim;
+        anim.start();
+      }, msUntil(beep.time));
+      timers.current.add(timer);
+    };
+    const unsubscribeLeadIn = subscribeLeadIns?.((leadIn: ScheduledLeadIn) => {
+      const now = audioNow();
+      if (now === null) return;
+      const delay = outputDelayRef.current();
+      const msUntil = (time: number) => Math.max(0, (time + delay - now) * 1000);
+      for (const beep of leadIn.beeps) scheduleCount(beep, msUntil);
+    });
     const unsubscribe = subscribeSwings((swing: ScheduledSwing) => {
       const now = audioNow();
       if (now === null) return;
@@ -177,10 +227,12 @@ export function BeatTimeline({
       // it lands just before the next beat 1. Starting from a timer at beat 1 means the previous
       // swing's animation is stopped exactly when this one takes over, not earlier.
       // Reduce motion (R5.7): no sweep or ease-back; the fill steps at each marker below.
-      const easeBackMs = Math.max(
-        S.easeBackMinMs,
-        (swing.cycleSeconds - total) * 1000 - S.easeBackMarginMs,
-      );
+      // On a drill the pause after impact is the recovery measure plus the countdown. The fill
+      // eases back over the recovery only, so it is home by the time "4" shows.
+      const pauseSeconds = isDrillPreset(preset)
+        ? DRILL_RECOVERY_COUNTS * drillCountSeconds(preset)
+        : swing.cycleSeconds - total;
+      const easeBackMs = Math.max(S.easeBackMinMs, pauseSeconds * 1000 - S.easeBackMarginMs);
       const sweepTimer = setTimeout(() => {
         timers.current.delete(sweepTimer);
         if (reduceRef.current) return;
@@ -208,10 +260,15 @@ export function BeatTimeline({
 
       for (const beep of swing.beeps) {
         const type = beep.type;
-        // Drill countdown (V2-07): not a marker on the scale. Shown on screen in V2-08.
-        if (type === 'countdown') continue;
+        // Drill countdown: a number at the takeaway, not a marker on the scale.
+        if (type === 'countdown') {
+          scheduleCount(beep, msUntil);
+          continue;
+        }
         const timer = setTimeout(() => {
           timers.current.delete(timer);
+          // The takeaway ends the countdown.
+          if (type === 'beat1') clearCount();
           // Reduce motion: the fill steps to this marker (and back to 0 at beat 1).
           if (reduceRef.current) progress.setValue(markerX[type]);
           // Beat 1 starts a new swing: clear the previous swing's markers first (safety net).
@@ -235,9 +292,10 @@ export function BeatTimeline({
     });
     return () => {
       unsubscribe();
+      unsubscribeLeadIn?.();
       reset.current();
     };
-  }, [geometry, subscribeSwings, audioNow, progress, pulse, restartKey]);
+  }, [geometry, subscribeSwings, subscribeLeadIns, audioNow, progress, pulse, countScale, preset, restartKey]);
 
   // Turning reduce motion on mid-play drops any sweep or pulse in progress.
   useEffect(() => {
@@ -487,6 +545,22 @@ export function BeatTimeline({
                 />
               ),
             )}
+            {/* Drill countdown: the takeaway marker, bigger, with the number inside. */}
+            {count !== null ? (
+              <Animated.View
+                pointerEvents="none"
+                testID="countdownMarker"
+                style={[
+                  styles.markerBase,
+                  styles.countdownMarker,
+                  { left: px(0) - S.countdownMarker / 2, transform: [{ scale: countScale }] },
+                ]}
+              >
+                <AppText variant="num" size="countdown" style={[styles.countdownText, { color: bg }]}>
+                  {count}
+                </AppText>
+              </Animated.View>
+            ) : null}
           </View>
 
           {/* Names under the markers. */}
@@ -601,6 +675,20 @@ const styles = StyleSheet.create({
   measureItem: { position: 'absolute', left: 0, top: 0 },
   /** Stack of phase row, optional shift name row, track and names row. */
   timelineContent: { gap: S.phaseGap },
+  /** The takeaway marker while it counts down: bigger, filled like a lit marker. left and scale are set inline. */
+  countdownMarker: {
+    top: (S.trackHeight - S.countdownMarker) / 2,
+    width: S.countdownMarker,
+    height: S.countdownMarker,
+    borderRadius: S.countdownMarker / 2,
+    borderWidth: S.markerBorder,
+    borderColor: timeline.markerOutline, // the same gray outline as the other markers
+    backgroundColor: timeline.label,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  /** The 4, 3, 2, 1. */
+  countdownText: { fontWeight: '700', includeFontPadding: false },
   /** Row holding BACKSWING and DOWNSWING labels. */
   phaseRow: { height: S.phaseHeight },
   /** BACKSWING label box with underline. width is set inline. */

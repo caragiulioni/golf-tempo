@@ -64,6 +64,8 @@ c) **Available sessions in two rows.** There are now more presets than fit in on
 ### Beat timeline (needs the most design thought)
 Shows the swing as it plays. It has four moments: takeaway, weight shift, top of swing, impact. They are spaced by their real timing: the weight shift sits about two thirds of the way from takeaway to top in the Long Game, and the swing's last part (top to impact) is one quarter of the whole. As each beep plays, its moment lights up. The weight shift moment should look distinct from the other three, since it has a different sound. It must stay readable on a phone and scale from fast tempos (about a second) to very slow ones (about seven seconds).
 
+On Practice Drills (V2-08) the timeline also shows the countdown 4, 3, 2, 1: the takeaway marker grows into a bigger white circle with the number inside, in place on the scale. Each number starts a little smaller and eases up to full size over its count, and the marker goes back to normal when the takeaway lights. Nothing else changes, and nothing extra shows during the recovery measure.
+
 ### Play/pause
 Large and easy to hit with a thumb. Clear states: stopped, playing. It restarts from the beginning each time.
 

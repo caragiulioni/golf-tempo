@@ -6,6 +6,8 @@
 // V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
 // BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
 // component or token.
+// V2-08 (countdown on screen): no new component; BeatTimeline shows the 4, 3, 2, 1 itself, fed by
+// the new onLeadIn listener from usePlayerSession.
 // V2-06 (Tempo slider): replaces PresetGrid and PresetButton with the new StepSlider (built on
 // Slider); both stay in use on the CONFIG screen. Each group remembers its last tempo.
 // V2-05 (Gameplay / Practice Drills): reuses SegmentedControl (extended with `size`), PresetGrid and
@@ -41,6 +43,7 @@ import {
   PAUSED_TEXT,
   START_FAILED_TEXT,
   audioNow,
+  onLeadIn,
   onSwing,
   outputDelay,
   usePlayerSession,
@@ -139,6 +142,7 @@ export function MainScreen({
         showWeightShift={weightShift}
         playing={session.playing}
         subscribeSwings={onSwing}
+        subscribeLeadIns={onLeadIn}
         audioNow={audioNow}
         outputDelay={outputDelay}
         restartKey={`${loop}-${weightShift}`}

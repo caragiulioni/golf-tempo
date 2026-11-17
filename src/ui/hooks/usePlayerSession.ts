@@ -12,6 +12,7 @@ import {
   createWebAudioAdapter,
   type Player,
   type PlayerState,
+  type ScheduledLeadIn,
   type ScheduledSwing,
   type SwingOptions,
   type WebAudioAdapter,
@@ -41,6 +42,8 @@ type SwingListener = (swing: ScheduledSwing) => void;
 let player: Player | null = null;
 let sharedAdapter: WebAudioAdapter | null = null;
 const swingListeners = new Set<SwingListener>();
+type LeadInListener = (leadIn: ScheduledLeadIn) => void;
+const leadInListeners = new Set<LeadInListener>();
 // Output delay resolved at the latest swing. Null until the first swing.
 let lastDelay: OutputDelay | null = null;
 // Swings scheduled since the player last became 'playing'. 0 means the next one is the first of the run.
@@ -62,6 +65,12 @@ export function getSharedPlayer(): Player | null {
   sharedAdapter = adapter;
   adapter.onStateChange((state) => addLog(`Audio context: ${state}`));
   const created = createPlayer(adapter, {
+    onLeadIn: (leadIn) => {
+      // The countdown comes before the run's first swing, so resolve the first-swing delay here
+      // (the platform constant), or listeners would read the previous run's value.
+      lastDelay = resolveOutputDelayForSwing(sharedAdapter?.info() ?? null, currentPlatformKey(Platform.OS), 0);
+      leadInListeners.forEach((listener) => listener(leadIn));
+    },
     onSwing: (swing) => {
       // Resolve first, so listeners read this swing's value (R6.5: applies from this swing on).
       lastDelay = resolveOutputDelayForSwing(
@@ -120,6 +129,16 @@ export function onSwing(listener: SwingListener): () => void {
   };
 }
 
+/**
+ * Register for the countdown that starts every run on a drill (V2-08). Called once per run,
+ * before the first swing. Returns a function that removes it.
+ */
+export function onLeadIn(listener: LeadInListener): () => void {
+  leadInListeners.add(listener);
+  return () => {
+    leadInListeners.delete(listener);
+  };
+}
 /** The shared audio clock in seconds, or null before the first press / where there is no audio. */
 export function audioNow(): number | null {
   return sharedAdapter ? sharedAdapter.now() : null;
@@ -209,5 +228,5 @@ export function usePlayerSession(selection: SessionSelection, { active = true }:
     }
   }, [ready]);
 
-  return { playerState, playing, message, toggle, onSwing };
+  return { playerState, playing, message, toggle, onSwing, onLeadIn };
 }

@@ -119,7 +119,7 @@ export const PHASE_LABEL_FLOOR = 12; // timeline phase labels
 
 // Sizes are a step above the handoff on phones; tablet and laptop go larger.
 export const typeSizes: Record<
-  'caption' | 'phaseLabel' | 'label' | 'body' | 'title' | 'tempo' | 'display' | 'wordmark',
+  'caption' | 'phaseLabel' | 'label' | 'body' | 'title' | 'tempo' | 'display' | 'wordmark' | 'countdown',
   Record<Layout, number>
 > = {
   wordmark: { phone: 12, tablet: 15, laptop: 15 }, // Michroma; handoff is 11, R7.5 floor is 12
@@ -130,6 +130,7 @@ export const typeSizes: Record<
   title: { phone: 20, tablet: 22, laptop: 24 },
   tempo: { phone: 50, tablet: 110, laptop: 110 },
   display: { phone: 32, tablet: 40, laptop: 44 },
+  countdown: { phone: 20, tablet: 22, laptop: 22 }, // the 4, 3, 2, 1 inside the takeaway marker (V2-08)
 };
 
 // Timeline tokens. Same in both modes except the container background (R5.9).
@@ -174,6 +175,8 @@ export const timelineSizes = {
   pulseScale: 2, // the pulse ring grows from 1x to this size while fading out
   pulseOpacity: 0.8, // ring opacity at the start of the pulse
   easeBackMarginMs: 80, // the fill finishes easing back this long before the next beat 1 (R5.4)
+  countdownStartScale: 0.7, // each countdown number starts this size and eases up to full size (V2-08)
+  countdownMarker: 40, // the takeaway marker grows to this diameter while it shows the countdown number
   easeBackMinMs: 150, // shortest ease-back, so very short pauses still animate
 } as const;
 

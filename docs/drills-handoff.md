@@ -77,8 +77,8 @@ The timing context locks these with tests. The UI must not work around them, for
 
 ## 6. What the UI spec decides
 
-- How the countdown looks: numbers, where they sit (lean: at TAKEAWAY on the timeline), the pulse, and what shows during the recovery measure before "4".
-- The timeline's ease-back (the gold fill sliding back after impact): today it fills the pause. On drills the pause is much longer and holds the countdown. Decide how they share it.
+- How the countdown looks (decided in V2-08): the takeaway marker grows into a bigger white circle with the number inside, in the grid where the marker is. Each number starts at 70% size and eases up to full size over its count. The rest of the scale does not change. The recovery measure before "4" shows nothing new (the minimal option; can be added to later). Screen readers announce nothing (the sound carries it).
+- The timeline's ease-back (the gold fill sliding back after impact): decided in V2-08, on drills it lasts the recovery measure only (4 counts), so the fill is home when "4" shows.
 - Decided in the V2 plan (replaces the earlier two-group grid): a **GAMEPLAY / PRACTICE DRILLS** toggle (V2-05) and a stepped **Tempo** slider in place of the preset buttons (V2-06). Long Game drops to 8 presets: 5 Gameplay (slider starts at 24/8), 3 Practice Drills (starts at 60/20).
 - The "Available sessions" rename (decided: "Tempo", V2-06).
 - Reuse check before any UI (`.kiro/steering/workflow.md`), and the guiding principles (`.kiro/steering/product.md`).
