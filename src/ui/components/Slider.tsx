@@ -32,6 +32,8 @@ type Props = {
   /** Spoken value, for example "53 percent". Defaults to the number. */
   valueText?: string;
   disabled?: boolean;
+  /** Track color. Default: the accent color. The Tempo slider passes a lighter green for its dark box. */
+  trackColor?: string;
 };
 
 /** Number of steps a Page Up / Page Down key moves. */
@@ -47,6 +49,7 @@ export function Slider({
   accessibilityLabel,
   valueText,
   disabled,
+  trackColor,
 }: Props) {
   const { colors } = useTheme();
   const { onFocus, onBlur, ringStyle } = useFocusRing();
@@ -200,7 +203,7 @@ export function Slider({
     >
       <View
         pointerEvents="none"
-        style={[styles.track, { backgroundColor: colors.accent, left: 0, right: 0 }]}
+        style={[styles.track, { backgroundColor: trackColor ?? colors.accent, left: 0, right: 0 }]}
       />
       <View
         pointerEvents="none"

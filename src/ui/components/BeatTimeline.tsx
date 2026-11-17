@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
-import Svg, { Defs, Path, Pattern, Rect } from 'react-native-svg';
 import type { ScheduledBeep, ScheduledLeadIn, ScheduledSwing } from '../../audio';
 import { DRILL_RECOVERY_COUNTS, drillCountSeconds, isDrillPreset } from '../../engine';
 import type { Preset } from '../../engine';
@@ -18,6 +17,7 @@ import { useReduceMotion } from '../hooks/useReduceMotion';
 import { labelsOverlap, timelineGeometry, weightShiftLabel } from '../lib/timelineGeometry';
 import type { TimelineMarkerType } from '../lib/timelineGeometry';
 import { AppText } from './AppText';
+import { GridBackdrop } from './GridBackdrop';
 import { measureStyles } from './measureStyles';
 
 type Props = {
@@ -400,27 +400,7 @@ export function BeatTimeline({
       testID="timelineContainer"
       style={[styles.timelineContainer, { minHeight: timelineSlotMinHeight[layout], backgroundColor: bg }]}
     >
-      {size.width > 0 && size.height > 0 ? (
-        <Svg
-          width={size.width}
-          height={size.height}
-          style={styles.gridSvg}
-          accessible={false}
-        >
-          <Defs>
-            <Pattern id={PATTERN_ID} width={S.gridSize} height={S.gridSize} patternUnits="userSpaceOnUse">
-              <Path
-                d={`M ${S.gridSize} 0 L 0 0 0 ${S.gridSize}`}
-                fill="none"
-                stroke={timeline.gridLine}
-                strokeWidth={S.gridLineWidth}
-              />
-            </Pattern>
-          </Defs>
-          <Rect width={size.width} height={size.height} fill={`url(#${PATTERN_ID})`} />
-        </Svg>
-      ) : null}
-
+      <GridBackdrop width={size.width} height={size.height} patternId={PATTERN_ID} />
       {/* Hidden copies of every label, only to read their natural widths. */}
       {geometry ? (
         <View
@@ -669,8 +649,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: S.paddingY,
   },
-  /** Grid pattern drawn behind everything. */
-  gridSvg: { position: 'absolute', left: 0, top: 0 },
   /** One hidden label copy inside the measuring layer. */
   measureItem: { position: 'absolute', left: 0, top: 0 },
   /** Stack of phase row, optional shift name row, track and names row. */

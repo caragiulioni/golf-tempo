@@ -143,6 +143,9 @@ export const timeline = {
   gridLine: 'rgba(255, 255, 255, 0.1)',
   gold: '#EEC967',
   label: '#F0F1EA',
+  // Grey text on the scale's box (the tempos not selected, COMPACT / RELAXED). The page's grey (#A8B3AB) is
+  // only 3.45:1 on the light-mode green box, so this one is a little lighter: 4.53:1 there, 11.9:1 on the dark box.
+  labelMuted: '#C3CCC5',
   markerOutline: '#A8B3AB',
   downswingBar: '#8FB78F',
   backswingBar: '#80B38C',
