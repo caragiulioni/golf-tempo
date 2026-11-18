@@ -13,17 +13,19 @@ type Props = {
   accentColor: string;
   fontSize: number;
   style?: TextStyle;
+  /** Letter spacing in em. Default 0.26 (the handoff's). The phone header uses less, so the longer name fits (V2-24). */
+  letterSpacingEm?: number;
   /** Each word on its own line (V2-18, phone intro screen), at the sizes in `introNameStacked`. `fontSize` is then ignored. */
   stacked?: boolean;
 };
 
 /** APP_NAME in Michroma: first word in text color, the rest in accent. One word: no split. */
-export function BrandName({ textColor, accentColor, fontSize, style, stacked }: Props) {
+export function BrandName({ textColor, accentColor, fontSize, style, stacked, letterSpacingEm = LETTER_SPACING_EM }: Props) {
   const [first, ...rest] = APP_NAME.toUpperCase().split(' ');
   const base = {
     fontFamily: fontFamily(fonts.brand),
     fontSize,
-    letterSpacing: fontSize * LETTER_SPACING_EM,
+    letterSpacing: fontSize * letterSpacingEm,
   };
   if (stacked) {
     const line = (size: number): TextStyle => ({
@@ -49,7 +51,7 @@ export function BrandName({ textColor, accentColor, fontSize, style, stacked }: 
     <Text
       style={[
         styles.text,
-        { color: textColor, fontFamily: fontFamily(fonts.brand), fontSize, letterSpacing: fontSize * LETTER_SPACING_EM },
+        { color: textColor, fontFamily: fontFamily(fonts.brand), fontSize, letterSpacing: fontSize * letterSpacingEm },
         style,
       ]}
     >

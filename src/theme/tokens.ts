@@ -242,7 +242,7 @@ export const readingMaxWidth = 720;
 // 1.25 em takes about 6 px off it. taglineSize: the phone intro tagline.
 export const introNameStacked = {
   firstSize: 45,
-  restSize: 30,
+  restSize: 25,
   letterSpacingEm: 0.05,
   lineHeightEm: 1.25,
   taglineSize: 14,

@@ -234,7 +234,7 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 
 ### Tagline and intro screen
 - Tagline (decided): **"Train Your Tempo. Transform Your Game."** Two lines, two beats.
-- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. On phones (V2-18) the name is stacked, SWING on one line and SEQUENCE on the next, with SWING at 45 px and SEQUENCE at 30 px, and tighter letter spacing than the header. Tablet and laptop keep one line. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
+- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. On phones (V2-18) the name is stacked, SWING on one line and SEQUENCER on the next, with SWING at 45 px and SEQUENCER at 25 px, and tighter letter spacing than the header. Tablet and laptop keep one line. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
 - Rules:
   - Shown at least 3 seconds (it was 2, raised in V2-18 so the screen feels more dramatic and the tagline can be read), and at most 4 seconds if loading is slow (was 3).
   - A tap skips it.
@@ -244,9 +244,9 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 - Not designed yet. Design it with the final name and wordmark.
 
 ### Product name
-The handoff uses the name "Swing Sync". The app is called **Swing Sequence** (decided by the developer, November 2026, V2-11). It was "Golf Tempo" in `app.json` and "Swing Tempo" for a while.
+The handoff uses the name "Swing Sync". The app is called **Swing Sequencer** (decided by the developer, November 2026: "Swing Sequence" in V2-11, then "Swing Sequencer" in V2-24). It was "Golf Tempo" in `app.json` and "Swing Tempo" for a while.
 - "Swing Sync" is already used by another app, so it is out.
-- "Swing Tempo" was the earlier candidate. "Swing Sequence" replaced it. It may not go to the app stores, and the client may rename it later.
+- "Swing Tempo" was the earlier candidate. "Swing Sequence" replaced it, and then "Swing Sequencer". It may not go to the app stores, and the client may rename it later.
 - Goal for now: something unique. Store-level checks only matter if it is published.
 - Whatever the name, keep it in one place in the build (one constant for the name and tagline, plus `app.json`, plus one wordmark SVG), so a later rename is a small edit.
 - The handoff's wordmark SVGs spell "SWING SYNC" and need redoing for the final name.

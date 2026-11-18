@@ -181,7 +181,7 @@ export function AudioLab({ onBack }: Props) {
     const ms = (seconds: number | null | undefined) =>
       seconds === null || seconds === undefined ? 'not reported' : `${(seconds * 1000).toFixed(1)} ms`;
     return [
-      'Swing Sequence audio lab log',
+      'Swing Sequencer audio lab log',
       `Copied at: ${new Date().toString()}`,
       `Page: ${web && typeof location !== 'undefined' ? location.href : 'unknown'}`,
       `Browser: ${web && typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'}`,

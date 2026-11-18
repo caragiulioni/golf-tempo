@@ -1,6 +1,6 @@
 # Product: Golf Tempo Trainer
 
-The app's name is **Swing Sequence** (decided November 2026). It lives in `src/ui/brand.ts` (`APP_NAME`) and `app.json` (`"name"`). The folder, `"slug"`, package name and saved-data keys (`golf-tempo:…`) keep the old name on purpose, so saved settings are not lost.
+The app's name is **Swing Sequencer** (decided November 2026; it was Swing Sequence for a while, and Swing Tempo before that). It lives in `src/ui/brand.ts` (`APP_NAME`) and `app.json` (`"name"`). The folder, `"slug"`, package name and saved-data keys (`golf-tempo:…`) keep the old name on purpose, so saved settings are not lost.
 
 A personalized golf tempo trainer modeled on Tour Tempo, with one addition: a weight shift beat for the lateral weight transfer (starting in the hips) in the user's brother's swing.
 

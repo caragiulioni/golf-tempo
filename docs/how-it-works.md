@@ -6,9 +6,11 @@ Headings are small grey capitals, the same style as the "Game length" label. The
 
 ## Sequence, tempo & your swing
 
-Every swing has a sequence and a rhythm. Whether you're playing Long Game or Short Game, the backswing takes longer than the downswing. Swing Sequence turns that timing into audio cues so you can hear, feel and repeat the movement.
+Every swing has a sequence, a rhythm and a tempo. Whether you're playing Long Game or Short Game, the backswing takes longer than the downswing. Swing Sequencer turns that timing into audio cues so you can hear, feel and repeat the movement.
 
 **Repetition builds rhythm. Rhythm builds consistency.**
+
+## What you'll hear
 
 The first cue marks your takeaway and the last marks impact. In between, you'll hear your weight shift, then the top of your backswing. Turn on the background loop to help you settle into the rhythm of your tempo or toggle off the weight shift or top to focus solely on motion.
 
@@ -24,7 +26,7 @@ The same principle, with a shorter swing sequence designed for chips, pitches an
 
 ## Configure weight shift
 
-We estimate that the weight shift takes place at 3/4 of the way through the backswing but golfers may vary. Some may shift their weight slightly earlier or later in their swing sequence. Open Configure weight shift at the bottom of the screen to adjust the timing of the shift cue until it matches your natural movement.
+We estimate that the weight shift takes place at 75% of the way through the backswing but golfers may vary. Some may shift their weight slightly earlier or later in their swing sequence. Open Configure weight shift at the bottom of the screen to adjust the timing of the shift cue until it matches your natural movement.
 
 ## Notes on the wording
 
