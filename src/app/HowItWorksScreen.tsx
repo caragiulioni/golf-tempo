@@ -56,9 +56,11 @@ export function HowItWorksScreen({ onBack, onOpenHowItWorks, onOpenLab }: Props)
                 {HOW_IT_WORKS_TITLE}
               </AppText>
             </View>
-            {HOW_IT_WORKS_SECTIONS.map((section) => (
-              <View key={section.heading} style={styles.section}>
-                <SectionLabel accessibilityRole="header">{section.heading}</SectionLabel>
+            {HOW_IT_WORKS_SECTIONS.map((section, index) => (
+              <View key={section.heading ?? index} style={styles.section}>
+                {section.heading ? (
+                  <SectionLabel accessibilityRole="header">{section.heading}</SectionLabel>
+                ) : null}
                 {section.paragraphs.map((pieces, i) => (
                   <Paragraph key={i} pieces={pieces} />
                 ))}

@@ -1,57 +1,69 @@
-// The words on the How it works screen (V2-20). Edit them here. The same text, in plain form, is in
-// `docs/how-it-works.md`. A piece of a paragraph is plain text, or bold or italic (only one sentence uses it, on purpose).
+// The words on the How it works screen (V2-25: replaced with the brother's shorter version). Edit them here.
+// The same text, in plain form, is in `docs/how-it-works.md`. It is kept word for word as he wrote it, so typos
+// and wording questions are listed in the V2-25 entry in `docs/changes/V2.md` for him to answer, not fixed here.
+// A piece of a paragraph is plain text, or bold or italic.
 export type TextPiece = string | { text: string; bold?: true; italic?: true };
 export type HowItWorksSection = {
-  /** Shown in the small grey capitals, like the "Game length" label. */
-  heading: string;
+  /** Shown in the small grey capitals, like the "Game length" label. Left out for the opening paragraph. */
+  heading?: string;
   /** Each paragraph is a list of pieces. */
   paragraphs: ReadonlyArray<ReadonlyArray<TextPiece>>;
 };
 export const HOW_IT_WORKS_TITLE = 'How it works';
 export const HOW_IT_WORKS_SECTIONS: ReadonlyArray<HowItWorksSection> = [
   {
-    heading: 'Sequence, tempo & your swing',
     paragraphs: [
       [
-        "Every swing has a sequence, a rhythm and a tempo. Whether you're playing Long Game or Short Game, the backswing takes longer than the downswing. Swing Sequencer turns that timing into audio cues so you can hear, feel and repeat the movement.",
-      ],
-      // Its own paragraph, so it stands out.
-      [{ text: 'Repetition builds rhythm. Rhythm builds consistency.', bold: true }],
-    ],
-  },
-  {
-    heading: "What you'll hear",
-    paragraphs: [
-      [
-        'The first cue marks your takeaway and the last marks impact. In between, you\'ll hear your weight shift, then the top of your backswing. Turn on the background loop to help you settle into the rhythm of your tempo or toggle off the weight shift or top to focus solely on motion.',
+        'The Swing Sequencer app helps you develop consistent timing and efficiency in your golf swing by providing auditory cues that you can listen to while you practice. While it is not a solution to the entirety of the golf swing it is an integral component, that works with the other main elements.',
       ],
     ],
   },
   {
-    heading: 'Long game',
+    heading: 'How to navigate the application',
     paragraphs: [
       [
-        'Gameplay is for full swings, from rapid to smooth. A faster tempo doesn\'t mean a better swing. Explore the different options and find the rhythm that feels natural to you.',
+        "The app is fairly simple it's broken down into two main training elements Long Game and  Short Game.  And then within Long Game you are able to focus on Gameplay or Practice Drills.",
       ],
       [
-        'Practice Drills slow things down so you can focus on each part of the sequence. Take one swing, reset, then follow the 4-3-2-1 countdown that leads into your next takeaway.',
+        'When in the Long Game portion of the app you are able to adjust what beats are played at the two intermediate moments between takeaway and impact: the weight shift and the top of the swing.',
+      ],
+      [
+        'I would recommend you start with all beat moments activated. However be aware that the intent is not to struggle to actually try and match the top of your swing. If you are shifting your weight properly, and letting the club continue its ascent to the top, and then following through with the proper impact timing the top of the swing is simply an outcome, not necessarily a goal.',
+      ],
+      [
+        "Having the double beat sequence for the weight shift and top of the swing is useful as it provides a more memorable cadence to the beats for you to remember during actual play or for practice without the app. However once you've had a chance to use the app feel free to turn off or on the selected beats to your discretion. Whatever works!",
+      ],
+      [
+        'To help supplement the main beats there is also a background loop provided which simply provides a more complex auditory experience. This can also be turned on and off at your discretion and preference.',
+      ],
+      [
+        "At the bottom of the interface are two other elements of the app that allow you to make adjustments. The first is your swing pace has measured in frames per second. Slide the slider to the left and you'll get a faster pace to the right a slower one. There is no right pace it's more about the pace that is right for you. Some professional players swing at higher speed levels without necessarily swinging at a maximum swing pace. However working in a slower pace does help you develop your sequencing to then speed up in the future.",
+      ],
+      [
+        'The last element that is adjustable is the swing shift configuration. Based on observations and personal use of the Swing Sequencer the timing of the weight shift has been preset to 75% of the time between the takeaway and the top of the swing. However while this also reflects observations of professional golfers based on their swing, not enough research has been done to definitively say that this is the right ratio. Therefore this element has been left to the user to configure to ascertain whether there may be a better ratio per an individual based on their mobility or other physical characteristics.',
+      ],
+      [
+        "Switching to Short Game mode functions identically to the Long Game mode, only adjusting for the modified ratio that is typical for the short game - which is any swing or stroke that doesn't involve coiling of the body and focuses more on momentum of the club. Typically this involves pitching, chipping and putting. But it could also apply to a 5-iron punch shot in a recovery situation.",
+      ],
+      [
+        'The last element of the app is the Practice Drills which is a derivative of the Long Game. When in this part of the app it again functions the same as the long and short game, it simply plays tempos at a much slower pace with the intent of providing a slow motion guide for sequencing. Many credible coaches have argued the value of working on one’s sequencing in slow motion, before working at full speed. But it’s hard to know when you are going slow without some assistance.',
       ],
     ],
   },
   {
-    heading: 'Short game',
+    heading: 'How to use the app to practice',
     paragraphs: [
       [
-        'The same principle, with a shorter swing sequence designed for chips, pitches and putts. Weight shift is more subtle in the short game, so you can turn its audio cue on or off at any time using the Weight shift button.',
+        'Whether working on block practice or some form of random practice, the app can simply be opened and you can press play to begin playing the preferred tempo for the purposes of the type of practice, by using the slider.',
       ],
-    ],
-  },
-  {
-    heading: 'Configure weight shift',
-    paragraphs: [
       [
-        // "in the current card" in the original text; the panel is at the bottom of the screen since V2-09.
-        'We estimate that the weight shift takes place at 75% of the way through the backswing but golfers may vary. Some may shift their weight slightly earlier or later in their swing sequence. Open Configure weight shift at the bottom of the screen to adjust the timing of the shift cue until it matches your natural movement.',
+        'It is recommended that you place the phone down in front of you proximate to where you will be swinging the club. This will allow you to observe the swing timing  animation on the app to understand what point in the swing each beat represents. As you get familiar with the app, you will recognize the timing of the beats, and will be able to sync your movements to them, without the aid of the visual animation.',
+      ],
+      [
+        'Following the rhythm of the beat you can begin making your swings and attempt to sync them up with the designated beats.  As already outlined, it is most practical to focus on take away, weight shift, and impact timing. Top timing is an outcome, not a goal.',
+      ],
+      [
+        'Another useful application during practice is to keep the app active while you are using a simulator and playing a round on a course. The app allows you to switch between Long Game and Short Game depending on what type of shot you are making simply by toggling between the long and short game action buttons.',
       ],
     ],
   },
