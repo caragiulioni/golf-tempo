@@ -253,6 +253,7 @@ Not needed: Audio lab logs. The Audio lab is the developer's own test tool, and 
   - Full history, findings and the audit: `docs/background-loop-audit-notes.md`. Plain-language summary for the user: `docs/development-decisions.md`, section 2.
 
 ### config-mode
+- Update (V2): the Config screen described here was replaced by a Configure weight shift panel on the main screen, and the EXPORT button was removed. See the prototype-v2 entry below. The saving and the dialogs work as described.
 - What was built: the temporary CONFIG screen the brother uses to find his weight shift position, and the saving behind it. Menu, then Config opens a screen with a slider (plus − and + buttons) that moves the weight shift beep between the takeaway and top beeps, a picture of the swing that moves with it, and a play button to listen. APPLY saves one category (Long game or Short game) on that phone, RESET goes back to the starting value, leaving with unsaved changes asks "Leave without applying?", EXPORT shows the saved values as text with a Copy button, and a short "How to" explains it. The main screen now plays and draws the saved values at every tempo. Plain-language guide for the brother: `docs/calibration-guide.md`.
 - Carries over unchanged (expected, not run on a phone):
   - `src/config-mode/appliedSettings.ts` and `exportText.ts`: checking, merging and writing the saved values and the export text. Plain TypeScript with automated tests (`npm test`).
@@ -290,6 +291,40 @@ Not needed: Audio lab logs. The Audio lab is the developer's own test tool, and 
 | iPad | Safari 16.6 | Not recorded | Not recorded | Not recorded | Not recorded | |
 | Brother's phones (iPhone, Android) | Not recorded | Works | Works | Works | Works | Confirmed by the developer (November 2026). Calibrating with the prototype, long sessions with no problems, UI judged okay. Browser versions not recorded. |
 | Developer's device for the slider "good enough" check (Wave 5.3) | Not recorded | Slider tried and judged good enough, with the − and + buttons as a fallback | | | | Device and browser were not written down. |
+
+### prototype-v2 (V2, November 2026)
+Written from the Porting lines in `docs/changes/V2.md` (26 changes, V2-01 to V2-26). Nothing here has been run on a native phone.
+- What was built: the app moved from a Tour Tempo clone toward a stand-alone app that explains itself. Long Game has a GAMEPLAY / PRACTICE DRILLS choice and one Tempo slider that snaps to each tempo, with RAPID and SMOOTH at its ends, and each tempo shows a name and a one-sentence description. Practice Drills play one swing, a recovery measure and a 4-3-2-1 countdown (a sound and numbers on the scale). Three buttons under the Current session card switch the Background loop, the Weight shift cue and the Top cue on or off (Weight shift and Top are remembered separately for Long Game and Short Game). The weight shift settings moved from a separate Config screen to a Configure weight shift panel at the bottom of the main screen (the Config entry in the menu is gone, and so is the EXPORT button). A How it works screen is the top menu item. The app is called Swing Sequencer, with a new favicon and a two-line name on the phone intro screen. After a restart, the first swing's lights are timed with the delay the browser reported. The Audio lab is hidden from the menu.
+- Carries over unchanged (expected, not run on a phone):
+  - `src/engine/`: preset groups and names, the drill bar, the countdown events and the 0.75 starting value. Plain TypeScript with automated tests (`npm test`, 345 tests).
+  - `src/audio/player.ts`: the lead-in before the first takeaway on a drill, and the filter that leaves out the Top cue (`includeTop`). Tests in `src/audio/player.test.ts`.
+  - `src/ui/lib/outputDelay.ts`: the remembered output delay. Plain TypeScript with tests.
+  - React Native pieces: `StepSlider.tsx`, `GridBackdrop.tsx` (uses `react-native-svg`, like the scale), `ExpanderHeader.tsx`, the `checked` and `compact` options on `Button.tsx`, `SegmentedControl.tsx`, the countdown in `BeatTimeline.tsx` (uses `Animated` with the native driver, like the weight shift pulse), `src/app/AppHeader.tsx`, `src/app/HowItWorksScreen.tsx`, `src/config-mode/ConfigPanel.tsx` and `useConfigPanel.tsx`.
+  - Plain text data: `src/app/howItWorksText.ts` and the names and descriptions in `src/engine/presets.ts`.
+- Web-only, must be replaced on native:
+  - `public/favicon.svg`, `public/apple-touch-icon.png`, `public/index.html` and `assets/favicon.png` are for the browser tab and the iPhone home screen. A native app uses `assets/icon.png`, the splash image and the Android icons, which are still the Expo placeholders (the blue "A" icon). They need new art made from the emblem (`assets/logo-emblem-dark.png` and `-light.png`).
+  - `"name"` in `app.json` ("Swing Sequencer") also names the app on a native home screen.
+  - The only audio adapter is the web one (`src/audio/webAudio.ts`). A native adapter must provide the countdown voices (`src/audio/tones.ts`; the default is "Falling"), honor `ToneSpec.level`, report its output latency, and report the lead-in the way the player does (`onLeadIn`).
+  - `src/ui/hooks/usePlayerSession.ts` still creates the player on web only, as before.
+  - `src/config-mode/exportDevice.ts` (browser clipboard, user agent) is no longer used. It goes when `src/config-mode/` is deleted.
+  - The Audio lab (`src/audio-lab/`, mounted from `src/app/AudioLabMount.tsx`) is web-only. It is hidden by `SHOW_AUDIO_LAB = false` in `src/app/AppHeader.tsx`.
+- Needs testing on a real device (all untested on native; the web version was checked on desktop browsers and the developer's Android phone):
+  - The Tempo slider: dragging it inside the scrolling page (`PanResponder` inside a `ScrollView`), and the keyboard-free screen reader steps.
+  - The countdown on a drill: the numbers line up with the sound, each count lands on a hi-hat with the loop on, and the first takeaway comes 4 counts after "4".
+  - The first swing's lights after a restart, and after the first Play of a session (which still uses a guess, see below).
+  - Pressing Background loop, Weight shift or Top while playing restarts from beat 1 cleanly.
+  - Layout at 320 points wide: the three buttons on one line, the header name (it has tighter letter spacing on phones), the two-line intro name, the Tempo box.
+  - Opening the Configure panel scrolls it into view; APPLY saves; the two Discard / Keep editing dialogs (closing the panel, and switching Long game and Short game); the Android back button with a dialog open.
+  - Screen readers (VoiceOver and TalkBack): the three buttons read as on or off switches; the group choice reads as a radio group; the Tempo slider is named "Tempo, from rapid to smooth", says "24/8, Gameplay" and steps one tempo at a time; the Configure label says whether it is expanded; the How it works headings. The countdown numbers are deliberately not announced (the sound carries them).
+- Decisions and reasons:
+  - The engine changed only through the approved exceptions in `.kiro/steering/prototype-versions.md`: preset data (groups, names, descriptions), the drill timing and countdown, and the 0.75 starting value. The Top cue is left out in `src/audio/player.ts` after the engine builds its events, so the engine did not change for it.
+  - Saved-data keys (`golf-tempo:theme:v1`, `golf-tempo:weight-shift:v1`) keep the old project name on purpose. Renaming them would have erased everyone's saved settings.
+  - The loop, Weight shift and Top buttons, and the selected tempo, are not saved between visits.
+  - The Config screen was replaced by the panel, and the EXPORT button was removed (the brother reports the saved percentages the panel shows). The export code is still in `src/config-mode/` but unused (`ExportPanel.tsx`, `exportText.ts`, `exportDevice.ts`), and the `check` icon in `Icon.tsx` is unused. `PresetGrid.tsx` and `PresetButton.tsx` are now used only by the Audio lab.
+  - Output delay: from the second run on, the first swing uses the delay the browser reported on an earlier run. The first Play after the page loads still uses a platform guess (the Android guess of 280 ms was measured on a Pixel 6; a Pixel 10 reports 56 ms, so those lights are about 224 ms late once per page load). It is a known small gap in `docs/changes/V2.md`, "Known issues".
+  - The countdown sound ("Falling") is a placeholder. Redesigning it is idea 9 in `docs/ideas.md`.
+  - The How it works text is a merge of the brother's version and the developer's (V2-26). The brother's full version is in git (`git log --grep "V2-25" --oneline`).
+  - Open at release: the brother's check of the "Good for" sentences and the How it works wording, a first-Play timing log from a Mac, screen reader testing, and the Gameplay name.
 
 ## Final guide checklist (written after the last spec)
 

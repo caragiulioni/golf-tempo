@@ -64,7 +64,7 @@ The ordered list of specs for the Golf Tempo Trainer. Keep this file current.
 - **Depends on:** specs 1 to 5.
 - **Paused meanwhile:** spec 6 (final-weight-shift-release). CONFIG stays and keeps working.
 - **Spec:** see `docs/changes/V2.md`
-- **Built:** in progress
+- **Built:** DONE. V2-01 to V2-26 landed on `dev-V2` and were merged into `main` at the V2 close (November 2026); see `docs/changes/V2.md` and the prototype-v2 entry in `docs/porting-guide.md`. Still open, not blocking: the brother's check of the "Good for" sentences and the How it works wording, a Mac first-Play timing log, screen reader testing, and the native icon and splash.
 
 ## Not a spec
 

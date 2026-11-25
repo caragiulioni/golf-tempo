@@ -21,7 +21,7 @@ Status: also in `.kiro/steering/product.md` (on `dev-V2`), so every UI decision 
 
 ## 1. Friendly preset names that teach tempo
 
-**Status:** Partly built: the archetype (under the tempo numbers) and the "Good for" sentence (in the Tempo box) are V2-10 (`docs/changes/V2.md`, landed). The short labels (Aggressive, Brisk, ...) are not scheduled. The short labels are not scheduled. **From:** the developer.
+**Status:** Partly built: the archetype (under the tempo numbers) and the "Good for" sentence (in the Tempo box) are V2-10 (`docs/changes/V2.md`, landed). The short labels (Aggressive, Brisk, ...) are not scheduled. **From:** the developer.
 
 **The problem.** The preset buttons show frame counts like "24/8". Golfers who know Tour Tempo understand them. Most people don't, and the app currently doesn't explain them.
 
@@ -80,7 +80,7 @@ Short Game notes:
 
 ## 2. Split the presets into Full Swings and Practice Drills
 
-**Status:** Scheduled (V2-04 to V2-08, see `docs/changes/V2.md`). Timing planned (November 2026), see "Drill timing" below. **From:** the developer. **Related to:** idea 1 (both make the presets easier to understand). Kept separate because it can be built without the names.
+**Status:** Built in V2 (V2-04 to V2-08, landed; see `docs/changes/V2.md`). Timing planned (November 2026), see "Drill timing" below. **From:** the developer. **Related to:** idea 1 (both make the presets easier to understand). Kept separate because it can be built without the names.
 
 **Decided (developer, V2 plan):** a toggle with two linked buttons, **GAMEPLAY** and **PRACTICE DRILLS** (option 2 below), and a stepped **Tempo** slider in place of the preset buttons (V2-06). Long Game only; Short Game has no toggle. This replaces the earlier decision of two labeled groups both visible, named Full Swings and Drills.
 
@@ -146,7 +146,7 @@ So a bar is 12 counts = 24 hats = 3 measures of 8 (swing, recovery, countdown).
 
 ## 3. Beats control on the main screen
 
-**Status:** Replaced by V2-03 (`docs/changes/V2.md`): two toggles below the Current session card, Background loop and Weight shift. Takeaway, top and impact always play, so there is no "Beats off" option and the never-silent rule below is not needed. Weight shift off hides the diamond, as decided below. Kept here for the history. **From:** the developer.
+**Status:** Built as V2-03 (`docs/changes/V2.md`, landed; V2-22 later added a Top button): two toggles below the Current session card, Background loop and Weight shift. Takeaway, top and impact always play, so there is no "Beats off" option and the never-silent rule below is not needed. Weight shift off hides the diamond, as decided below. Kept here for the history. **From:** the developer.
 
 **The idea.** Bring the Audio lab's Beats control into the main app, so users can choose what they hear on top of the loop. Under the Background loop switch, add a "Beats" section label and three buttons in one row, in the same order as the Audio lab:
 
@@ -239,7 +239,7 @@ Generating the figures from scratch with a design tool was considered and ruled 
 
 ## 6. Move the iPhone silent-switch hint above the Background loop switch
 
-**Status:** Idea, not in the V2 plan. V2-03 moves the Background loop toggle to just below the Current session card, next to the new Weight shift toggle, so "above the Background loop switch" would now put the hint right under the card. Decide its place after V2-03 lands. **From:** the developer.
+**Status:** Idea, not in the V2 plan. V2-03 moves the Background loop toggle to just below the Current session card, next to the new Weight shift toggle, so "above the Background loop switch" would now put the hint right under the card. V2-03 has landed, and its place is still to decide. **From:** the developer.
 
 **Now:** on iPhone, the hint ("No sound? Check silent mode, mute in Control Center and the volume.") sits in the Current session card, between the play button and the scale (`src/app/MainScreen.tsx`).
 
