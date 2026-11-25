@@ -10,6 +10,7 @@ This project is planned before it is built. If you think like a planner, you wil
 |---|---|---|
 | `_references/` | Source material we started from: the original spec, a recording of Tour Tempo, screenshots, layout mockups | Site survey and background studies |
 | `.kiro/steering/` | Standing rules and decisions that apply to every piece of work | Zoning code and design guidelines |
+| `docs/changes/` | One log per prototype version: every change, and how to undo it | Amendment register |
 | `.kiro/specs/` | Detailed plans for each feature, plus the ordered list of them | Project plans and the master schedule |
 | `docs/` | Working documents: the questions, the decisions, and the guide for moving to phones | Consultation record, decision register, handover documents |
 | `docs/client_questions.md` | Questions only you can answer | Stakeholder consultation |

@@ -3,11 +3,22 @@
 // Only layout tokens (maxContentWidth, timelineSlotMinHeight, laptopColumns) were added to the theme.
 // Loop switch timeline fix: checked src/ui/components and src/theme; extended BeatTimeline with a
 // `restartKey` prop (no new component, no new styles or tokens).
-import React, { useState } from 'react';
+// V2-03 (sound buttons): reuses Button (extended with `checked`) for both buttons; extends
+// BeatTimeline with `showWeightShift` and usePlayerSession with `includeWeightShift`. No new
+// component or token.
+// V2-10 (archetype and Good for): reuses AppText; the words come from the preset data.
+// V2-08 (countdown on screen): no new component; BeatTimeline shows the 4, 3, 2, 1 itself, fed by
+// the new onLeadIn listener from usePlayerSession.
+// V2-06 (Tempo slider): replaces PresetGrid and PresetButton with the new StepSlider (built on
+// Slider); both stay in use on the CONFIG screen. Each group remembers its last tempo.
+// V2-05 (Gameplay / Practice Drills): reuses SegmentedControl (extended with `size`), PresetGrid and
+// PresetButton as they are; presetsInGroup from the engine decides which tempos show.
+import React, { useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CATEGORY_RATIO, PRESETS, presetLabel } from '../engine';
-import type { Category, Preset, WeightShiftSettings } from '../engine';
+import { CATEGORY_RATIO, PRESETS, presetLabel, presetsInGroup } from '../engine';
+import type { Category, Preset, PresetGroup } from '../engine';
 import {
   laptopColumns,
   maxContentWidth,
@@ -18,23 +29,24 @@ import {
   AppText,
   Badge,
   BeatTimeline,
+  Button,
   Card,
-  Header,
-  MenuItem,
   PlayButton,
-  PresetButton,
-  PresetGrid,
   SectionLabel,
   SegmentedControl,
   StatusMessage,
-  Switch,
+  StepSlider,
 } from '../ui/components';
-import { CATEGORY_NAME, CATEGORY_OPTIONS, PRESET_COLUMNS, presetKey } from '../ui/lib/categoryUi';
+import { CATEGORY_NAME, CATEGORY_OPTIONS } from '../ui/lib/categoryUi';
+import { AppHeader } from './AppHeader';
+import { useConfigPanel } from './ConfigMount';
+import type { AppliedSettingsApi } from './ConfigMount';
 import { useLayout } from '../ui/hooks/useLayout';
 import {
   PAUSED_TEXT,
   START_FAILED_TEXT,
   audioNow,
+  onLeadIn,
   onSwing,
   outputDelay,
   usePlayerSession,
@@ -46,6 +58,12 @@ const SILENT_SWITCH_HINT = 'No sound? Check silent mode, mute in Control Center 
 // Fixed for the life of the page, so read once.
 const showSilentSwitchHint = shouldShowSilentSwitchHint(Platform.OS, readDeviceInfo());
 
+/** The middle step of a list (the lower middle when the count is even). */
+const middleOf = (list: readonly Preset[]): Preset => list[Math.floor(list.length / 2)];
+const GROUP_OPTIONS: ReadonlyArray<{ value: PresetGroup; label: string }> = [
+  { value: 'gameplay', label: 'GAMEPLAY' },
+  { value: 'drills', label: 'PRACTICE DRILLS' },
+];
 type Props = {
   category: Category;
   /** Index into PRESETS[category] for each category. */
@@ -53,11 +71,11 @@ type Props = {
   onCategoryChange: (category: Category) => void;
   onPresetChange: (category: Category, index: number) => void;
   /** Weight shift positions to play and draw with. */
-  weightShiftSettings: WeightShiftSettings;
+  applied: AppliedSettingsApi;
   /** False while Config or the Audio lab is open: this screen then ignores changes and never restarts playback. */
   active: boolean;
-  onOpenConfig: () => void;
   onOpenLab: () => void;
+  onOpenHowItWorks: () => void;
 };
 
 export function MainScreen({
@@ -65,20 +83,69 @@ export function MainScreen({
   presetByCategory,
   onCategoryChange,
   onPresetChange,
-  weightShiftSettings,
+  applied,
   active,
-  onOpenConfig,
   onOpenLab,
+  onOpenHowItWorks,
 }: Props) {
-  const { colors, toggle, toggleLabel } = useTheme();
+  const { colors } = useTheme();
   const { layout } = useLayout();
   const laptop = layout === 'laptop';
   const presets = PRESETS[category];
   const selectedIndex = presetByCategory[category];
   const selected = presets[selectedIndex];
+  // Long Game only: the selected preset's group decides which tempos show.
+  const group: PresetGroup | null = category === 'long' ? (selected.group ?? 'gameplay') : null;
+  const visiblePresets = group ? presetsInGroup('long', group) : presets;
+  // Each group remembers its last tempo while the app is open (not saved). A group starts at
+  // its middle tempo: 24/8 for Gameplay, 60/20 for Practice Drills.
+  const lastInGroup = useRef<Record<PresetGroup, number>>({
+    gameplay: PRESETS.long.indexOf(middleOf(presetsInGroup('long', 'gameplay'))),
+    drills: PRESETS.long.indexOf(middleOf(presetsInGroup('long', 'drills'))),
+  });
+  const onGroupChange = (next: PresetGroup) => {
+    if (group) lastInGroup.current[group] = selectedIndex;
+    onPresetChange('long', lastInGroup.current[next]);
+  };
+  const stepIndex = visiblePresets.indexOf(selected);
   // Not saved: the loop is off every time the app starts.
   const [loop, setLoop] = useState(false);
-  const session = usePlayerSession({ preset: selected, loop, settings: weightShiftSettings }, { active });
+  // Not saved either: the weight shift beat is on every time the app starts.
+  const [weightShiftByCategory, setWeightShiftByCategory] = useState<Record<Category, boolean>>({
+    long: true,
+    short: true,
+  });
+  // Each game keeps its own on or off (V2-14): turn it off in Short Game and Long Game is still on.
+  const weightShift = weightShiftByCategory[category];
+  const setWeightShift = (on: boolean) => setWeightShiftByCategory((prev) => ({ ...prev, [category]: on }));
+  // The same for the cue at the top of the backswing (V2-22): on by default, kept per game, not saved.
+  const [topByCategory, setTopByCategory] = useState<Record<Category, boolean>>({ long: true, short: true });
+  const top = topByCategory[category];
+  const setTop = (on: boolean) => setTopByCategory((prev) => ({ ...prev, [category]: on }));
+  // The Configure weight shift panel (temporary, see ConfigMount): what to play and draw, and its panel.
+  // When the panel opens, scroll so its label is near the top of the screen. The panel is the last
+  // thing on the page, so it can open below the fold.
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
+  const panelRef = useRef<React.ComponentRef<typeof View>>(null);
+  const scrollY = useRef(0);
+  const scrollPanelIntoView = () => {
+    // Wait a moment, so the opened panel has been laid out and the page is long enough to scroll.
+    setTimeout(() => {
+      const scroller = scrollRef.current;
+      const panel = panelRef.current;
+      if (!scroller || !panel) return;
+      scroller.measureInWindow((_x, scrollerTop) => {
+        panel.measureInWindow((_px, panelTop) => {
+          scroller.scrollTo({ y: Math.max(0, scrollY.current + panelTop - scrollerTop - spacing.lg), animated: true });
+        });
+      });
+    }, 80);
+  };
+  const config = useConfigPanel({ category, selected, applied, onOpened: scrollPanelIntoView });
+  const session = usePlayerSession(
+    { preset: selected, loop, settings: config.playSettings, includeWeightShift: weightShift, includeTop: top },
+    { active },
+  );
 
   const hero = (
     <Card
@@ -92,6 +159,11 @@ export function MainScreen({
       <View style={styles.tempoRow}>
         <View style={styles.tempoBadgeBox}>
           <Badge variant="tempo" back={selected.backFrames} down={selected.downFrames} />
+          {selected.archetype ? (
+            <AppText variant="label" size="label" accessibilityLabel={`Tempo name: ${selected.archetype}`}>
+              {selected.archetype}
+            </AppText>
+          ) : null}
         </View>
         <PlayButton playing={session.playing} onPress={session.toggle} />
       </View>
@@ -104,16 +176,48 @@ export function MainScreen({
       ) : null}
       <BeatTimeline
         preset={selected}
-        weightShiftPosition={weightShiftSettings[category]}
+        weightShiftPosition={config.drawSettings[category]}
+        showWeightShift={weightShift}
+        showTop={top}
         playing={session.playing}
         subscribeSwings={onSwing}
+        subscribeLeadIns={onLeadIn}
         audioNow={audioNow}
         outputDelay={outputDelay}
-        restartKey={loop}
+        restartKey={`${loop}-${weightShift}-${top}`}
       />
     </Card>
   );
 
+  const soundToggles = (
+    <View style={styles.soundToggles}>
+      <View style={styles.soundToggle}>
+        <Button
+          label="Background loop"
+          compact
+          checked={loop}
+          onPress={() => setLoop(!loop)}
+        />
+      </View>
+      <View style={styles.soundToggleMiddle}>
+        <Button
+          label="Weight shift"
+          compact
+          checked={weightShift}
+          onPress={() => setWeightShift(!weightShift)}
+        />
+      </View>
+      <View style={styles.soundToggleNarrow}>
+        <Button
+          label="Top"
+          accessibilityLabel="Top of backswing cue"
+          compact
+          checked={top}
+          onPress={() => setTop(!top)}
+        />
+      </View>
+    </View>
+  );
   const controls = (
     <View style={[styles.controlsColumn, laptop && styles.controlsColumnLaptop]}>
       <View style={styles.controlGroup}>
@@ -121,59 +225,66 @@ export function MainScreen({
         <SegmentedControl
           options={CATEGORY_OPTIONS}
           value={category}
-          onChange={onCategoryChange}
+          onChange={(next) => config.requestCategoryChange(next, () => onCategoryChange(next))}
           accessibilityLabel="Game length"
         />
       </View>
       <View style={styles.controlGroup}>
-        <SectionLabel>Available sessions</SectionLabel>
-        <PresetGrid
-          items={presets}
-          columns={PRESET_COLUMNS[category]}
-          keyOf={presetKey}
-          accessibilityLabel={`${CATEGORY_NAME[category]} tempos`}
-          renderItem={(p) => {
-            const i = presets.indexOf(p);
-            return (
-              <PresetButton
-                label={presetLabel(p)}
-                selected={i === selectedIndex}
-                onPress={() => onPresetChange(category, i)}
-              />
-            );
-          }}
+        <SectionLabel>Tempo</SectionLabel>
+        {group ? (
+          <SegmentedControl
+            options={GROUP_OPTIONS}
+            value={group}
+            onChange={onGroupChange}
+            accessibilityLabel="Tempo group"
+            size="label"
+          />
+        ) : null}
+        <StepSlider
+          labels={visiblePresets.map(presetLabel)}
+          value={stepIndex}
+          onChange={(i) => onPresetChange(category, presets.indexOf(visiblePresets[i]))}
+          accessibilityLabel="Tempo, from rapid to smooth"
+          spokenSuffix={group === 'drills' ? 'Practice Drills' : group === 'gameplay' ? 'Gameplay' : undefined}
+          startLabel="RAPID"
+          endLabel="SMOOTH"
+          caption={selected.goodFor}
         />
       </View>
-      <Switch label="Background loop" checked={loop} onValueChange={setLoop} />
+      {/* Very last on the screen, closed to start with, so an open panel is out of the way (V2-09). */}
+      <View ref={panelRef} collapsable={false}>
+        {config.panel}
+      </View>
     </View>
   );
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.bg }]}>
       <ScrollView
+        ref={scrollRef}
+        onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+          scrollY.current = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View
           style={styles.page}
         >
-          <Header
-            menu={(close) => (
-              <>
-                <MenuItem label="Config" onPress={() => { close(); onOpenConfig(); }} />
-                <MenuItem label={toggleLabel} onPress={() => { close(); toggle(); }} />
-                <MenuItem label="Audio lab (testing)" onPress={() => { close(); onOpenLab(); }} />
-              </>
-            )}
-          />
+          <AppHeader onOpenHowItWorks={onOpenHowItWorks} onOpenLab={onOpenLab} />
           {laptop ? (
             <View style={styles.laptopColumns}>
-              {hero}
+              <View style={styles.heroColumnLaptop}>
+                {hero}
+                {soundToggles}
+              </View>
               {controls}
             </View>
           ) : (
             <>
               {hero}
+              {soundToggles}
               {controls}
             </>
           )}
@@ -201,7 +312,17 @@ const styles = StyleSheet.create({
   laptopColumns: { flex: 1, flexDirection: 'row', gap: spacing.xxl },
   /** "Current session" card. */
   heroCard: { gap: spacing.lg },
-  heroCardLaptop: { flex: laptopColumns.hero },
+  heroCardLaptop: { flex: 1 },
+  /** Laptop only: left column holding the hero card and the sound toggles under it. */
+  heroColumnLaptop: { flex: laptopColumns.hero, gap: spacing.lg },
+  /** The three sound buttons side by side, directly below the hero card. */
+  soundToggles: { flexDirection: 'row', gap: spacing.sm },
+  /** Background loop: never narrower than its label (so the label never wraps); takes the biggest share of any spare room. */
+  soundToggle: { flexGrow: 1, flexShrink: 0 },
+  /** Weight shift: a little narrower than Background loop, so Top gets more room. */
+  soundToggleMiddle: { flexGrow: 0.6, flexShrink: 0 },
+  /** Top: its label plus a small share of the spare room. */
+  soundToggleNarrow: { flexGrow: 0.4, flexShrink: 0 },
   /** Top row of the hero card: section label left, ratio badge right. */
   heroHeaderRow: {
     flexDirection: 'row',
@@ -218,8 +339,8 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
   },
   /** Takes the free width left of the play button. */
-  tempoBadgeBox: { flex: 1 },
-  /** Right-hand column: game length, sessions, loop switch. */
+  tempoBadgeBox: { flex: 1, gap: spacing.xs },
+  /** Right-hand column: game length, sessions. */
   controlsColumn: { gap: spacing.xl },
   controlsColumnLaptop: { flex: laptopColumns.controls },
   /** A section label with its control underneath. */

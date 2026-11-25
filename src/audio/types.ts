@@ -1,7 +1,19 @@
 /**
  * Which sound to play. Short Game beat 3 uses the 'beat1' voice (see tones.ts).
+ * The count* voices are the drill countdown (V2-07); which ones play depends on the
+ * countdown style (see CountdownToneStyle in tones.ts).
  */
-export type Voice = 'beat1' | 'weightShift' | 'beat2' | 'beat3';
+export type Voice =
+  | 'beat1'
+  | 'weightShift'
+  | 'beat2'
+  | 'beat3'
+  | 'countTick'
+  | 'countLast'
+  | 'countFall4'
+  | 'countFall3'
+  | 'countFall2'
+  | 'countFall1';
 
 /** Background loop sounds (808 style). Separate from the beeps in `Voice`. */
 export type LoopVoice = 'kick' | 'snare' | 'hat';

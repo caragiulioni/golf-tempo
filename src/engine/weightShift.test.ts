@@ -21,7 +21,7 @@ describe('weightShiftTime', () => {
   });
 
   it('keeps the same fraction of the beat 1 to 2 gap at every tempo', () => {
-    for (const preset of [long(18, 6), long(30, 10), long(168, 56)]) {
+    for (const preset of [long(18, 6), long(30, 10), long(84, 28)]) {
       const t = beatTimes(preset);
       expect(weightShiftTime(preset, 0.67) / (t.beat2 - t.beat1)).toBeCloseTo(0.67, 6);
     }
@@ -59,8 +59,8 @@ describe('clampPosition', () => {
 });
 
 describe('per-category settings', () => {
-  it('defaults are 0.70 for Long Game and 0.60 for Short Game', () => {
-    expect(defaultWeightShiftSettings()).toEqual({ long: 0.7, short: 0.6 });
+  it('defaults are 0.75 for Long Game and Short Game', () => {
+    expect(defaultWeightShiftSettings()).toEqual({ long: 0.75, short: 0.75 });
   });
 
   it('changing Long Game does not change Short Game', () => {
@@ -80,7 +80,7 @@ describe('per-category settings', () => {
   it('does not modify the settings it was given', () => {
     const before = defaultWeightShiftSettings();
     withPosition(before, 'long', 0.3);
-    expect(before).toEqual({ long: 0.7, short: 0.6 });
+    expect(before).toEqual({ long: 0.75, short: 0.75 });
   });
 
   it('clamps a saved value that is out of range', () => {

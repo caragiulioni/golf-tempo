@@ -13,6 +13,7 @@ Work is organized into waves, and waves into small tasks. The goal is that every
 - Write full specs (requirements, design, tasks) just in time, in index order. Do not write later specs early.
 - Specs refer to steering files for shared decisions and do not restate them.
 - Tasks inside a spec follow the wave and task rules below.
+- Prototype versions (branches `dev-V2`, `dev-V3`, ...) don't use full specs. They follow `.kiro/steering/prototype-versions.md`: one change, one squash-merged commit, one entry in `docs/changes/V<n>.md`. The Reuse check and task rules below still apply.
 
 ## Reuse before you build (UI and styling)
 

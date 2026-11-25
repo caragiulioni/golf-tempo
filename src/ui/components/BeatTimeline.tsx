@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import type { LayoutChangeEvent } from 'react-native';
-import Svg, { Defs, Path, Pattern, Rect } from 'react-native-svg';
-import type { ScheduledSwing } from '../../audio';
+import type { ScheduledBeep, ScheduledLeadIn, ScheduledSwing } from '../../audio';
+import { DRILL_RECOVERY_COUNTS, drillCountSeconds, isDrillPreset } from '../../engine';
 import type { Preset } from '../../engine';
 import {
   radius,
@@ -17,16 +17,26 @@ import { useReduceMotion } from '../hooks/useReduceMotion';
 import { labelsOverlap, timelineGeometry, weightShiftLabel } from '../lib/timelineGeometry';
 import type { TimelineMarkerType } from '../lib/timelineGeometry';
 import { AppText } from './AppText';
+import { GridBackdrop } from './GridBackdrop';
 import { measureStyles } from './measureStyles';
 
 type Props = {
   preset: Preset;
   /** Normalized weight shift position, 0..1 between beat 1 and beat 2. */
   weightShiftPosition: number;
+  /** False hides the weight shift diamond and its label. Default true. */
+  showWeightShift?: boolean;
+  /** False hides the top marker and its label (V2-22). The bars and phase labels stay. Default true. */
+  showTop?: boolean;
   /** True while playing or restarting. When it turns false everything resets (R5.13). */
   playing?: boolean;
   /** Register for scheduled swings. Returns an unsubscribe function. */
   subscribeSwings?: (listener: (swing: ScheduledSwing) => void) => () => void;
+  /**
+   * Register for the countdown that starts a run on a drill. Returns an unsubscribe function.
+   * Optional: without it only the countdowns inside swings show.
+   */
+  subscribeLeadIns?: (listener: (leadIn: ScheduledLeadIn) => void) => () => void;
   /** The audio clock in seconds, or null when there is none. */
   audioNow?: () => number | null;
   /**
@@ -76,8 +86,11 @@ function fitSpacing(width: number, chars: number, avail: number): number | null 
 export function BeatTimeline({
   preset,
   weightShiftPosition,
+  showWeightShift = true,
+  showTop = true,
   playing = false,
   subscribeSwings,
+  subscribeLeadIns,
   audioNow,
   outputDelay = NO_DELAY,
   restartKey,
@@ -90,6 +103,16 @@ export function BeatTimeline({
     [preset, weightShiftPosition],
   );
 
+  // The markers drawn: leaves out the weight shift and the top when they are turned off.
+  const markers = useMemo(
+    () =>
+      geometry
+        ? geometry.markers.filter(
+            (m) => (showWeightShift || m.type !== 'weightShift') && (showTop || m.type !== 'beat2'),
+          )
+        : [],
+    [geometry, showWeightShift, showTop],
+  );
   // Playback follow. State is local, so only this component re-renders.
   const [lit, setLit] = useState<Record<TimelineMarkerType, boolean>>(NONE_LIT);
   // Mirror of `lit`, so the progress listener can check it without waiting for a render.
@@ -117,6 +140,10 @@ export function BeatTimeline({
   const pulse = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef<Animated.CompositeAnimation | null>(null);
 
+  // Drill countdown (V2-08): the number on screen (null = none) and its grow-in animation.
+  const [count, setCount] = useState<number | null>(null);
+  const countScale = useRef(new Animated.Value(1)).current;
+  const countAnim = useRef<Animated.CompositeAnimation | null>(null);
   const reset = useRef(() => {});
   reset.current = () => {
     timers.current.forEach(clearTimeout);
@@ -126,6 +153,9 @@ export function BeatTimeline({
     pulseAnim.current?.stop();
     pulseAnim.current = null;
     pulse.setValue(0);
+    countAnim.current?.stop();
+    countAnim.current = null;
+    setCount(null);
     progress.setValue(0);
     updateLit(() => NONE_LIT);
     setHeadVisible(false);
@@ -159,6 +189,42 @@ export function BeatTimeline({
       TimelineMarkerType,
       number
     >;
+    // One count is one downswing. Each number starts a little smaller and eases up to full size
+    // over that count (reduce motion: it just changes).
+    const countSeconds = isDrillPreset(preset) ? drillCountSeconds(preset) : 0;
+    const clearCount = () => {
+      countAnim.current?.stop();
+      countAnim.current = null;
+      setCount(null);
+    };
+    const scheduleCount = (beep: ScheduledBeep, msUntil: (time: number) => number) => {
+      const timer = setTimeout(() => {
+        timers.current.delete(timer);
+        setCount(beep.count ?? null);
+        countAnim.current?.stop();
+        if (reduceRef.current) {
+          countScale.setValue(1);
+          return;
+        }
+        countScale.setValue(S.countdownStartScale);
+        const anim = Animated.timing(countScale, {
+          toValue: 1,
+          duration: countSeconds * 1000,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        });
+        countAnim.current = anim;
+        anim.start();
+      }, msUntil(beep.time));
+      timers.current.add(timer);
+    };
+    const unsubscribeLeadIn = subscribeLeadIns?.((leadIn: ScheduledLeadIn) => {
+      const now = audioNow();
+      if (now === null) return;
+      const delay = outputDelayRef.current();
+      const msUntil = (time: number) => Math.max(0, (time + delay - now) * 1000);
+      for (const beep of leadIn.beeps) scheduleCount(beep, msUntil);
+    });
     const unsubscribe = subscribeSwings((swing: ScheduledSwing) => {
       const now = audioNow();
       if (now === null) return;
@@ -169,10 +235,12 @@ export function BeatTimeline({
       // it lands just before the next beat 1. Starting from a timer at beat 1 means the previous
       // swing's animation is stopped exactly when this one takes over, not earlier.
       // Reduce motion (R5.7): no sweep or ease-back; the fill steps at each marker below.
-      const easeBackMs = Math.max(
-        S.easeBackMinMs,
-        (swing.cycleSeconds - total) * 1000 - S.easeBackMarginMs,
-      );
+      // On a drill the pause after impact is the recovery measure plus the countdown. The fill
+      // eases back over the recovery only, so it is home by the time "4" shows.
+      const pauseSeconds = isDrillPreset(preset)
+        ? DRILL_RECOVERY_COUNTS * drillCountSeconds(preset)
+        : swing.cycleSeconds - total;
+      const easeBackMs = Math.max(S.easeBackMinMs, pauseSeconds * 1000 - S.easeBackMarginMs);
       const sweepTimer = setTimeout(() => {
         timers.current.delete(sweepTimer);
         if (reduceRef.current) return;
@@ -200,8 +268,15 @@ export function BeatTimeline({
 
       for (const beep of swing.beeps) {
         const type = beep.type;
+        // Drill countdown: a number at the takeaway, not a marker on the scale.
+        if (type === 'countdown') {
+          scheduleCount(beep, msUntil);
+          continue;
+        }
         const timer = setTimeout(() => {
           timers.current.delete(timer);
+          // The takeaway ends the countdown.
+          if (type === 'beat1') clearCount();
           // Reduce motion: the fill steps to this marker (and back to 0 at beat 1).
           if (reduceRef.current) progress.setValue(markerX[type]);
           // Beat 1 starts a new swing: clear the previous swing's markers first (safety net).
@@ -225,9 +300,10 @@ export function BeatTimeline({
     });
     return () => {
       unsubscribe();
+      unsubscribeLeadIn?.();
       reset.current();
     };
-  }, [geometry, subscribeSwings, audioNow, progress, pulse, restartKey]);
+  }, [geometry, subscribeSwings, subscribeLeadIns, audioNow, progress, pulse, countScale, preset, restartKey]);
 
   // Turning reduce motion on mid-play drops any sweep or pulse in progress.
   useEffect(() => {
@@ -262,12 +338,12 @@ export function BeatTimeline({
   const trackW = Math.max(0, size.width - 2 * S.paddingX);
   const px = (x: number) => S.paddingX + x * trackW;
   if (geometry && trackW > 0) {
-    for (const m of geometry.markers) {
+    for (const m of markers) {
       unlightAt.current[m.type] = Math.max(0, m.x - S.marker / 2 / trackW);
     }
   }
 
-  const backShort = `BACK · ${preset.backFrames}`;
+  const backShort = 'BACK';
   const measureKeys = geometry
     ? [...Object.values(NAMES), SHIFT_SHORT, geometry.backLabel, backShort, geometry.downLabel]
     : [];
@@ -282,10 +358,10 @@ export function BeatTimeline({
   let downLeft = 0;
   let backWidth = 0;
   if (ready && geometry) {
-    const types = geometry.markers.map((m) => m.type);
+    const types = markers.map((m) => m.type);
     const namesOverlap = (shiftText: string) => {
       const ws = types.map((t) => widths[t === 'weightShift' ? shiftText : NAMES[t]]);
-      const xs = geometry.markers.map((m, i) => {
+      const xs = markers.map((m, i) => {
         const x = px(m.x);
         if (i === 0) return x - S.marker / 2 + ws[i] / 2;
         if (i === types.length - 1) return x + S.marker / 2 - ws[i] / 2;
@@ -295,7 +371,7 @@ export function BeatTimeline({
     };
     // Phone always uses the short form; tablet and laptop only when the full name overlaps.
     shiftName = weightShiftLabel(layout === 'phone' || namesOverlap(NAMES.weightShift));
-    if (shiftName === SHIFT_SHORT && namesOverlap(SHIFT_SHORT)) {
+    if (showWeightShift && shiftName === SHIFT_SHORT && namesOverlap(SHIFT_SHORT)) {
       shiftAbove = true;
       shiftName = NAMES.weightShift;
     }
@@ -332,27 +408,7 @@ export function BeatTimeline({
       testID="timelineContainer"
       style={[styles.timelineContainer, { minHeight: timelineSlotMinHeight[layout], backgroundColor: bg }]}
     >
-      {size.width > 0 && size.height > 0 ? (
-        <Svg
-          width={size.width}
-          height={size.height}
-          style={styles.gridSvg}
-          accessible={false}
-        >
-          <Defs>
-            <Pattern id={PATTERN_ID} width={S.gridSize} height={S.gridSize} patternUnits="userSpaceOnUse">
-              <Path
-                d={`M ${S.gridSize} 0 L 0 0 0 ${S.gridSize}`}
-                fill="none"
-                stroke={timeline.gridLine}
-                strokeWidth={S.gridLineWidth}
-              />
-            </Pattern>
-          </Defs>
-          <Rect width={size.width} height={size.height} fill={`url(#${PATTERN_ID})`} />
-        </Svg>
-      ) : null}
-
+      <GridBackdrop width={size.width} height={size.height} patternId={PATTERN_ID} />
       {/* Hidden copies of every label, only to read their natural widths. */}
       {geometry ? (
         <View
@@ -382,9 +438,14 @@ export function BeatTimeline({
 
       {ready && geometry ? (
         <View style={styles.timelineContent}>
-          {/* Phase labels, split at beat 2. */}
+          {/* Phase labels, split at beat 2. Without the top marker the line under them is one line, left to right. */}
           <View style={styles.phaseRow}>
-            <View style={[styles.phaseRowBack, { width: Math.max(0, backWidth) }]}>
+            <View
+              style={[
+                styles.phaseRowBack,
+                { width: Math.max(0, showTop ? backWidth : size.width - 2 * S.paddingX) },
+              ]}
+            >
               <AppText
                 variant="label"
                 size="phaseLabel"
@@ -395,7 +456,13 @@ export function BeatTimeline({
                 {backText}
               </AppText>
             </View>
-            <View style={[styles.phaseRowDown, { left: downLeft }]}>
+            <View
+              style={[
+                styles.phaseRowDown,
+                { left: downLeft },
+                !showTop && styles.phaseUnderlineHidden,
+              ]}
+            >
               <AppText
                 variant="label"
                 size="phaseLabel"
@@ -409,7 +476,7 @@ export function BeatTimeline({
           </View>
 
           {/* Weight shift name moved above the track when the names row is too tight. */}
-          {shiftAbove ? (
+          {showWeightShift && shiftAbove ? (
             <View style={styles.nameRow}>
               <View
                 style={[
@@ -417,7 +484,7 @@ export function BeatTimeline({
                   {
                     left: Math.max(
                       S.paddingX - S.marker / 2,
-                      px(geometry.markers[1].x) - widths[shiftName] / 2,
+                      px(geometry.markers.find((m) => m.type === 'weightShift')?.x ?? 0) - widths[shiftName] / 2,
                     ),
                   },
                 ]}
@@ -431,8 +498,16 @@ export function BeatTimeline({
 
           {/* Bars and markers. */}
           <View style={styles.track} testID="track">
-            <Bar left={px(0)} right={px(geometry.splitX)} color={timeline.backswingBar} />
-            <Bar left={px(geometry.splitX)} right={px(1)} color={timeline.downswingBar} />
+            {showTop ? (
+              <>
+                <Bar left={px(0)} right={px(geometry.splitX)} color={timeline.backswingBar} />
+                <Bar left={px(geometry.splitX)} right={px(1)} color={timeline.downswingBar} />
+              </>
+            ) : (
+              // Without the top marker the two bars would show a seam where it was (rounded ends meeting),
+              // so the track is one bar, like with the weight shift off (V2-23).
+              <Bar left={px(0)} right={px(1)} color={timeline.backswingBar} />
+            )}
             {/* Gold fill: grows with the playhead over both bars, shrinks on the ease-back. */}
             <Animated.View
               pointerEvents="none"
@@ -456,7 +531,7 @@ export function BeatTimeline({
                 ]}
               />
             ) : null}
-            {geometry.markers.map((m) =>
+            {markers.map((m) =>
               m.type === 'weightShift' ? (
                 <React.Fragment key={m.type}>
                   <PulseRing x={px(m.x)} pulse={pulse} />
@@ -477,13 +552,29 @@ export function BeatTimeline({
                 />
               ),
             )}
+            {/* Drill countdown: the takeaway marker, bigger, with the number inside. */}
+            {count !== null ? (
+              <Animated.View
+                pointerEvents="none"
+                testID="countdownMarker"
+                style={[
+                  styles.markerBase,
+                  styles.countdownMarker,
+                  { left: px(0) - S.countdownMarker / 2, transform: [{ scale: countScale }] },
+                ]}
+              >
+                <AppText variant="num" size="countdown" style={[styles.countdownText, { color: bg }]}>
+                  {count}
+                </AppText>
+              </Animated.View>
+            ) : null}
           </View>
 
           {/* Names under the markers. */}
           <View style={styles.nameRow}>
-            {geometry.markers.map((m, i) => {
+            {markers.map((m, i) => {
               const first = i === 0;
-              const last = i === geometry.markers.length - 1;
+              const last = i === markers.length - 1;
               const x = px(m.x);
               const place = first
                 ? { left: x - S.marker / 2, alignItems: 'flex-start' as const }
@@ -585,12 +676,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: S.paddingY,
   },
-  /** Grid pattern drawn behind everything. */
-  gridSvg: { position: 'absolute', left: 0, top: 0 },
   /** One hidden label copy inside the measuring layer. */
   measureItem: { position: 'absolute', left: 0, top: 0 },
   /** Stack of phase row, optional shift name row, track and names row. */
   timelineContent: { gap: S.phaseGap },
+  /** The takeaway marker while it counts down: bigger, filled like a lit marker. left and scale are set inline. */
+  countdownMarker: {
+    top: (S.trackHeight - S.countdownMarker) / 2,
+    width: S.countdownMarker,
+    height: S.countdownMarker,
+    borderRadius: S.countdownMarker / 2,
+    borderWidth: S.markerBorder,
+    borderColor: timeline.markerOutline, // the same gray outline as the other markers
+    backgroundColor: timeline.label,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  /** The 4, 3, 2, 1. */
+  countdownText: { fontWeight: '700', includeFontPadding: false },
   /** Row holding BACKSWING and DOWNSWING labels. */
   phaseRow: { height: S.phaseHeight },
   /** BACKSWING label box with underline. width is set inline. */
@@ -609,6 +712,8 @@ const styles = StyleSheet.create({
     borderBottomColor: timeline.downswingBar,
     paddingBottom: spacing.xs,
   },
+  /** The DOWN label's own underline, hidden when the BACKSWING underline runs the whole width (top off). */
+  phaseUnderlineHidden: { borderBottomColor: 'transparent' },
   /** Phase label text. letterSpacing is overridden inline. */
   phaseText: { color: timeline.label, letterSpacing: S.phaseLetterSpacing },
   /** Right-aligned DOWNSWING text. */

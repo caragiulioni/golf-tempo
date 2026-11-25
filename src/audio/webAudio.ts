@@ -170,7 +170,7 @@ export function createWebAudioAdapter(options: WebAudioOptions = {}): WebAudioAd
       const gain = ctx.createGain();
       // Sharp start, then a smooth fade so there is no click at the end.
       gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(PEAK_GAIN, time + tone.attackSeconds);
+      gain.gain.linearRampToValueAtTime(PEAK_GAIN * (tone.level ?? 1), time + tone.attackSeconds);
       gain.gain.exponentialRampToValueAtTime(0.0001, end);
       // The fader stays at full volume until stopAll() fades it.
       const fader = ctx.createGain();

@@ -24,7 +24,7 @@ function TempoText({ back, down, fontSize }: { back: number; down: number; fontS
       numberOfLines={1}
     >
       {back}
-      <AppText variant="num" size="tempo" color="accent" style={[styles.tempoSlash, fs]}>
+      <AppText variant="num" size="tempo" color="accent" style={fs}>
         {' / '}
       </AppText>
       {down}
@@ -84,8 +84,6 @@ const styles = StyleSheet.create({
   tempoBadge: { alignSelf: 'stretch' },
   /** The "18 / 6" text. */
   tempoNumbers: { fontWeight: '700', includeFontPadding: false },
-  /** The " / " between the numbers. */
-  tempoSlash: { paddingHorizontal: spacing.xs },
   /** Outlined pill. height, radius and colour are set inline (layout / theme). */
   ratioPill: {
     paddingHorizontal: spacing.md,

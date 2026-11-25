@@ -2,7 +2,7 @@
 
 **Planning equivalent: the temporary site office.**
 
-The tools the brother uses to find the right weight shift position: the slider, the APPLY and reset buttons, the unapplied-changes warning and the EXPORT button.
+The tools the brother uses to find the right weight shift position: the slider, the APPLY and reset buttons, the unapplied-changes warning, all in the Configure weight shift panel on the main screen.
 
 ## Rules
 
@@ -12,7 +12,7 @@ The tools the brother uses to find the right weight shift position: the slider, 
 ## What is here
 
 - `appliedSettings.ts`, `appliedStorage.ts`, `useAppliedSettings.ts`: the saved values and how the app reads them.
-- `ConfigScreen.tsx`, `HowTo.tsx`, `howToSteps.ts` (the How to words), `ExportPanel.tsx`, `exportText.ts`, `exportDevice.ts`: the screen and EXPORT.
+- `useConfigPanel.tsx` (the panel's state and the confirmation dialog), `ConfigPanel.tsx` (the label and the panel), `HowTo.tsx`, `howToSteps.ts` (the How to words and the blurb). Not used since V2-09 (the export button was removed): `ExportPanel.tsx`, `exportText.ts`, `exportDevice.ts`.
 - Tests: `appliedSettings.test.ts`, `appliedStorage.test.ts`, `exportText.test.ts`.
 - The only mount point is `src/app/ConfigMount.tsx`. How to remove it: `.kiro/specs/config-mode/design.md`, section "Removal in spec 6".
 

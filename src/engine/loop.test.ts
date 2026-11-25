@@ -6,7 +6,6 @@ import {
   GHOST_KICK_STEPS,
   HAT_ACCENT_STEPS,
   HAT_MAX_GAP_SECONDS,
-  SPARSE_HAT_MAX_GAP_SECONDS,
   KICK_STEPS,
   SNARE_STEPS,
   STEPS_PER_BAR,
@@ -16,7 +15,9 @@ import {
   usesSparsePattern,
 } from './loop';
 import { LONG_GAME_PRESETS, SHORT_GAME_PRESETS, presetLabel, type Preset } from './presets';
-import { cycleSeconds } from './repeat';
+import { DRILL_BAR_COUNTS, cycleSeconds, drillCountSeconds } from './repeat';
+import { buildSequence, leadInEvents } from './sequence';
+import { defaultWeightShiftSettings } from './weightShift';
 
 const ALL: readonly Preset[] = [...LONG_GAME_PRESETS, ...SHORT_GAME_PRESETS];
 
@@ -33,8 +34,8 @@ const stepOf = (times: number[], time: number) => times.findIndex((t) => Math.ab
 const hatTimes = (events: ReturnType<typeof loopEvents>) => events.filter((e) => e.voice === 'hat').map((e) => e.time);
 
 describe('loopEvents, all presets', () => {
-  it('covers all 16 presets', () => {
-    expect(ALL).toHaveLength(16);
+  it('covers all 14 presets', () => {
+    expect(ALL).toHaveLength(14);
   });
 
   for (const p of ALL) {
@@ -111,7 +112,7 @@ describe('loopEvents, all presets', () => {
 
       it('keeps hat gaps within the limit (0.5 s, or 0.7 s for the sparse pattern), including the wrap', () => {
         const hats = hatTimes(events);
-        const limit = (usesSparsePattern(p) ? SPARSE_HAT_MAX_GAP_SECONDS : HAT_MAX_GAP_SECONDS) + EPS;
+        const limit = HAT_MAX_GAP_SECONDS + EPS;
         for (let i = 1; i < hats.length; i++) expect(hats[i] - hats[i - 1]).toBeLessThanOrEqual(limit);
         expect(cycle - hats[hats.length - 1]).toBeLessThanOrEqual(limit);
       });
@@ -185,28 +186,46 @@ describe('loopEvents, named examples', () => {
     for (let i = 1; i < times.length; i++) expect(times[i] - times[i - 1]).toBeCloseTo(first, 9);
   });
 
-  it('168/56: kick on beat 1 only, hats every quarter downswing (about 0.47 s)', () => {
-    const p = find(168, 56);
+  it('84/28 (slowest drill): kick on beat 1 only, hats every half downswing (about 0.47 s)', () => {
+    const p = find(84, 28);
     const { beat2, beat3 } = beatTimes(p);
-    const hats = hatTimes(loopEvents(p));
-    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 4, 9);
+    const events = loopEvents(p);
+    const hats = hatTimes(events);
+    expect(events.filter((e) => e.voice === 'kick').map((e) => e.time)).toEqual([0]);
+    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 2, 9);
     expect(hats[1] - hats[0]).toBeCloseTo(0.467, 3);
   });
 
   it('the hat gap option overrides the constant', () => {
-    const p = find(168, 56);
+    const p = find(84, 28);
     const { beat2, beat3 } = beatTimes(p);
-    const hats = hatTimes(loopEvents(p, { hatMaxGapSeconds: 100 }));
-    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 2, 9);
+    const hats = hatTimes(loopEvents(p, { hatMaxGapSeconds: 0.3 }));
+    expect(hats[1] - hats[0]).toBeCloseTo((beat3 - beat2) / 4, 9);
   });
 
-  it('slow Long Game: the bar counts as whole measures of 8 hats, IMPACT on the first count of a measure', () => {
-    const expected: Record<string, number> = { '42/14': 16, '60/20': 16, '84/28': 16, '120/40': 16, '168/56': 32 };
+  it('drills: the bar is exactly 24 hats, 3 measures of 8 (swing, recovery, countdown), IMPACT on hat 8', () => {
     for (const p of LONG_GAME_PRESETS.filter((x) => usesSparsePattern(x))) {
       const hats = hatTimes(loopEvents(p));
-      expect(hats.length, presetLabel(p)).toBe(expected[presetLabel(p)]);
+      expect(hats.length, presetLabel(p)).toBe(2 * DRILL_BAR_COUNTS);
+      expect(hats.length % 8, presetLabel(p)).toBe(0);
       const impactTick = hats.findIndex((t) => Math.abs(t - beatTimes(p).beat3) < EPS);
-      expect(impactTick % 8, `${presetLabel(p)} IMPACT tick ${impactTick}`).toBe(0);
+      expect(impactTick, `${presetLabel(p)} IMPACT tick`).toBe(8);
+    }
+  });
+
+  it('drills: every countdown and lead-in count lands exactly on a hi-hat, loop on or off', () => {
+    // The countdown comes from the engine, not from the loop, so it is on the hi-hat grid
+    // whether or not the loop plays. The grid is one hat every half count.
+    for (const p of LONG_GAME_PRESETS.filter((x) => usesSparsePattern(x))) {
+      const hats = hatTimes(loopEvents(p));
+      const half = drillCountSeconds(p) / 2;
+      const countdown = buildSequence({ preset: p, settings: defaultWeightShiftSettings() }).filter((e) => e.type === 'countdown');
+      expect(countdown, presetLabel(p)).toHaveLength(4);
+      for (const e of countdown) expect(hats.some((t) => Math.abs(t - e.time) < EPS), `${presetLabel(p)} count ${e.count}`).toBe(true);
+      for (const e of leadInEvents(p)) {
+        const steps = -e.time / half;
+        expect(Math.abs(steps - Math.round(steps)), `${presetLabel(p)} lead-in ${e.count}`).toBeLessThan(1e-9);
+      }
     }
   });
 

@@ -1,11 +1,10 @@
-// Reuse check: reuses AppText and Icon (check mark). Theme tokens only.
+// Reuse check: reuses AppText. Theme tokens only. (V2-12: the check mark was removed.)
 // Not an IconButton (text, not icon), so this is new.
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { borderWidth, radius, spacing, tapMin, useTheme } from '../../theme';
+import { Pressable, StyleSheet } from 'react-native';
+import { borderWidth, radius, tapMin, useTheme } from '../../theme';
 import { useFocusRing } from '../hooks/useFocusRing';
 import { AppText } from './AppText';
-import { Icon } from './Icon';
 
 type Props = {
   label: string;
@@ -15,7 +14,6 @@ type Props = {
 };
 
 const BORDER = borderWidth.thick; // same width selected or not, so nothing shifts on selection
-const CHECK_SIZE = spacing.md;
 
 export function PresetButton({ label, selected, onPress, accessibilityLabel }: Props) {
   const { colors } = useTheme();
@@ -46,11 +44,6 @@ export function PresetButton({ label, selected, onPress, accessibilityLabel }: P
       >
         {label}
       </AppText>
-      {selected ? (
-        <View style={styles.check} pointerEvents="none">
-          <Icon name="check" size={CHECK_SIZE} color="onAccent" />
-        </View>
-      ) : null}
     </Pressable>
   );
 }
@@ -66,5 +59,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   label: { textAlign: 'center' },
-  check: { position: 'absolute', top: -BORDER, right: -BORDER },
 });

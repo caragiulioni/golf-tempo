@@ -15,6 +15,8 @@ const MARK_PATH =
 const MARK_SIZE = 32;
 /** Header emblem size. A little larger than the old flat mark because the emblem is bolder. */
 const EMBLEM_SIZE = 35;
+/** Letter spacing of the phone header's name: tighter than the handoff's 0.26 em, so "SWING SEQUENCER" fits at 320 px. */
+const PHONE_LETTER_SPACING_EM = 0.1;
 
 type LogoMarkProps = {
   /** Which mark to draw. A prop (not useTheme) so the intro can use it before the provider is ready. */
@@ -48,6 +50,7 @@ export function Wordmark() {
         textColor={colors.text}
         accentColor={colors.accent}
         fontSize={typeSizes.wordmark[layout]}
+        letterSpacingEm={layout === 'phone' ? PHONE_LETTER_SPACING_EM : undefined}
       />
     </View>
   );

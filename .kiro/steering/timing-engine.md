@@ -25,16 +25,17 @@ These apply whenever working in `src/engine/`.
 - Insert the weight shift beat into the sequence. Never move, shift or recalculate beats 1, 2 or 3 because of it.
 - Clamp the position to a configurable safe range so it never lands on top of beat 1 or beat 2.
 - Long Game and Short Game hold independent positions.
-- Long Game starts at 0.70, Short Game at 0.60 (set by the developer, November 2026; they replaced 0.67 and 0.75, the midpoint of the whole swing). Both are starting values; the brother fine-tunes them in CONFIG.
+- Both start at 0.75 (V2-02, November 2026; earlier Long Game 0.70 and Short Game 0.60). They are starting values; the brother fine-tunes them in CONFIG, and saved values win over them.
 - Support a three-beat mode (no weight shift beat) for baseline comparison.
 
 ## Presets
 
-- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, 42/14, 60/20, 84/28, 120/40, 168/56 (all 3:1).
+- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, 42/14, 60/20, 84/28 (all 3:1). Groups (V2-04): `gameplay` for 18/6 to 30/10, `drills` for 42/14, 60/20, 84/28 (`PresetGroup`, `presetsInGroup` in `src/engine/presets.ts`). 120/40 and 168/56 were removed in V2.
 - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12 (2:1). Slower ones are pending.
 
 ## Looping
 
 - Beat 1 aligns with the start of a bar in the background loop.
-- The pause between repeats must scale with tempo. A fixed pause is too short at slow tempos. Pause factor (times beat 1 to beat 2): 1.5 for Long and Short Game; 4/3 for slow Long Game (42/14 and slower), so the bar is a whole number of measures of 8 hi-hats.
-- Loop pattern: Tour Tempo's 12-step groove on an even grid for Long 18/6 to 30/10 and all Short Game (Short: TOP exactly on the step 4 kick, IMPACT on the step 6 snare). Slow Long Game uses a sparse pattern: one kick on beat 1 and a steady, countable hi-hat that lands on TOP and IMPACT. Details and history: `docs/background-loop-audit-notes.md`, section 9.
+- The pause between repeats must scale with tempo. A fixed pause is too short at slow tempos. Pause factor (times beat 1 to beat 2): 1.5 for Long and Short Game (Gameplay and Short Game).
+- Practice Drills (`group: 'drills'`, V2-07) use the drill bar instead, counted in downswings (one count = `downFrames / 30`): swing 4 counts, recovery 4, countdown 4, so 12 counts = 24 hi-hats = 3 measures of 8. The countdown events (4, 3, 2, 1) sit on counts 8 to 11, on the hi-hat, loop on or off. Every run on a drill starts with the same countdown before the first takeaway (`leadInEvents`). Constants and helpers in `src/engine/repeat.ts` and `src/engine/sequence.ts`.
+- Loop pattern: Tour Tempo's 12-step groove on an even grid for Long 18/6 to 30/10 and all Short Game (Short: TOP exactly on the step 4 kick, IMPACT on the step 6 snare). Practice Drills use a sparse pattern: one kick on beat 1 and a steady, countable hi-hat that lands on TOP, IMPACT and every countdown count. Details and history: `docs/background-loop-audit-notes.md`, section 9.

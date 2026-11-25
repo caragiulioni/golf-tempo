@@ -1,6 +1,6 @@
 import { beatTimes } from './beats';
-import { presetLabel, type Category, type Preset } from './presets';
-import { SLOW_LONG_MIN_BEAT2_SECONDS, cycleSeconds } from './repeat';
+import { isDrillPreset, presetLabel, type Category, type Preset } from './presets';
+import { cycleSeconds } from './repeat';
 
 export type LoopVoice = 'kick' | 'snare' | 'hat';
 
@@ -49,15 +49,12 @@ export const GHOST_KICK_PRESETS: Readonly<Record<Category, readonly string[]>> =
   short: [],
 };
 
-/** Largest allowed gap between hat ticks, in seconds. Longer steps get extra soft ticks. Tune by ear. */
-export const HAT_MAX_GAP_SECONDS = 0.5;
 /**
- * The same limit for the sparse pattern (slow Long Game). 0.7 lets 120/40 tick at 0.67 s
- * (2 measures of 8, like 84/28) instead of doubling to 0.33 s, which sounded like double
- * time. No other slow preset changes: 42/14, 60/20, 84/28 and 168/56 get the same
- * spacing as with 0.5. Trial, November 2026; set back to HAT_MAX_GAP_SECONDS to undo.
+ * Largest allowed gap between hat ticks, in seconds. Longer steps get extra soft ticks. Tune
+ * by ear. (A separate 0.7 s limit for the sparse pattern existed only for 120/40, removed in
+ * V2-04; with the remaining drills the hats tick every half downswing, at most 0.47 s.)
  */
-export const SPARSE_HAT_MAX_GAP_SECONDS = 0.7;
+export const HAT_MAX_GAP_SECONDS = 0.5;
 
 /** Rounding slack, so a step of exactly the hat gap (60/20) is not split in two. */
 const TICK_EPSILON = 1e-9;
@@ -92,20 +89,13 @@ export function usesAnchoredGrid(preset: Preset): boolean {
 }
 
 /**
- * Presets whose beat 1 to beat 2 time is longer than this use the sparse pattern: one kick
- * on beat 1 and a steady hi-hat, no snare (see loopEvents). Long Game: 42/14 and slower.
- * Short Game: never (Infinity). Chosen by ear (November 2026): at slow tempos every
- * kick-and-snare layout either squeezed the bar between TOP and IMPACT or put the snare far
- * from IMPACT. The product rule for slow tempos is that the hi-hat carries the pulse.
+ * True when the preset uses the sparse pattern: one kick on beat 1 and a steady hi-hat, no
+ * snare (see loopEvents). That is the Practice Drills (42/14, 60/20, 84/28). Chosen by ear
+ * (November 2026): at slow tempos every kick-and-snare layout either squeezed the bar
+ * between TOP and IMPACT or put the snare far from IMPACT, so the hi-hat carries the pulse.
  */
-export const SPARSE_MIN_BEAT2_SECONDS: Readonly<Record<Category, number>> = {
-  long: SLOW_LONG_MIN_BEAT2_SECONDS,
-  short: Infinity,
-};
-
-/** True when the preset uses the sparse pattern (kick on beat 1, steady hi-hat). */
 export function usesSparsePattern(preset: Preset): boolean {
-  return beatTimes(preset).beat2 > SPARSE_MIN_BEAT2_SECONDS[preset.category];
+  return isDrillPreset(preset);
 }
 
 /**
@@ -152,12 +142,12 @@ const VOICE_ORDER: Readonly<Record<LoopVoice, number>> = { kick: 0, snare: 1, ha
  * Normal pattern: kicks, snares and accents on the step tables, one hat per step, and a
  * step longer than HAT_MAX_GAP_SECONDS gets extra soft ticks so the pulse stays steady.
  *
- * Sparse pattern (slow Long Game, see usesSparsePattern): one kick on beat 1, no snare, and
+ * Sparse pattern (Practice Drills, see usesSparsePattern): one kick on beat 1, no snare, and
  * a single steady hi-hat for the whole bar that you can count. The tick is the downswing
- * (beat 2 to beat 3) split into an even number of parts, the fewest that keeps the gap at
- * most SPARSE_HAT_MAX_GAP_SECONDS. With the true 3:1 the backswing is 3 downswings and the rest 4
- * (SLOW_LONG_PAUSE_FACTOR), so the bar is 8 downswings: 16 or 32 ticks, whole measures of
- * 8, with ticks exactly on beat 1, TOP, IMPACT (the first count of a measure) and the bar
+ * (beat 2 to beat 3, one drill count) split into an even number of parts, the fewest that
+ * keeps the gap at most HAT_MAX_GAP_SECONDS: two per count for every drill. The drill bar is
+ * 12 counts (DRILL_BAR_COUNTS in repeat.ts), so 24 ticks, 3 measures of 8 (swing, recovery,
+ * countdown), with ticks exactly on beat 1, TOP, IMPACT, every countdown count and the bar
  * end. The hats on beat 1, TOP and IMPACT are accented.
  */
 export function loopEvents(preset: Preset, options: LoopOptions = {}): LoopEvent[] {
@@ -167,11 +157,10 @@ export function loopEvents(preset: Preset, options: LoopOptions = {}): LoopEvent
   const events: LoopEvent[] = [];
 
   if (usesSparsePattern(preset)) {
-    const sparseMaxGap = options.hatMaxGapSeconds ?? SPARSE_HAT_MAX_GAP_SECONDS;
     const { beat2, beat3 } = beatTimes(preset);
     const downswing = beat3 - beat2;
     let parts = 2;
-    while (downswing / parts > sparseMaxGap + TICK_EPSILON) parts += 2;
+    while (downswing / parts > hatMaxGap + TICK_EPSILON) parts += 2;
     const gap = downswing / parts;
     const accentTimes = [0, beat2, beat3];
     events.push({ voice: 'kick', time: 0 });

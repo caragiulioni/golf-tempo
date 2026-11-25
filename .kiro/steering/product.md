@@ -1,5 +1,7 @@
 # Product: Golf Tempo Trainer
 
+The app's name is **Swing Sequencer** (decided November 2026; it was Swing Sequence for a while, and Swing Tempo before that). It lives in `src/ui/brand.ts` (`APP_NAME`) and `app.json` (`"name"`). The folder, `"slug"`, package name and saved-data keys (`golf-tempo:…`) keep the old name on purpose, so saved settings are not lost.
+
 A personalized golf tempo trainer modeled on Tour Tempo, with one addition: a weight shift beat for the lateral weight transfer (starting in the hips) in the user's brother's swing.
 
 Source material lives in `_references/` (spec, Tour Tempo screen recording, screenshots). Read `_references/INIT golf tempo.md` for the full spec. The original spec calls the added beat the "fourth beat"; we call it the weight shift beat, because in time order it is the second moment. Open decisions are tracked in `docs/dev_questions.md` (developer) and `docs/client_questions.md` (brother). The brother's original answers are in `docs/client_questions_ANSWERS.md`.
@@ -15,11 +17,12 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 
 ## Core behavior
 
-- Three beeps per swing, as in Tour Tempo: beat 1 (takeaway), beat 2 (top of backswing), beat 3 (impact).
-- Long Game presets (3:1): 18/6, 21/7, 24/8, 27/9, 30/10, then slower practice presets 42/14, 60/20, 84/28, 120/40, 168/56. Ten buttons.
+- Three beeps per swing, as in Tour Tempo: beat 1 (takeaway), beat 2 (top of backswing), beat 3 (impact). A Top button under the Current session card (V2-22) turns the beat 2 cue off or on; it is on by default and kept separately for Long Game and Short Game. Takeaway and impact always play, so the app is never silent.
+- Practice Drills (V2-07): each swing is followed by a recovery measure and a countdown 4, 3, 2, 1 into the next takeaway, with its own softer sound. Play starts with the countdown too.
+- Long Game presets (3:1), in two groups (V2-04): Gameplay 18/6, 21/7, 24/8, 27/9, 30/10, and Practice Drills 42/14, 60/20, 84/28. Eight in total. 120/40 and 168/56 were removed in V2 (too slow to be useful). The group is part of the preset data (`group` in `src/engine/presets.ts`).
 - Short Game presets (2:1): 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Slower Short Game presets are pending the brother's answer.
 - Slow presets are for slow practice swings, to feel each part of the move. They are not for real swings.
-- Tempo is chosen with preset buttons. No tempo slider and no automatic speed-up.
+- Tempo is chosen with a stepped slider labelled "Tempo" (V2-06). It snaps to each preset and shows every tempo under the track, so there is nothing in between. Each Long Game group (Gameplay, Practice Drills) has its own steps and remembers its last tempo while the app is open. No free tempo slider and no automatic speed-up.
 - One background 808-style loop, generated in code, with an on/off toggle. Off by default; it plays when the user presses play. It plays in both Long Game and Short Game. Beat 1 lands on the start of a bar. At slow tempos a hi-hat carries a steady pulse (see `docs/dev_questions.md`).
 - Play/pause toggle in the Current session header.
 - No sound styles (Voice, String, Bossa Nova). Dropped for now.
@@ -30,24 +33,30 @@ Everything stays framed around Tour Tempo's three beats and current tempos. The 
 - It uses a different sound from the other three.
 - It is stored as a normalized position (0 to 1) between beat 1 and beat 2, so it keeps the same relative position at every tempo (confirmed).
 - Long Game and Short Game have independent weight shift settings. In Short Game the movement is more subtle.
-- Starting values: Long Game 0.70, Short Game 0.60 (set by the developer, November 2026, as starting points; the brother fine-tunes them in CONFIG). They replaced 0.67 and 0.75, the midpoint of the whole swing for 3:1 and 2:1.
+- Starting values: 0.75 for both Long Game and Short Game, three quarters of the way from takeaway to top (V2-02, November 2026). Starting points only; the brother fine-tunes them in CONFIG, and his saved values win until he presses RESET. Earlier: Long Game 0.67, 0.53, 0.50, 0.70; Short Game 0.75, 0.60.
 - The original three beats are never moved or recalculated because of it.
 
 ## Temporary CONFIG mode
 
 CONFIG mode lives inside the real app. It is not a separate app or branch, so the brother tests his settings in the actual app at every tempo.
 
-- A CONFIG item in the header menu reveals a slider for the weight shift position, an APPLY button, a reset-to-default button and an EXPORT button that produces JSON.
+- A "Configure weight shift" label with an arrow, at the very bottom of the main screen, below the Tempo slider (V2-09; it was inside the Current session card for a while, but an open panel there got in the way of the controls), opens a panel: a short note about the 75% starting value, a How to button, a slider for the weight shift position, an APPLY button, and a reset-to-default button. There is no export or dump button in the panel (removed in V2-09, decided by the developer; the brother reports the saved percentages the panel shows). The export code (`exportText.ts`, `ExportPanel.tsx`) is still in `src/config-mode/` but unused. The panel configures the game and tempo chosen on the main screen, and the main play button plays and draws the slider's position while it is open.
 - APPLY saves the current category's value (Long Game or Short Game, one at a time) to local storage on that device. Normal mode then plays with the applied value at every tempo.
-- If there are unapplied slider changes and the user leaves CONFIG, show a yes/no confirmation dialog before discarding them. Yes discards the changes and leaves. No stays in CONFIG.
-- EXPORT exports the applied values.
-- The brother uses it to find the right position, then sends the export to the developer.
+- If there are unapplied slider changes and the user closes the panel, or switches between Long Game and Short Game, show a confirmation dialog before discarding them: "You have changes you haven't applied. Close without applying?" (or "Switch to Short game without applying?"). Discard throws the changes away and goes ahead. Keep editing stays.
+- The brother uses it to find the right position, then tells the developer the saved percentages (Long Game and Short Game) shown in the panel.
 - Final values get hard-coded into the engine and CONFIG is removed, including reading the saved values. Build it so removal is easy: keep all CONFIG UI, saving and export code in its own module.
+
+## Guiding principles
+
+Check every UI decision against these. From the developer, November 2026.
+
+1. **Understood on first open.** Someone opening the app for the first time should know what it is telling them to do, without tutorials. The test: with no other context, do they know what to tap, and what the sound is asking them to do? If a change needs an explanation to work, it isn't ready.
+2. **Stand apart from Tour Tempo.** Tour Tempo assumes you already know its system (bare frame counts like "24/8"). This app teaches the system as you use it, and adds the weight shift beat.
 
 ## Principles
 
 - Accurate timing and reliable playback come first.
 - Keep it lightweight. No backend, accounts, database or analytics.
 - Light and dark mode, both designed (see `_references/DESIGN/` and `docs/design/`). A toggle in the header menu switches between them, and the choice is remembered between visits.
-- Header: logo and wordmark on the left, a menu button on the right. The menu holds CONFIG (temporary; later replaced by a "How to" item or removed) and the light/dark toggle. See `docs/design-brief.md`, section 12.
+- Header: logo and wordmark on the left, a menu button on the right. The menu holds, in order, How it works (a screen explaining the app, V2-20; text in `docs/how-it-works.md`), the light/dark toggle. The Audio lab (testing) item is hidden (V2-17; one switch, `SHOW_AUDIO_LAB` in `src/app/AppHeader.tsx`, brings it back for development). The Config item was removed in V2-09, because the Configure weight shift panel replaced the screen. See `docs/design-brief.md`, section 12.
 - Polished, responsive UI with its own identity. Tour Tempo is a functional reference, not a visual template.

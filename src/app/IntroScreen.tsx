@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, useColorScheme } from 'react-native';
-import { fontFamily, fonts, introColors, spacing, typeSizes } from '../theme';
+import { fontFamily, fonts, introColors, introNameStacked, spacing, typeSizes } from '../theme';
 import { BrandEmblem, BrandName } from '../ui/components';
 import { TAGLINE } from '../ui/brand';
 import { useLayout } from '../ui/hooks/useLayout';
@@ -51,6 +51,7 @@ export function IntroScreen({ onTap, leaving, onFadeEnd, reduceMotion }: Props) 
           textColor={colors.text}
           accentColor={colors.accent}
           fontSize={typeSizes.title[layout]}
+          stacked={layout === 'phone'}
           style={styles.name}
         />
         <Text
@@ -59,7 +60,7 @@ export function IntroScreen({ onTap, leaving, onFadeEnd, reduceMotion }: Props) 
             {
               color: colors.text2,
               fontFamily: fontFamily(fonts.ui),
-              fontSize: typeSizes.body[layout],
+              fontSize: layout === 'phone' ? introNameStacked.taglineSize : typeSizes.body[layout],
             },
           ]}
         >

@@ -48,7 +48,7 @@ a) **Add flair to the header ("Current session").** Right now it is just small t
 b) **Remove the Voice / String / Bossa Nova row.** Sound styles are dropped.
 
 c) **Available sessions in two rows.** There are now more presets than fit in one row:
-- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, then slower practice presets 42/14, 60/20, 84/28, 120/40, 168/56. Ten in total, so two rows of five.
+- Long Game: 18/6, 21/7, 24/8, 27/9, 30/10, then slower practice presets 42/14, 60/20, 84/28. Eight in total (V2-04 removed 120/40 and 168/56), shown in two groups by a GAMEPLAY / PRACTICE DRILLS toggle (V2-05). Since V2-06 the buttons are one stepped slider labelled "Tempo" with every tempo written under the track: five steps for Gameplay, three for Practice Drills, six for Short Game. The CONFIG screen still uses the button grid. Since V2-16 the Tempo slider (with RAPID / SMOOTH and the tempos under it) sits on the same dark grid box as the swing scale, with a thin border so the box shows in dark mode; the track is the scale's light green and the handle is white, so it stays visible in light mode.
 - Short Game: 14/7, 16/8, 18/9, 20/10, 22/11, 24/12. Six now, possibly more later. Design the grid so six, ten and a few more all look good.
 
 ## 6. Screens and components to design
@@ -57,17 +57,22 @@ c) **Available sessions in two rows.** There are now more presets than fit in on
 - Header: label, large session numbers ("30 / 10"), the category ("Long game"), the play/pause button. Add flair.
 - Game length control: Long game / Short game.
 - Available sessions: the two-row preset grid. The selected preset is clearly marked.
-- Background loop toggle (on or off, off by default).
+- Two sound buttons side by side directly below the Current session card (V2-03): "Background loop" (off by default) and "Weight shift" (on by default, and remembered separately for Long Game and Short Game, V2-14), and "Top" (the cue at the top of the backswing, on by default, kept separately for each game, V2-22). The three share one row, each as wide as its label needs. Filled means on, outlined means off. Weight shift off plays the three Tour Tempo beats only and hides the diamond and its label on the scale.
 - Light/dark mode toggle and entry to CONFIG mode, both in the header menu (see section 12).
 - A small hint on iPhone: "No sound? Check your silent switch."
 
 ### Beat timeline (needs the most design thought)
 Shows the swing as it plays. It has four moments: takeaway, weight shift, top of swing, impact. They are spaced by their real timing: the weight shift sits about two thirds of the way from takeaway to top in the Long Game, and the swing's last part (top to impact) is one quarter of the whole. As each beep plays, its moment lights up. The weight shift moment should look distinct from the other three, since it has a different sound. It must stay readable on a phone and scale from fast tempos (about a second) to very slow ones (about seven seconds).
 
+The two phase labels above the bars read BACKSWING and DOWN, with no frame counts (V2-15): the Current session card already shows the numbers.
+
+On Practice Drills (V2-08) the timeline also shows the countdown 4, 3, 2, 1: the takeaway marker grows into a bigger white circle with the number inside, in place on the scale. Each number starts a little smaller and eases up to full size over its count, and the marker goes back to normal when the takeaway lights. Nothing else changes, and nothing extra shows during the recovery measure.
+
 ### Play/pause
 Large and easy to hit with a thumb. Clear states: stopped, playing. It restarts from the beginning each time.
 
 ### CONFIG mode (temporary)
+Since V2-09 this is the "Configure weight shift" label with an arrow in its own card at the very bottom of the main screen, below the Tempo slider (in the controls column on a laptop). It opens a panel, in this order: a note about the 75% starting value, How to, the readout and slider with − and +, the saved status, and APPLY and RESET. It has no play button or scale of its own, since the main ones are right above, and no export button (removed in V2-09).
 The brother uses this to find the right weight shift position. It should feel like a natural part of the app, not a developer tool. Contains:
 - A slider for the weight shift position, with visual feedback showing where it falls between takeaway and top of swing.
 - **APPLY** (saves the setting for the selected category, Long Game or Short Game, one at a time).
@@ -130,7 +135,7 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 
 ### Keep
 - Palette and tokens in `tokens.css` and `logo/palette.json` (supersedes the palette sampled from the first mockups).
-- Selected state = fill, 2px outline and check mark. Color is never the only signal.
+- Selected state = fill and 2px outline (V2-12 removed the check mark). The fill is the main cue; the outline differs in width and contrast, not only hue.
 - Gold was meant only for the weight shift (marker, label) and the ball. Outdated: the diamond and its label are now white, and gold is only the timeline's progress fill (see "Gold" below).
 - Layout by breakpoint: phone single column, tablet single column with larger sizes, laptop two columns.
 - Removed Voice / String / Bossa Nova row.
@@ -145,9 +150,15 @@ Review method: the HTML, CSS and spec were read as code. They were not rendered,
 6. **Silent-switch hint** shows on iPhone only, not always.
 7. **Small text.** Phase labels are 10px and others are 11 to 12px on phones. Raise them, since the app is used outdoors in glare.
 8. **Fit check.** "168/56" in five columns on a 320px-wide phone looks tight. Test at 320 and 360.
-9. **Segmented control check mark** must follow the selected option (it stays on "Long game" in the mockup).
+9. **Segmented control selection** must follow the selected option (it stays on "Long game" in the mockup). The check mark in the mockup was removed from the app in V2-12.
 10. **Landscape on phones** is not designed yet.
 11. **Header menu** replaces the separate theme and CONFIG buttons, so the wordmark does not wrap at 320px (see "Header menu" below). Not built in the HTML mockup; it is specified here and built in the app.
+
+### V2 size adjustments (app, not the mockup)
+The sizes above describe the HTML mockup in its working-copy state. The running app takes its sizes from `src/theme/tokens.ts`. V2-01 (`docs/changes/V2.md`) changed them after review:
+- Play button (`layoutSizes.playButton`): phone 75 to 55, tablet 120 to 100, laptop 128 to 108. Phone stays above the 44 pt minimum tap size.
+- Tempo numbers and slash (`typeSizes.tempo`): phone 60 to 50, tablet and laptop 120 to 110. The extra side padding around the slash is removed; the spaces in " / " remain.
+- `docs/design/main-screen.html` is not updated. It stays as the original mockup.
 
 ### Changes already made in the working copy (`docs/design/main-screen.html`)
 - Desktop (1100px and up): `.num` font-size 190px to 155px.
@@ -168,7 +179,7 @@ Menu button:
 Dropdown:
 - Opens below the button, aligned to its right edge, on top of the page content.
 - Items, in order:
-  1. **Config.** Opens CONFIG mode. Temporary: removed in the final release, possibly replaced by a "How to" item.
+  1. **How it works.** Opens a screen that explains the app (V2-20; text in `docs/how-it-works.md`). The Config item that used to be first was removed in V2-09.
   2. **Light mode / Dark mode.** The label names the mode it switches to. Switching saves the choice (see `.kiro/steering/tech.md`).
 - Each item is a full-width row at least 44 points tall.
 - Closes when an item is chosen, when tapping outside it, and on Escape (web).
@@ -180,7 +191,7 @@ Dropdown:
 The mockup loads Inter, Space Grotesk and Michroma from a web service. In the app they must be bundled through Expo and loaded before the first render. Michroma is used only for the small wordmark. Decision changed: Michroma is bundled and used for the wordmark text (header and intro) until a wordmark SVG exists.
 
 ### Icon files still needed
-Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist.
+Android adaptive-icon foreground (transparent background) and a monochrome version, and a splash image. The 1024 icon, web sizes and favicon exist. (V2-11 changed the web favicon and the iPhone home screen icon to the embossed emblem; the native icon, splash and Android icons are still the Expo placeholders.)
 
 Owner: Mike (Photoshop, Illustrator or AI-assisted). Needed only for the native app, not the web build. Rough guide, to be checked against Expo's documentation at the time:
 - Adaptive icon foreground: 1024 by 1024 PNG, transparent background, logo kept inside the middle area (about the central two thirds), because Android crops the edges into different shapes.
@@ -223,9 +234,9 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 
 ### Tagline and intro screen
 - Tagline (decided): **"Train Your Tempo. Transform Your Game."** Two lines, two beats.
-- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
+- Intro screen (decided): a short screen at startup showing the logo, the name and the tagline. On phones (V2-18) the name is stacked, SWING on one line and SEQUENCER on the next, with SWING at 45 px and SEQUENCER at 25 px, and tighter letter spacing than the header. Tablet and laptop keep one line. It gives the app a performance-product feel, and it also covers the startup wait while the saved theme, fonts and saved CONFIG values load.
 - Rules:
-  - Shown only as long as loading takes, with a short minimum (about 1 second) so it does not flash.
+  - Shown at least 3 seconds (it was 2, raised in V2-18 so the screen feels more dramatic and the tagline can be read), and at most 4 seconds if loading is slow (was 3).
   - A tap skips it.
   - Minimal motion; respect the device's reduce-motion setting.
   - Optional: a "Tap to begin" prompt that also unlocks browser audio. The play button already does this, so it is not required.
@@ -233,9 +244,9 @@ These can be combined. Option 3 is likely needed with options 1 and 2, because o
 - Not designed yet. Design it with the final name and wordmark.
 
 ### Product name
-The handoff uses the name "Swing Sync". The app is currently "Golf Tempo" in `app.json` and in the docs. Undecided.
+The handoff uses the name "Swing Sync". The app is called **Swing Sequencer** (decided by the developer, November 2026: "Swing Sequence" in V2-11, then "Swing Sequencer" in V2-24). It was "Golf Tempo" in `app.json` and "Swing Tempo" for a while.
 - "Swing Sync" is already used by another app, so it is out.
-- "Swing Tempo" is the developer's current candidate (no existing app found by the developer). Not final; it may not go to the app stores, and the client may rename it later.
+- "Swing Tempo" was the earlier candidate. "Swing Sequence" replaced it, and then "Swing Sequencer". It may not go to the app stores, and the client may rename it later.
 - Goal for now: something unique. Store-level checks only matter if it is published.
 - Whatever the name, keep it in one place in the build (one constant for the name and tagline, plus `app.json`, plus one wordmark SVG), so a later rename is a small edit.
 - The handoff's wordmark SVGs spell "SWING SYNC" and need redoing for the final name.

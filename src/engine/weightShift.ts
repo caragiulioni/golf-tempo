@@ -5,14 +5,14 @@ import type { Category, Preset } from './presets';
 export const WEIGHT_SHIFT_RANGE = { min: 0.05, max: 0.95 } as const;
 
 /**
- * Starting positions (tentative, tuned by ear in CONFIG mode).
- * Long Game 0.70 and Short Game 0.60, chosen by the developer (November 2026) as starting
- * points; the brother fine-tunes them in CONFIG. Long Game was 0.50 for a while, and 0.67
- * (the midpoint of the whole 3:1 swing) before that; Short Game replaced 0.75.
+ * Starting positions (tuned by ear in CONFIG mode). Both 0.75, three quarters of the way
+ * from takeaway to top, set by the developer in V2 (V2-02, November 2026). Saved CONFIG
+ * values still win over these until Reset. History: Long Game 0.67 (midpoint of the whole
+ * 3:1 swing), 0.53, 0.50, then 0.70; Short Game 0.75, then 0.60.
  */
 export const DEFAULT_WEIGHT_SHIFT_POSITIONS: Readonly<Record<Category, number>> = {
-  long: 0.7,
-  short: 0.6,
+  long: 0.75,
+  short: 0.75,
 };
 
 /** One position per category, 0 to 1 between beat 1 and beat 2. */

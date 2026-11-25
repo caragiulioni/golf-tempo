@@ -2,7 +2,7 @@
 // reaches the listener. The timeline adds this to beep times so lights land
 // with the sound. Pure TypeScript: no React, no DOM, no audio imports.
 
-export type OutputDelaySource = 'reported' | 'fallback';
+export type OutputDelaySource = 'reported' | 'fallback' | 'remembered';
 export type OutputDelay = { seconds: number; source: OutputDelaySource };
 export type LatencyInfo = {
   outputLatencySeconds?: number | null;
@@ -43,16 +43,21 @@ export function resolveOutputDelay(info: LatencyInfo, platform: PlatformKey): Ou
 }
 
 /**
- * The first swing of every run (start, restart, resume) uses the platform constant,
- * because browsers report a startup value that is too small (Pixel 6: 24 ms, then
- * 272 and 280 ms). Later swings resolve normally.
+ * The first swing of every run (start, restart, resume) does not trust the value the browser
+ * reports right then, because it is too small at startup (Pixel 6: 24 ms, then 272 and 280 ms).
+ * It uses `remembered` instead: the last value reported by a later swing (second or after) of
+ * an earlier run on this page, which is the real delay of this device. Before any run has got
+ * that far (the first run after the page loads) it uses the platform constant. Later swings
+ * resolve normally.
  */
 export function resolveOutputDelayForSwing(
   info: LatencyInfo,
   platform: PlatformKey,
   swingIndexInRun: number,
+  remembered: number | null = null,
 ): OutputDelay {
   if (swingIndexInRun === 0) {
+    if (isUsable(remembered) && remembered > 0) return { seconds: remembered, source: 'remembered' };
     return { seconds: FALLBACK_DELAY_SECONDS[platform], source: 'fallback' };
   }
   return resolveOutputDelay(info, platform);

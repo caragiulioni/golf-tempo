@@ -63,6 +63,29 @@ describe('resolveOutputDelayForSwing', () => {
     });
   });
 
+  it('uses the remembered delay for the first swing of a later run', () => {
+    expect(resolveOutputDelayForSwing(pixel, 'android', 0, 0.056)).toEqual({
+      seconds: 0.056,
+      source: 'remembered',
+    });
+  });
+
+  it('ignores a remembered value that is missing, zero or not usable', () => {
+    for (const bad of [null, 0, -1, Number.NaN]) {
+      expect(resolveOutputDelayForSwing(pixel, 'desktop', 0, bad)).toEqual({
+        seconds: FALLBACK_DELAY_SECONDS.desktop,
+        source: 'fallback',
+      });
+    }
+  });
+
+  it('does not use the remembered value after the first swing', () => {
+    expect(resolveOutputDelayForSwing({ outputLatencySeconds: 0.07 }, 'android', 1, 0.056)).toEqual({
+      seconds: 0.07,
+      source: 'reported',
+    });
+  });
+
   it('resolves normally from the second swing on', () => {
     expect(resolveOutputDelayForSwing({ outputLatencySeconds: 0.272 }, 'android', 1)).toEqual({
       seconds: 0.272,

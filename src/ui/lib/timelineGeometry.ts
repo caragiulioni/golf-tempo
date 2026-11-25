@@ -59,8 +59,8 @@ export function timelineGeometry(
     total,
     markers,
     splitX: markers[2].x,
-    backLabel: `BACKSWING · ${preset.backFrames}`,
-    downLabel: `DOWN · ${preset.downFrames}`,
+    backLabel: 'BACKSWING',
+    downLabel: 'DOWN',
   };
 }
 

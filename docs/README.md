@@ -9,8 +9,11 @@ This folder holds working documents about the project that aren't plans for a sp
 - `client_questions.md`: questions for the person who will use the app. Answers get written under each question. Once a question is answered, the decision moves to `dev_questions.md` and the question is removed.
 - `dev_questions.md`: the decision register. It lists what has been decided, what was learned from measuring Tour Tempo, and what is still open.
 - `development-decisions.md`: plain-language notes for the user (Mike) on choices made during development: the problem, what was tried, what the app does now, how much it matters, and how it could be fixed later. One entry per decision.
+- `how-it-works.md`: the text of the How it works screen (menu, top item), in plain form. The app reads it from `src/app/howItWorksText.ts`; keep the two in step.
 - `calibration-guide.md`: plain-language steps for Mike on finding his weight shift position with the Config screen, and what to send back. Temporary: removed with CONFIG in spec 6.
 - `ideas.md`: the wish list for after the current plan, from the developer and from Mike. Nothing in it is decided until it gets a spec.
+- `drills-handoff.md`: handoff for the UI work on Practice Drills (idea 2): what the timing engine provides, how to read the countdown, and the rules not to break. Written in the timing context for a UI spec window.
+- `changes/`: one change log per prototype version (`V2.md`, ...). Each entry is one change, linked to its commit by ID (for example `V2-03`), so any change can be found and undone. Rules: `.kiro/steering/prototype-versions.md`.
 - `porting-guide.md`: a running log of what must change to move the app from the web to iOS and Android. It also records which devices the audio has been tested on.
 
 ## Why it matters

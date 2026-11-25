@@ -1,6 +1,7 @@
 // Reuse check: listed src/ui/components (no slider, no draggable control) and src/theme.
 // Reuses colors (border, accent, surface), borderWidth, tapMin, spacing, useFocusRing.
 // Created: Slider. Added token: sliderSize (track height, thumb size).
+// V2-06: the track is one full-width accent bar and the handle is white (colors.sliderThumb).
 //
 // Built from View and PanResponder (no dependency). Controlled: the parent keeps `value`.
 // onChange fires on every move; onChangeEnd fires once on release, on every key press and on
@@ -31,6 +32,8 @@ type Props = {
   /** Spoken value, for example "53 percent". Defaults to the number. */
   valueText?: string;
   disabled?: boolean;
+  /** Track color. Default: the accent color. The Tempo slider passes a lighter green for its dark box. */
+  trackColor?: string;
 };
 
 /** Number of steps a Page Up / Page Down key moves. */
@@ -46,6 +49,7 @@ export function Slider({
   accessibilityLabel,
   valueText,
   disabled,
+  trackColor,
 }: Props) {
   const { colors } = useTheme();
   const { onFocus, onBlur, ringStyle } = useFocusRing();
@@ -199,24 +203,14 @@ export function Slider({
     >
       <View
         pointerEvents="none"
-        style={[
-          styles.track,
-          { backgroundColor: colors.border, left: sliderSize.thumb / 2, right: sliderSize.thumb / 2 },
-        ]}
-      />
-      <View
-        pointerEvents="none"
-        style={[
-          styles.track,
-          { backgroundColor: colors.accent, left: sliderSize.thumb / 2, width: thumbX },
-        ]}
+        style={[styles.track, { backgroundColor: trackColor ?? colors.accent, left: 0, right: 0 }]}
       />
       <View
         pointerEvents="none"
         style={[
           styles.thumb,
           {
-            backgroundColor: colors.accent,
+            backgroundColor: colors.sliderThumb,
             borderColor: dragging ? colors.text : colors.surface,
             transform: [{ translateX: thumbX }],
           },
